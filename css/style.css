@@ -1,0 +1,69 @@
+:root {
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --text: #0F172A;
+  --text-muted: #64748B;
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --success: #10B981;
+  --danger: #EF4444;
+  --border: #E2E8F0;
+  --radius: 10px;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+.container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+.flex { display: flex; align-items: center; }
+.flex-between { justify-content: space-between; }
+.flex-gap { gap: 12px; }
+.full-width { width: 100%; }
+
+/* Header */
+header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 0; }
+.logo { font-size: 1.25rem; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+
+/* Cards & UI */
+.card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.btn { padding: 10px 18px; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: #F1F5F9; }
+.btn-success { background: var(--success); color: white; }
+.input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; margin: 8px 0; transition: 0.2s; }
+.input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+/* Utilities */
+.badge { background: #EEF2FF; color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+.status { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 500; }
+.status.live { color: var(--success); }
+.status.live::before { content: ''; width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.hint { font-size: 0.85rem; color: var(--text-muted); margin-top: 6px; }
+.empty { color: var(--text-muted); font-style: italic; padding: 12px; text-align: center; background: #F8FAFC; border-radius: 6px; }
+
+/* Room Grid */
+.room-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .room-grid { grid-template-columns: 1fr; } }
+
+/* Attendees */
+.attendee-list { list-style: none; max-height: 300px; overflow-y: auto; margin: 12px 0; }
+.attendee-list li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; }
+.attendee-list small { color: var(--text-muted); margin-left: auto; font-size: 0.75rem; }
+
+/* Drop Zone */
+.drop-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: 0.2s; background: #FAFBFC; }
+.drop-zone.active { border-color: var(--primary); background: #EEF2FF; }
+.upload-label { color: var(--primary); font-weight: 500; cursor: pointer; }
+.file-list { list-style: none; margin-top: 12px; }
+.file-list li { padding: 8px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.file-list a { color: var(--primary); text-decoration: none; font-weight: 500; }
+
+/* Loading */
+#loading { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; z-index: 999; }
+.spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

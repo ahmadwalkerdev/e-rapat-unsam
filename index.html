@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Rapat | Universitas Samudra</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="container flex-between">
+      <div class="logo">📑 E-Rapat Unsam</div>
+      <div class="flex-gap" id="userBadge" style="display:none;">
+        <span id="userName" style="font-weight:500;"></span>
+        <button class="btn btn-outline" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="loading"><div class="spinner"></div></div>
+
+  <main class="container">
+    <section id="loginSection" class="card" style="max-width:400px; margin:80px auto; text-align:center;">
+      <h2 style="margin-bottom:8px;">Selamat Datang</h2>
+      <p class="hint" style="margin-bottom:24px;">Masuk untuk mengelola atau mengikuti rapat</p>
+      <button id="loginGoogle" class="btn btn-primary full-width">🔐 Masuk dengan Google</button>
+    </section>
+
+    <section id="dashboardSection" style="display:none;">
+      <div class="flex-between" style="margin-bottom:20px;">
+        <h1>Dashboard Rapat</h1>
+        <div class="flex-gap">
+          <button id="joinBtn" class="btn btn-outline">🔑 Gabung Rapat</button>
+          <button id="createRoomBtn" class="btn btn-primary">+ Buat Ruang Baru</button>
+        </div>
+      </div>
+      <div id="roomList"></div>
+    </section>
+  </main>
+
+  <!-- Modal Join -->
+  <div id="joinModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:100;">
+    <div class="card" style="width:90%; max-width:400px;">
+      <div class="flex-between"><h3>Masuk Ruang Rapat</h3><button id="closeJoin" class="btn btn-outline">✕</button></div>
+      <form id="joinForm" style="margin-top:16px;">
+        <input id="joinCode" class="input" placeholder="Kode Ruang (6 karakter)" required maxlength="6" style="text-transform:uppercase;">
+        <input id="joinPass" class="input" type="password" placeholder="Sandi Ruang" required maxlength="6">
+        <button type="submit" class="btn btn-primary full-width">Masuk Rapat</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
