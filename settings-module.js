@@ -144,8 +144,10 @@ if (strengthCont) strengthCont.classList.add('hidden');
 
 showToast("Profil berhasil diperbarui.");
 updateUserDisplay();
+return true;
 } catch(error) {
 showToast(error.message || "Gagal menyimpan perubahan.");
+return false;
 } finally {
 showLoading(false);
 }
