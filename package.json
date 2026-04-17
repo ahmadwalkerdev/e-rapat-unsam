@@ -1,0 +1,27 @@
+{
+  "name": "e-rapat-unsam",
+  "version": "2.0.0",
+  "description": "Aplikasi rapat digital Universitas Samudra dengan ES6 modular architecture",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "meeting",
+    "minutes",
+    "firebase",
+    "real-time",
+    "quill",
+    "unsam"
+  ],
+  "author": "Universitas Samudra",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
