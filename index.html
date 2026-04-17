@@ -2203,23 +2203,45 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 
 <!-- MAIN APP STRUCTURE -->
 <div id="mainApp" class="bg-slate-50 min-h-screen">
-<header class="glass-header z-50 px-4 py-3 border-b border-slate-200 relative">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2 cursor-pointer" onclick="window.handleHeaderLogoClick()">
-<img src="assets/images/Logo-Universitas-Samudra-150px.png" alt="Logo UNSAM" class="h-8 w-8 md:h-10 md:w-10 object-contain">
-<h2 class="hidden md:block text-sm md:text-base font-bold text-slate-800 leading-none">E-Rapat Universitas Samudra</h2>
+<header class="glass-header z-50 px-4 md:px-8 py-3 sticky top-0">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="header-logo-container flex items-center gap-3 cursor-pointer" onclick="window.handleHeaderLogoClick()">
+<div class="bg-indigo-50 p-1.5 rounded-xl border border-indigo-100/50">
+<img src="assets/images/Logo-Universitas-Samudra-150px.png" alt="Logo UNSAM" class="h-8 w-8 md:h-9 md:w-9 object-contain">
+</div>
+<div class="flex flex-col">
+<h2 class="hidden md:block text-sm md:text-[15px] font-extrabold text-slate-800 leading-tight tracking-tight">E-Rapat</h2>
+<span class="hidden md:block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Universitas Samudra</span>
+</div>
 </div>
 <div class="flex items-center gap-2 relative z-[9999]">
-<button onclick="window.toggleProfileMenu(event)" class="focus:outline-none flex items-center gap-2">
-<span class="user-name-text hidden md:block text-sm font-semibold text-slate-700 whitespace-nowrap">Dosen UNSAM</span>
-<img id="userAvatarDisplay" src="" class="user-avatar-img w-8 h-8 md:w-9 md:h-9 rounded-lg border border-slate-200 object-cover bg-white shadow-sm">
+<button onclick="window.toggleProfileMenu(event)" class="profile-trigger flex items-center gap-3 group">
+<div class="flex flex-col items-end">
+<span class="user-name-text hidden md:block text-[13px] font-bold text-slate-700 whitespace-nowrap leading-none">Dosen UNSAM</span>
+<span class="hidden md:block text-[9px] font-bold text-indigo-500 uppercase tracking-wider mt-1">Verified Account</span>
+</div>
+<div class="relative">
+<img id="userAvatarDisplay" src="" class="user-avatar-img w-9 h-9 rounded-xl border border-slate-200 object-cover bg-white shadow-sm transition-transform group-hover:scale-105">
+<div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
+</div>
 </button>
-<div id="profileDropdown" class="hidden absolute right-0 top-12 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-[99999] transform origin-top-right transition-all duration-200 opacity-0 scale-95">
-<button onclick="window.switchView('settings');" class="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-3">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Pengaturan Akun
+<div id="profileDropdown" class="dropdown-premium hidden absolute right-0 top-14 w-56 rounded-2xl z-[99999] transform origin-top-right transition-all duration-300 opacity-0 scale-95 py-1.5">
+<div class="px-4 py-3 border-b border-slate-50 mb-1">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Menu Akun</p>
+<p class="user-name-text text-sm font-bold text-slate-800 truncate">Dosen UNSAM</p>
+</div>
+<button onclick="window.switchView('settings');" class="w-full text-left px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-3 transition-colors">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+</div>
+Pengaturan Akun
 </button>
-<button onclick="window.handleLogout();" class="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-3">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg> Keluar
+<div class="my-1 border-t border-slate-50"></div>
+<button onclick="window.handleLogout();" class="w-full text-left px-4 py-2.5 text-[13px] font-bold text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors">
+<div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+</div>
+Keluar Sesi
 </button>
 </div>
 </div>
@@ -2862,20 +2884,88 @@ Pengaturan Lanjutan
 </main>
 
 <!-- FOOTER -->
-<footer class="bg-white border-t border-slate-200 px-6 py-4 shrink-0">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="text-[11px] text-slate-500 leading-relaxed text-center md:text-left">
-            <p class="font-medium">Platform E-Rapat Universitas Samudra ini dirancang untuk memenuhi kebutuhan tugas Latsar CPNS 2026.</p>
-            <p class="mt-0.5">Dirancang dan dikembangkan oleh <span class="font-semibold text-slate-700">Rahimah Ulfah Harahap, S.Pd., M.Pd.</span> dan <span class="font-semibold text-slate-700">Ahmad Syarif Fauzi, S.Ds.</span></p>
-        </div>
-        <div class="flex items-center gap-4 text-[11px] text-slate-500">
-            <span class="font-semibold text-slate-700"> 2026 Universitas Samudra</span>
-            <div class="h-3 w-px bg-slate-300"></div>
-            <a href="https://e-rapat-unsam.pages.dev/Panduan-E-Rapat-Universitas-Samudra.pdf" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 transition-colors">Panduan</a>
-            <div class="h-3 w-px bg-slate-300"></div>
-            <a href="https://api.whatsapp.com/send/?phone=6281262444546&text=Halo+saya+ingin+bertanya" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 transition-colors">Support</a>
-        </div>
-    </div>
+<footer class="premium-footer px-6 py-10 md:py-16 shrink-0">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+<!-- Col 1: Branding -->
+<div class="space-y-6 lg:col-span-2">
+<div class="flex items-center gap-4">
+<div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+<img src="assets/images/Logo-Universitas-Samudra-150px.png" alt="Logo UNSAM" class="h-10 w-10 object-contain">
+</div>
+<div class="flex flex-col">
+<h3 class="text-lg font-extrabold text-slate-800 tracking-tight">E-Rapat</h3>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Digital Governance Portal</span>
+</div>
+</div>
+<p class="text-[13px] text-slate-500 leading-relaxed max-w-sm font-medium">
+Platform digital terpadu untuk pengelolaan agenda rapat dan notulensi digital secara real-time di lingkungan Universitas Samudra.
+</p>
+<div class="flex items-center gap-2">
+<span class="footer-badge">Latsar CPNS 2026</span>
+<span class="footer-badge">Premium v2.0</span>
+</div>
+</div>
+
+<!-- Col 2: Developers -->
+<div class="space-y-5">
+<h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Product Team</h4>
+<div class="space-y-4">
+<div class="flex items-center gap-3 group">
+<div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 font-bold text-[10px] border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all">RU</div>
+<div class="flex flex-col">
+<span class="text-[12px] font-bold text-slate-700">Rahimah Ulfah Harahap</span>
+<span class="text-[10px] text-slate-400 font-medium">S.Pd., M.Pd.</span>
+</div>
+</div>
+<div class="flex items-center gap-3 group">
+<div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 font-bold text-[10px] border border-slate-100 group-hover:bg-slate-800 group-hover:text-white transition-all">AS</div>
+<div class="flex flex-col">
+<span class="text-[12px] font-bold text-slate-700">Ahmad Syarif Fauzi</span>
+<span class="text-[10px] text-slate-400 font-medium">S.Ds.</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Col 3: Resources -->
+<div class="space-y-5">
+<h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Quick Access</h4>
+<div class="flex flex-col gap-4">
+<a href="https://e-rapat-unsam.pages.dev/Panduan-E-Rapat-Universitas-Samudra.pdf" target="_blank" rel="noopener noreferrer" class="footer-link text-[12px] font-bold w-fit flex items-center gap-2">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+Panduan E-Rapat
+</a>
+<a href="https://api.whatsapp.com/send/?phone=6281262444546&text=Halo+saya+ingin+bertanya" target="_blank" rel="noopener noreferrer" class="footer-link text-[12px] font-bold w-fit flex items-center gap-2">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+Support Center
+</a>
+<a href="https://unsam.ac.id" target="_blank" rel="noopener noreferrer" class="footer-link text-[12px] font-bold w-fit flex items-center gap-2">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+Website UNSAM
+</a>
+</div>
+</div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="pt-10 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex flex-col md:flex-row items-center gap-2 md:gap-6">
+<p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
+&copy; 2026 Universitas Samudra.
+</p>
+<div class="flex items-center gap-4">
+<a href="#" class="text-slate-300 hover:text-indigo-500 transition-all"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+<a href="#" class="text-slate-300 hover:text-pink-500 transition-all"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+<a href="#" class="text-slate-300 hover:text-sky-500 transition-all"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Aceh, Indonesia</span>
+</div>
+</div>
+</div>
 </footer>
 
 <!-- MODALS -->
