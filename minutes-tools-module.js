@@ -576,5 +576,191 @@ function scrollToSection(index) {
     }
 }
 
-return { exportMinutes, exportRoomToPDF, insertNotulenTemplate, scrollToSection };
+async function exportAttendanceToPDF() {
+    const activeRoom = getActiveRoom();
+    const currentMeetingData = getCurrentMeetingData();
+    if (!activeRoom || !currentMeetingData) {
+        showToast('Tidak ada data rapat untuk diexport');
+        return;
+    }
+
+    showLoading(true, 'Menyiapkan Daftar Hadir...');
+    try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 20;
+        const contentWidth = pageWidth - (margin * 2);
+        let yPos = 15;
+
+        // KOP SURAT
+        const kop = drawLetterhead(pdf, { roomId: activeRoom.id, margin, pageWidth, yStartMm: yPos });
+        yPos = kop.yPos;
+
+        // JUDUL DOKUMEN
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('DAFTAR HADIR RAPAT', pageWidth / 2, yPos, { align: 'center' });
+        yPos += 10;
+
+        // INFO RAPAT (Ringkas)
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Judul:', margin, yPos);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(currentMeetingData.title || '-', margin + 25, yPos);
+        yPos += 5;
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Tanggal:', margin, yPos);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(currentMeetingData.meetingDate || '-', margin + 25, yPos);
+        yPos += 5;
+
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Waktu:', margin, yPos);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`${currentMeetingData.meetingStartTime || ''} - ${currentMeetingData.meetingEndTime || ''} WIB`, margin + 25, yPos);
+        yPos += 10;
+
+        // TABEL HADIR
+        const attSnap = await getDocs(
+            query(
+                collection(db, 'artifacts', appId, 'public', 'data', 'attendance'),
+                where('roomId', '==', activeRoom.id)
+            )
+        );
+
+        if (!attSnap.empty) {
+            yPos = drawAttendanceTable(pdf, { 
+                attSnap, 
+                margin, 
+                contentWidth, 
+                yPos, 
+                pageHeight 
+            });
+        } else {
+            pdf.setFont('helvetica', 'italic');
+            pdf.text('Belum ada peserta yang terdaftar hadir.', margin, yPos);
+        }
+
+        const fileName = `Daftar_Hadir_${currentMeetingData.title || 'Rapat'}.pdf`.replace(/\s+/g, '_');
+        pdf.save(fileName);
+        showToast('Daftar hadir berhasil diunduh');
+    } catch (err) {
+        console.error('Export Attendance Error:', err);
+        showToast('Gagal mengunduh daftar hadir');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function drawAttendanceTable(pdf, { attSnap, margin, contentWidth, yPos, pageHeight }) {
+    const tableX = margin;
+    const tableY = yPos - 5;
+    
+    // Column widths
+    const wNo = 8;
+    const wName = 45;
+    const wUnit = 40;
+    const wJabatan = 35;
+    const wTime = 18;
+    const wSig = contentWidth - (wNo + wName + wUnit + wJabatan + wTime);
+
+    // Header Colors
+    pdf.setFillColor(79, 70, 229); // Indigo-600
+    pdf.rect(tableX, tableY, contentWidth, 8, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'bold');
+    
+    const xNo = tableX;
+    const xName = xNo + wNo;
+    const xUnit = xName + wName;
+    const xJabatan = xUnit + wUnit;
+    const xTime = xJabatan + wJabatan;
+    const xSig = xTime + wTime;
+
+    pdf.text('No', xNo + 1.5, yPos);
+    pdf.text('Nama', xName + 1.5, yPos);
+    pdf.text('Unit Kerja', xUnit + 1.5, yPos);
+    pdf.text('Jabatan', xJabatan + 1.5, yPos);
+    pdf.text('Waktu', xTime + 1.5, yPos);
+    pdf.text('Tanda Tangan', xSig + 1.5, yPos);
+    
+    yPos += 8;
+    pdf.setTextColor(30, 41, 59);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(8.5);
+
+    const rows = [];
+    attSnap.forEach((d) => rows.push(d.data() || {}));
+    rows.sort((a, b) => String(a.time || '').localeCompare(String(b.time || '')));
+
+    rows.forEach((row, i) => {
+        const neededMm = 12;
+        if (yPos > pageHeight - 20) {
+            pdf.addPage();
+            yPos = 20;
+            // Re-draw header on new page
+            pdf.setFillColor(79, 70, 229);
+            pdf.rect(tableX, yPos - 5, contentWidth, 8, 'F');
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('No', xNo + 1.5, yPos);
+            pdf.text('Nama', xName + 1.5, yPos);
+            pdf.text('Unit Kerja', xUnit + 1.5, yPos);
+            pdf.text('Jabatan', xJabatan + 1.5, yPos);
+            pdf.text('Waktu', xTime + 1.5, yPos);
+            pdf.text('Tanda Tangan', xSig + 1.5, yPos);
+            yPos += 8;
+            pdf.setTextColor(30, 41, 59);
+            pdf.setFont('helvetica', 'normal');
+        }
+
+        // Row background alternating
+        if (i % 2 === 1) {
+            pdf.setFillColor(248, 250, 252);
+            pdf.rect(tableX, yPos - 5, contentWidth, 10, 'F');
+        }
+
+        // Draw Cell Borders
+        pdf.setDrawColor(226, 232, 240);
+        pdf.rect(tableX, yPos - 5, contentWidth, 10);
+        [xName, xUnit, xJabatan, xTime, xSig].forEach(x => {
+            pdf.line(x, yPos - 5, x, yPos + 5);
+        });
+
+        pdf.text(String(i + 1), xNo + 1.5, yPos + 1);
+        
+        const nameText = pdf.splitTextToSize(row.name || '-', wName - 2);
+        pdf.text(nameText, xName + 1.5, yPos + 1);
+
+        const unitText = pdf.splitTextToSize(row.unitKerja || '-', wUnit - 2);
+        pdf.text(unitText, xUnit + 1.5, yPos + 1);
+
+        const jabText = pdf.splitTextToSize(row.jabatanFungsional || '-', wJabatan - 2);
+        pdf.text(jabText, xJabatan + 1.5, yPos + 1);
+
+        pdf.text(row.time || '--:--', xTime + 1.5, yPos + 1);
+
+        // Signature Column (Alternating left/right)
+        pdf.setFontSize(6);
+        pdf.setTextColor(148, 163, 184);
+        if ((i + 1) % 2 === 1) {
+            pdf.text(`${i + 1}. ....................`, xSig + 2, yPos + 2);
+        } else {
+            pdf.text(`${i + 1}. ....................`, xSig + (wSig / 2), yPos + 2);
+        }
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(30, 41, 59);
+
+        yPos += 10;
+    });
+
+    return yPos;
+}
+
+return { exportMinutes, exportRoomToPDF, exportAttendanceToPDF, insertNotulenTemplate, scrollToSection };
 }

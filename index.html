@@ -1106,6 +1106,7 @@ function destroyQuill() {
 
 // Export ke global scope (delegasi ke minutes-tools-module.js)
 window.exportRoomToPDF = async () => { await minutesToolsModule.exportRoomToPDF(); };
+window.exportAttendanceToPDF = async () => { await minutesToolsModule.exportAttendanceToPDF(); };
 window.exportMinutes = () => minutesToolsModule.exportMinutes();
 
 const attendanceModule = createAttendanceModule({
@@ -2467,6 +2468,15 @@ Pengaturan Lanjutan
                                 <svg id="participantsToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
                                     <polyline points="18 15 12 9 6 15"/>
                                 </svg>
+                            </button>
+                            <button onclick="window.exportAttendanceToPDF()"
+                                    class="flex-1 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-2 border border-indigo-100">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Cetak Daftar Hadir
                             </button>
                         </div>
                     </div>
