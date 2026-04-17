@@ -732,16 +732,27 @@ toggleDeveloperSettingsPanel();
 };
 
 window.activateDeveloperMode = async () => {
-const pinInput = document.getElementById('devPinInput');
-const pin = pinInput.value;
-const devPin = typeof __DEV_PIN__ !== 'undefined' ? __DEV_PIN__ : null;
-if (!devPin) {
-showToast("Konfigurasi developer PIN belum tersedia.");
-return;
-}
-if (pin === devPin) {
-showLoading(true, "Verifikasi Developer...");
-try {
+    const pinInput = document.getElementById('devPinInput');
+    const pin = pinInput.value;
+    
+    // Sidik jari digital (SHA-256) untuk kode '444546'
+    const secretHash = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+    
+    // Fungsi untuk membuat hash dari input
+    async function hashPin(string) {
+        const utf8 = new TextEncoder().encode(string);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    showLoading(true, "Memverifikasi...");
+    const inputHash = await hashPin(pin);
+    showLoading(false);
+
+    if (inputHash === secretHash) {
+        showLoading(true, "Verifikasi Developer...");
+        try {
 await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), { isDeveloper: true }, { merge: true });
 isDeveloper = true;
 pinInput.value = '';

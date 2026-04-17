@@ -1,19 +1,8 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 
-export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current working directory.
-  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
-  const env = loadEnv(mode, process.cwd(), '')
-
-  return {
-    // Inject environment variables into the code
-    define: {
-      __DEV_PIN__: JSON.stringify(env.__DEV_PIN__ || null),
-      __firebase_config: JSON.stringify(env.__firebase_config || null),
-      __app_id: JSON.stringify(env.__app_id || 'unsam-erapat-v2')
-    },
-    // Entry point
-    build: {
+export default defineConfig({
+  // Entry point
+  build: {
     // Output directory
     outDir: 'dist',
     
@@ -78,5 +67,4 @@ export default defineConfig(({ mode }) => {
   preview: {
     port: 8889
   }
- }
 })
