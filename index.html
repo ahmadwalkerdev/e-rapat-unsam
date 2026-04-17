@@ -122,13 +122,14 @@ if (typeof window.setUIRole === 'function') return window.setUIRole(role);
 const minutesToolsModule = createMinutesToolsModule({
     db,
     appId,
-    activeRoom: () => activeRoom,
-    getQuill: () => quill,
+    collection, query, where, getDocs, doc, setDoc,
     showToast,
     showLoading,
-    buildRoomJoinUrl: (id) => `${window.location.origin}${window.location.pathname}?room=${id}`,
-    collection, query, where, getDocs, doc, setDoc,
-    DOMPurify
+    buildSafePdfFileName,
+    DOMPurify,
+    getActiveRoom: () => activeRoom,
+    getCurrentMeetingData: () => currentMeetingData,
+    getQuill: () => quill
 });
 
 const minutesModule = createMinutesModule({
