@@ -122,12 +122,10 @@ if (typeof window.setUIRole === 'function') return window.setUIRole(role);
 const minutesToolsModule = createMinutesToolsModule({
     db,
     appId,
-    getActiveRoom: () => activeRoom,
+    activeRoom: () => activeRoom,
     getQuill: () => quill,
     showToast,
     showLoading,
-    buildSafePdfFileName,
-    getCurrentMeetingData: () => currentMeetingData,
     buildRoomJoinUrl: (id) => `${window.location.origin}${window.location.pathname}?room=${id}`,
     collection, query, where, getDocs, doc, setDoc,
     DOMPurify
@@ -2460,12 +2458,26 @@ Pengaturan Lanjutan
                                 <p class="text-[10px] text-slate-500 mt-0.5">Yang sedang hadir</p>
                             </div>
                         </div>
-                        <div id="participantsPanelContent" class="space-y-1"></div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-lg">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                <span class="text-sm font-bold text-emerald-700" id="participantCount">0</span>
+                            </div>
+                            <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all" title="Tampilkan/Sembunyikan">
+                                <svg id="participantsToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
+                                    <polyline points="18 15 12 9 6 15"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
+                <div id="participantsPanelContent" class="p-4 overflow-y-auto custom-scrollbar flex-1" style="max-height: none;"></div>
             </div>
         </div>
     </div>
+</div>
+</div>
+</div>
 </main>
 
 <!-- FOOTER -->
@@ -2868,54 +2880,49 @@ Simpan Perubahan
 
 <!-- Developer Mode: Attendance Choice Modal -->
 <div id="devAttendanceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[250] flex items-center justify-center p-4 hidden">
-    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl border border-slate-100">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                    <line x1="12" y1="19" x2="12" y2="23"/>
-                    <line x1="8" y1="23" x2="16" y2="23"/>
-                </svg>
-            </div>
-            <div>
-                <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Mode Developer</h3>
-                <p class="text-xs text-slate-500 font-medium">Konfirmasi hak akses khusus Anda.</p>
-            </div>
-        </div>
+<div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl border border-slate-100">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+<path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+<line x1="12" y1="19" x2="12" y2="23"/>
+<line x1="8" y1="23" x2="16" y2="23"/>
+</svg>
+</div>
+<div>
+<h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Mode Developer</h3>
+<p class="text-xs text-slate-500 font-medium">Konfirmasi hak akses khusus Anda.</p>
+</div>
+</div>
 
-        <div class="bg-amber-50 border border-amber-100 rounded-2xl p-5 mb-8">
-            <div class="flex items-start gap-3">
-                <div class="p-1.5 bg-amber-100 rounded-lg shrink-0">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-600">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-sm font-bold text-amber-900 leading-tight">Pilihan Kehadiran</p>
-                    <p class="text-xs text-amber-700/80 mt-1 font-medium leading-relaxed">Sebagai Developer, apakah Anda ingin terdaftar resmi dalam daftar hadir (presensi) rapat ini?</p>
-                </div>
-            </div>
-        </div>
+<div class="bg-amber-50 border border-amber-100 rounded-2xl p-5 mb-8">
+<div class="flex items-start gap-3">
+<div class="p-1.5 bg-amber-100 rounded-lg shrink-0">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-600">
+<circle cx="12" cy="12" r="10"/>
+<line x1="12" y1="8" x2="12" y2="12"/>
+<line x1="12" y1="16" x2="12.01" y2="16"/>
+</svg>
+</div>
+<div>
+<p class="text-sm font-bold text-amber-900 leading-tight">Pilihan Kehadiran</p>
+<p class="text-xs text-amber-700/80 mt-1 font-medium leading-relaxed">Sebagai Developer, apakah Anda ingin terdaftar resmi dalam daftar hadir (presensi) rapat ini?</p>
+</div>
+</div>
+</div>
 
-        <div class="flex flex-col sm:flex-row gap-3">
-            <button onclick="window.handleDevAttendanceChoice(false)" class="flex-1 py-4 px-4 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M18 6 6 18"/>
-                    <path d="m6 6 12 12"/>
-                </svg>
-                Hanya Mengamati
-            </button>
-            <button onclick="window.handleDevAttendanceChoice(true)" class="flex-1 py-4 px-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M20 6 9 17l-5-5"/>
-                </svg>
-                Ya, Daftar Hadir
-            </button>
-        </div>
-    </div>
+<div class="flex flex-col sm:flex-row gap-3">
+<button onclick="window.handleDevAttendanceChoice(false)" class="flex-1 py-4 px-4 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+Hanya Mengamati
+</button>
+<button onclick="window.handleDevAttendanceChoice(true)" class="flex-1 py-4 px-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+Ya, Daftar Hadir
+</button>
+</div>
+</div>
 </div>
 
 <!-- Modal: Participant Profile Card (Content generated dynamically via createProfileCardHTML) -->
