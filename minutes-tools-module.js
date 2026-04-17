@@ -45,22 +45,11 @@ function normalizePngDataUrl(maybeBase64OrDataUrl) {
     return `data:image/png;base64,${s}`;
 }
 
-async function getLogoData() {
-    try {
-        // Lazy load logo data only when needed
-        const { unsamLogoBase64: logoData } = await import('./logo-unsam.js');
-        return logoData;
-    } catch (e) {
-        console.warn('Failed to lazy load logo:', e);
-        // Fallback to global if exists (for backward compatibility during migration)
-        return (typeof unsamLogoBase64 !== 'undefined') ? unsamLogoBase64 : null;
-    }
-}
-
-async function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15 }) {
+function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15 }) {
     let yPos = yStartMm;
 
-    const logoData = await getLogoData();
+    // logo_b64.js defines a global `unsamLogoBase64`
+    const logoData = (typeof unsamLogoBase64 !== 'undefined') ? unsamLogoBase64 : null;
     const logoDataUrl = normalizePngDataUrl(logoData);
 
     if (logoDataUrl) {
@@ -266,7 +255,7 @@ async function exportRoomToPDF() {
         let yPos = 15;
 
         // KOP SURAT + QR
-        const kop = await drawLetterhead(pdf, { roomId: activeRoom.id, margin, pageWidth, yStartMm: yPos });
+        const kop = drawLetterhead(pdf, { roomId: activeRoom.id, margin, pageWidth, yStartMm: yPos });
         yPos = kop.yPos;
 
         // No "NOTULEN RAPAT" title per latest layout request.
