@@ -1,0 +1,4321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>E-Rapat Universitas Samudra</title>
+<link rel="icon" type="image/png" href="assets/images/Logo-Universitas-Samudra-150px.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Pustaka Quill.js untuk Rich Text Editor -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<!-- DOMPurify untuk sanitasi HTML sebelum import ke Quill -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.3/purify.min.js"></script>
+<!-- jsPDF dan html2canvas untuk export PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- QRious.js untuk generate QR code -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<!-- Logo Statik Base64 untuk kop surat PDF -->
+<script src="logo_b64.js"></script>
+
+<style>
+/* ============================================
+   E-RAPAT UNIVERSITAS SAMUDRA - DESIGN SYSTEM
+   ============================================ */
+
+/* --- CSS Variables (Design Tokens) --- */
+:root {
+    /* Primary Colors */
+    --primary-50: #eef2ff;
+    --primary-100: #e0e7ff;
+    --primary-200: #c7d2fe;
+    --primary-300: #a5b4fc;
+    --primary-400: #818cf8;
+    --primary-500: #6366f1;
+    --primary-600: #4f46e5;
+    --primary-700: #4338ca;
+    --primary-800: #3730a3;
+    --primary-900: #312e81;
+    
+    /* Slate Colors */
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    
+    /* Semantic Colors */
+    --success-50: #ecfdf5;
+    --success-100: #d1fae5;
+    --success-500: #10b981;
+    --success-600: #059669;
+    --warning-50: #fffbeb;
+    --warning-100: #fef3c7;
+    --warning-500: #f59e0b;
+    --warning-600: #d97706;
+    --error-50: #fef2f2;
+    --error-100: #fee2e2;
+    --error-500: #ef4444;
+    --error-600: #dc2626;
+    --info-50: #eff6ff;
+    --info-100: #dbeafe;
+    --info-500: #3b82f6;
+    --info-600: #2563eb;
+    
+    /* Guest/Teal Theme */
+    --guest-50: #f0fdfa;
+    --guest-100: #ccfbf1;
+    --guest-500: #14b8a6;
+    --guest-600: #0d9488;
+    
+    /* Developer/Purple Theme */
+    --dev-50: #faf5ff;
+    --dev-100: #f3e8ff;
+    --dev-500: #a855f7;
+    --dev-600: #9333ea;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-primary: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
+    
+    /* Border Radius */
+    --radius-sm: 0.375rem;
+    --radius: 0.5rem;
+    --radius-md: 0.625rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --radius-3xl: 2rem;
+    
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slower: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Spacing Scale */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    
+    /* Typography */
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* --- Quill Editor Customization --- */
+.ql-toolbar.ql-snow {
+    border: none !important;
+    border-bottom: 1px solid var(--slate-200) !important;
+    background-color: #f8fafc;
+    padding: 0.75rem 1rem !important;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.ql-container.ql-snow {
+    border: none !important;
+    font-family: var(--font-sans) !important;
+    font-size: 15px !important;
+    color: var(--slate-800);
+    background-color: white;
+    border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+}
+.ql-editor {
+    padding: 2rem 3rem !important;
+    min-height: 500px;
+    line-height: 1.7 !important;
+}
+@media (max-width: 640px) {
+    .ql-editor {
+        padding: 1.5rem 1rem !important;
+    }
+}
+.ql-editor p, .ql-editor ol, .ql-editor ul, .ql-editor pre, .ql-editor blockquote, .ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
+    margin-bottom: 0.75em;
+}
+.ql-editor h1 { font-size: 1.5em !important; font-weight: 700; }
+.ql-editor h2 { font-size: 1.25em !important; font-weight: 700; }
+.ql-editor.ql-blank::before {
+    font-style: normal !important;
+    color: var(--slate-400) !important;
+    left: 3rem !important;
+}
+@media (max-width: 640px) {
+    .ql-editor.ql-blank::before { left: 1rem !important; }
+}
+
+/* --- Base Styles --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--slate-50);
+    color: var(--slate-800);
+    overflow-x: hidden;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* --- Typography Utilities --- */
+.text-balance {
+    text-wrap: balance;
+}
+
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0; }
+.tracking-wide { letter-spacing: 0.025em; }
+.tracking-wider { letter-spacing: 0.05em; }
+.tracking-widest { letter-spacing: 0.1em; }
+
+/* --- Glass Morphism --- */
+.glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--slate-200);
+}
+
+/* --- Card Components --- */
+.card {
+    background: white;
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.card-interactive {
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.card-interactive:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    border-color: var(--primary-200);
+}
+
+.card-interactive:active {
+    transform: translateY(0);
+}
+
+/* --- Button Components --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-base);
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+    color: white;
+    box-shadow: var(--shadow-primary);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-800) 100%);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.23);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--slate-700);
+    border: 1px solid var(--slate-200);
+}
+
+.btn-secondary:hover {
+    background: var(--slate-50);
+    border-color: var(--slate-300);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--slate-600);
+}
+
+.btn-ghost:hover {
+    background: var(--slate-100);
+    color: var(--slate-800);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--error-500) 0%, var(--error-600) 100%);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, var(--error-600) 0%, #b91c1c 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success-500) 0%, var(--success-600) 100%);
+    color: white;
+}
+
+.btn-sm { padding: 0.5rem 1rem; font-size: 0.8125rem; }
+.btn-lg { padding: 0.75rem 1.5rem; font-size: 0.9375rem; }
+.btn-icon { padding: 0.625rem; aspect-ratio: 1; }
+
+/* --- Form Components --- */
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-xl);
+    font-size: 0.875rem;
+    transition: all var(--transition-base);
+    outline: none;
+}
+
+.form-input:hover {
+    border-color: var(--slate-300);
+}
+
+.form-input:focus {
+    border-color: var(--primary-500);
+    background: white;
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.form-input::placeholder {
+    color: var(--slate-400);
+}
+
+.form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--slate-500);
+    margin-bottom: var(--space-2);
+}
+
+.form-group {
+    margin-bottom: var(--space-4);
+}
+
+/* --- Badge Components --- */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0.25rem 0.625rem;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: var(--radius);
+    white-space: nowrap;
+}
+
+.badge-primary {
+    background: var(--primary-100);
+    color: var(--primary-700);
+    border: 1px solid var(--primary-200);
+}
+
+.badge-success {
+    background: var(--success-100);
+    color: var(--success-600);
+    border: 1px solid var(--success-200);
+}
+
+.badge-warning {
+    background: var(--warning-100);
+    color: var(--warning-600);
+    border: 1px solid var(--warning-200);
+}
+
+.badge-error {
+    background: var(--error-100);
+    color: var(--error-600);
+    border: 1px solid var(--error-200);
+}
+
+.badge-guest {
+    background: var(--guest-100);
+    color: var(--guest-600);
+    border: 1px solid var(--guest-200);
+}
+
+.badge-dev {
+    background: var(--dev-100);
+    color: var(--dev-600);
+    border: 1px solid var(--dev-200);
+}
+
+/* --- Status Indicators --- */
+.status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+}
+
+.status-online { background: var(--success-500); box-shadow: 0 0 0 2px var(--success-100); }
+.status-busy { background: var(--warning-500); box-shadow: 0 0 0 2px var(--warning-100); }
+.status-offline { background: var(--slate-400); box-shadow: 0 0 0 2px var(--slate-200); }
+
+/* --- Scrollbar --- */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--slate-100);
+    border-radius: var(--radius-sm);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--slate-300);
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--slate-400);
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-fade-in { animation: fadeIn var(--transition-slower) ease-out; }
+.animate-fade-in-scale { animation: fadeInScale var(--transition-slower) ease-out; }
+.animate-slide-in { animation: slideInRight var(--transition-slower) ease-out; }
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.animate-bounce { animation: bounce 1s ease-in-out infinite; }
+.animate-spin { animation: spin 1s linear infinite; }
+
+.page-fade {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* --- Mobile Tab Animations --- */
+.mobile-tab {
+    transition: all var(--transition-slow) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-tab.active {
+    background: linear-gradient(135deg, var(--primary-600) 0%, #8b5cf6 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-primary);
+}
+
+/* --- Prose/Content Styles --- */
+.prose-slate {
+    color: var(--slate-600);
+    line-height: 1.75;
+}
+
+.prose-slate h1, .prose-slate h2, .prose-slate h3, 
+.prose-slate h4, .prose-slate h5, .prose-slate h6 {
+    color: var(--slate-800);
+    font-weight: 700;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    line-height: 1.3;
+}
+
+.prose-slate h1 { font-size: 1.875rem; }
+.prose-slate h2 { font-size: 1.5rem; color: var(--primary-700); }
+.prose-slate h3 { font-size: 1.25rem; }
+.prose-slate p { margin-bottom: 1em; }
+.prose-slate ul, .prose-slate ol { padding-left: 1.5em; margin-bottom: 1em; }
+.prose-slate li { margin-bottom: 0.5em; }
+
+.prose-slate blockquote {
+    border-left: 4px solid var(--primary-400);
+    background: var(--slate-50);
+    padding: 1rem 1.25rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-style: italic;
+    color: var(--slate-600);
+}
+
+.prose-slate a {
+    color: var(--primary-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.prose-slate a:hover {
+    color: var(--primary-700);
+}
+
+/* --- Input Validation States --- */
+.input-valid {
+    border-color: var(--success-500) !important;
+    background-color: var(--success-50) !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+.input-invalid {
+    border-color: var(--error-500) !important;
+    background-color: var(--error-50) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* --- Focus Visible (Accessibility) --- */
+.focus-ring:focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
+/* --- Gradient Text --- */
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary-600) 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* --- Divider --- */
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--slate-200), transparent);
+    margin: 1.5rem 0;
+}
+
+/* --- Skeleton Loading --- */
+.skeleton {
+    background: linear-gradient(90deg, var(--slate-200) 25%, var(--slate-100) 50%, var(--slate-200) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius);
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+</style>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, signInWithCustomToken, signInAnonymously, updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendEmailVerification, verifyBeforeUpdateEmail, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, updateDoc, query, where, deleteDoc, getDocs, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { escapeHtml, escapeAttr, escapeJsString, normalizeSafeUrl } from "./security-utils.js";
+import { debugLog, debugError } from "./debug-utils.js";
+import { appState } from "./app-state.js";
+import { showAuth as uiShowAuth, showApp as uiShowApp, showLoading as uiShowLoading, showToast as uiShowToast, toggleModal as uiToggleModal } from "./ui-utils.js";
+import { formatIndonesianLongDate, formatMeetingTime, buildSafePdfFileName } from "./format-utils.js";
+import { getResourceIcon } from "./resource-utils.js";
+import { showRoomInitModal, updateRoomInitProgress, hideRoomInitModal } from "./room-ui-utils.js";
+import { playPingSound as playPingSoundUtil } from "./audio-utils.js";
+import { startRealtimeClock } from "./time-utils.js";
+import { startMeetingDurationTicker, stopMeetingDurationTicker } from "./time-controller.js";
+import { handleUrlRoomAccess as handleUrlRoomAccessUtil, processUrlRoomAccess as processUrlRoomAccessUtil } from "./navigation-utils.js";
+import { getSavedRoomSession, consumeAutoRefreshFlag, clearSavedRoomSession, restoreRoomSession as restoreRoomSessionUtil } from "./session-utils.js";
+import { updateGuestDisplayData, setupGuestUIState } from "./guest-ui-utils.js";
+import { toggleDeveloperSettingsPanel, updateDeveloperUIState } from "./developer-ui-utils.js";
+import { createAttendanceModule } from "./attendance-module.js";
+import { createResourceModule } from "./resource-module.js";
+import { createRoomEntryModule } from "./room-entry-module.js";
+import { createGuestModule } from "./guest-module.js";
+import { createRoomManagementModule } from "./room-management-module.js";
+import { createAuthModule } from "./auth-module.js";
+import { createSettingsModule } from "./settings-module.js";
+import { createMinutesToolsModule } from "./minutes-tools-module.js";
+import { createDashboardModule } from "./dashboard-module.js";
+import { createProfileCardHTML } from "./profile-card-utils.js";
+
+// --- KONFIGURASI FIREBASE ---
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+apiKey: "AIzaSyAIYm2ROELFer4JKfWqshJlp95UXNjAITc",
+authDomain: "erapatunsamv2.firebaseapp.com",
+projectId: "erapatunsamv2",
+storageBucket: "erapatunsamv2.firebasestorage.app",
+messagingSenderId: "269504770548",
+appId: "1:269504770548:web:32d09af80a04ce610989a1"
+};
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'unsam-erapat-v2';
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// State Global
+let currentUser = null;
+let activeRoom = null;
+let userRole = 'peserta';
+let unsubscribers = [];
+let quill = null;
+let quillTextChangeListener = null;
+let lastPingTimestamps = {};
+let audioCtx = null;
+let isRegistering = false;
+let isDeveloper = false;
+let devAttendanceChoice = null; // 'yes' | 'no' | null
+let pendingDevRoomEntry = null; // { roomId, pin, isNotulen } | null
+window.previousView = 'dashboard'; // Track view for back button - exposed to global scope
+
+// --- FUNGSI CLEAR LISTENERS ---
+function clearListeners() {
+unsubscribers.forEach(unsub => unsub());
+unsubscribers = [];
+lastPingTimestamps = {};
+}
+
+// --- UI HELPER FUNCTIONS ---
+window.showAuth = uiShowAuth;
+window.showApp = uiShowApp;
+window.showLoading = uiShowLoading;
+window.showToast = uiShowToast;
+window.toggleModal = uiToggleModal;
+const showAuth = uiShowAuth;
+const showApp = uiShowApp;
+const showLoading = uiShowLoading;
+const showToast = uiShowToast;
+const toggleModal = uiToggleModal;
+
+// Provide a stable reference for modules that depend on setUIRole.
+// The actual implementation is assigned to window.setUIRole further below.
+function setUIRole(role) {
+if (typeof window.setUIRole === 'function') return window.setUIRole(role);
+}
+
+const roomEntryModule = createRoomEntryModule({
+db,
+appId,
+appState,
+doc,
+getDoc,
+showLoading,
+showToast,
+toggleModal,
+debugLog,
+debugError,
+clearListeners,
+showRoomInitModal,
+updateRoomInitProgress,
+hideRoomInitModal,
+setUIRole,
+switchView: (viewId) => window.switchView(viewId),
+initQuillEditorWithRetry,
+setupRealtimeRoomInfo,
+setupRealtimeMinutes,
+setupRealtimeAttendance,
+setupRealtimeResources,
+handleAutoAbsensi,
+getCurrentUser: () => currentUser,
+getIsDeveloper: () => isDeveloper,
+getUserRole: () => userRole,
+setUserRole: (role) => { userRole = role; },
+getQuill: () => quill
+});
+
+const guestModule = createGuestModule({
+db,
+appId,
+appState,
+collection,
+addDoc,
+query,
+where,
+getDocs,
+doc,
+getDoc,
+clearListeners,
+debugLog,
+showToast,
+showLoading,
+toggleModal,
+setUIRole,
+switchView: (viewId) => window.switchView(viewId),
+setupRealtimeRoomInfo,
+setupRealtimeMinutes,
+setupRealtimeAttendance,
+setupRealtimeResources,
+updateGuestDisplay,
+setActiveRoom: (room) => { activeRoom = room; },
+setUserRole: (role) => { userRole = role; }
+});
+
+const roomManagementModule = createRoomManagementModule({
+db,
+appId,
+collection,
+addDoc,
+doc,
+setDoc,
+updateDoc,
+showRoomInitModal,
+updateRoomInitProgress,
+hideRoomInitModal,
+toggleModal,
+showToast,
+showLoading,
+enterRoom,
+minimizeRoom: () => window.minimizeRoom(),
+getCurrentUser: () => currentUser,
+getActiveRoom: () => activeRoom,
+getUserRole: () => userRole
+});
+
+// Wrapper function - akan di-delegate ke dashboardModule setelah dibuat
+let _dashboardModuleRef = null;
+function setupDashboardListenerWrapper() {
+    if (_dashboardModuleRef) {
+        _dashboardModuleRef.setupDashboardListener();
+    }
+}
+
+const authModule = createAuthModule({
+auth,
+db,
+appId,
+GoogleAuthProvider,
+signInWithPopup,
+signInWithEmailAndPassword,
+createUserWithEmailAndPassword,
+updateProfile,
+setDoc,
+doc,
+signOut,
+updatePassword,
+showLoading,
+showToast,
+switchView: (viewId) => window.switchView(viewId),
+getDoc,
+getCurrentUser: () => currentUser,
+setCurrentUser: (user) => { currentUser = user; },
+setIsRegistering: (v) => { isRegistering = v; },
+updateUserDisplay,
+setupDashboardListener: setupDashboardListenerWrapper
+});
+
+const settingsModule = createSettingsModule({
+db,
+appId,
+auth,
+collection,
+query,
+where,
+getDocs,
+updateDoc,
+setDoc,
+doc,
+updateProfile,
+EmailAuthProvider,
+reauthenticateWithCredential,
+updatePassword,
+sendEmailVerification,
+sendPasswordResetEmail,
+verifyBeforeUpdateEmail,
+showLoading,
+showToast,
+toggleModal,
+updateUserDisplay,
+updateGuestDisplay,
+updateEmailVerificationBadge,
+getCurrentUser: () => currentUser
+});
+
+const minutesToolsModule = createMinutesToolsModule({
+db,
+appId,
+collection,
+query,
+where,
+getDocs,
+showToast,
+showLoading,
+buildSafePdfFileName,
+getActiveRoom: () => activeRoom,
+getCurrentMeetingData: () => currentMeetingData,
+getQuill: () => quill
+});
+
+const dashboardModule = createDashboardModule({
+db,
+appId,
+collection,
+onSnapshot,
+doc,
+getDoc,
+query,
+where,
+getDocs,
+deleteDoc,
+showToast,
+showLoading,
+getCurrentUser: () => currentUser,
+getIsDeveloper: () => isDeveloper,
+clearListeners,
+getUnsubscribers: () => unsubscribers,
+formatIndonesianLongDate,
+formatMeetingTime,
+escapeHtml,
+escapeJsString,
+enterRoom,
+roomEntryModule,
+buildSafePdfFileName
+});
+_dashboardModuleRef = dashboardModule;
+
+window.switchView = (viewId) => {
+const views = ['dashboard', 'settings', 'live', 'setup-profile'];
+// Track current visible view as previous before switching
+const currentVisible = views.find(v => {
+    const el = document.getElementById('view-' + v);
+    return el && !el.classList.contains('hidden');
+});
+// Only track if current is not settings and not the same as target
+if (currentVisible && currentVisible !== 'settings' && currentVisible !== viewId) {
+    window.previousView = currentVisible;
+    console.log('Tracking previousView:', window.previousView);
+}
+views.forEach(v => {
+const el = document.getElementById('view-' + v);
+if (el) el.classList.add('hidden');
+});
+const target = document.getElementById('view-' + viewId);
+if (target) target.classList.remove('hidden');
+if (viewId === 'settings') {
+setTimeout(() => {
+updateEmailVerificationBadge();
+}, 100);
+}
+};
+window.toggleProfileMenu = (e) => {
+if (e) e.stopPropagation();
+const menu = document.getElementById('profileDropdown');
+if (menu.classList.contains('hidden')) {
+menu.classList.remove('hidden');
+setTimeout(() => menu.classList.remove('opacity-0', 'scale-95'), 10);
+} else {
+menu.classList.add('opacity-0', 'scale-95');
+setTimeout(() => menu.classList.add('hidden'), 200);
+}
+};
+document.addEventListener('click', () => {
+const menu = document.getElementById('profileDropdown');
+if (menu && !menu.classList.contains('hidden')) {
+menu.classList.add('opacity-0', 'scale-95');
+setTimeout(() => menu.classList.add('hidden'), 200);
+}
+});
+
+// --- FIXED: Role-based Visibility ---
+window.setUIRole = (role) => {
+const editArea = document.getElementById('editMinutes');
+const displayArea = document.getElementById('displayMinutes');
+const endBtn = document.getElementById('endMeetingBtn');
+const editRoomBtn = document.getElementById('editRoomInfoBtn');
+const addResBtnDesktop = document.getElementById('addResourceBtn');
+const addResBtnMobile = document.getElementById('addResourceBtnMobile');
+const pinDisplay = document.getElementById('roomPinDisplay');
+
+if (role === 'notulen') {
+    // Mode Notulen: Tampilkan Editor, Sembunyikan Display
+    if(editArea) editArea.classList.remove('hidden');
+    if(editArea) editArea.style.display = 'flex';
+    if(displayArea) displayArea.classList.add('hidden');
+    if(displayArea) displayArea.style.display = 'none';
+    // Tampilkan Tombol Kontrol
+    if(endBtn) {
+        endBtn.classList.remove('hidden');
+        endBtn.style.display = 'flex';
+        endBtn.style.justifyContent = 'space-between';
+        endBtn.style.alignItems = 'center';
+        console.log('endMeetingBtn shown for notulen');
+    }
+    if(editRoomBtn) editRoomBtn.classList.remove('hidden');
+    if(addResBtnDesktop) addResBtnDesktop.classList.remove('hidden');
+    if(addResBtnMobile) addResBtnMobile.classList.remove('hidden');
+    // Tampilkan PIN untuk Notulen
+    if(pinDisplay) {
+        pinDisplay.classList.remove('hidden');
+        pinDisplay.style.display = 'flex';
+    }
+} else {
+    // Mode Peserta/Guest: Tampilkan Display, Sembunyikan Editor
+    if(editArea) editArea.classList.add('hidden');
+    if(editArea) editArea.style.display = 'none';
+    if(displayArea) displayArea.classList.remove('hidden');
+    if(displayArea) displayArea.style.display = 'block';
+    // Sembunyikan Tombol Kontrol
+    if(endBtn) {
+        endBtn.classList.add('hidden');
+        endBtn.style.display = 'none';
+    }
+    if(editRoomBtn) editRoomBtn.classList.add('hidden');
+    if(addResBtnDesktop) addResBtnDesktop.classList.add('hidden');
+    if(addResBtnMobile) addResBtnMobile.classList.add('hidden');
+    // Sembunyikan PIN untuk Peserta/Guest
+    if(pinDisplay) {
+        pinDisplay.classList.add('hidden');
+        pinDisplay.style.display = 'none';
+    }
+}
+};
+
+// --- AUDIO CONTEXT FOR PING SOUND ---
+function playPingSound() {
+playPingSoundUtil(audioCtx, (ctx) => { audioCtx = ctx; }, showToast);
+}
+
+function startGlobalClock() {
+startRealtimeClock('.realtime-clock');
+}
+startGlobalClock();
+
+function startMeetingDuration() {
+const durationEl = document.getElementById('meetingDuration');
+startMeetingDurationTicker(activeRoom, durationEl);
+}
+
+function stopMeetingDuration() {
+stopMeetingDurationTicker();
+}
+
+const initAuth = async () => {
+try {
+if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+await signInWithCustomToken(auth, __initial_auth_token);
+}
+} catch (error) {
+console.error("Auth Error:", error);
+}
+};
+
+// Handle URL parameter untuk direct room access
+window.handleUrlRoomAccess = () => handleUrlRoomAccessUtil();
+
+// Process URL room access after auth
+window.processUrlRoomAccess = async () => processUrlRoomAccessUtil({
+db,
+appId,
+doc,
+getDoc,
+showToast,
+currentUser,
+isDeveloper,
+enterRoomFromCalendar: window.enterRoomFromCalendar,
+openJoinModal: window.openJoinModal,
+});
+
+const restoreRoomSession = async ({ savedRoomId, savedRoomPin, savedRoomRole }) => restoreRoomSessionUtil({
+db,
+appId,
+doc,
+getDoc,
+enterRoom,
+showToast,
+showLoading,
+switchView: (viewId) => window.switchView(viewId),
+setupDashboardListener,
+savedRoomId,
+savedRoomPin,
+savedRoomRole,
+});
+
+onAuthStateChanged(auth, async (user) => {
+if (isRegistering) return;
+if (user) {
+currentUser = user;
+const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
+const profileData = userDoc.data() || {};
+isDeveloper = profileData.isDeveloper || false;
+const inputPanel = document.getElementById('devPinInputPanel');
+const successPanel = document.getElementById('devActivePanel');
+if(inputPanel && successPanel) {
+if (isDeveloper) {
+inputPanel.classList.add('hidden');
+successPanel.classList.remove('hidden');
+} else {
+inputPanel.classList.remove('hidden');
+successPanel.classList.add('hidden');
+}
+}
+if (!userDoc.exists() || !profileData?.setupComplete) {
+showApp();
+switchView('setup-profile');
+const setupNameInput = document.getElementById('setupName');
+if (setupNameInput) setupNameInput.value = user.displayName || "";
+} else {
+updateUserDisplay();
+showApp();
+
+// Cek URL room access terlebih dahulu
+const urlAccess = sessionStorage.getItem('urlRoomAccess') || window.handleUrlRoomAccess();
+if (urlAccess) {
+console.log('[AUTH] Processing URL room access before session restore');
+const processed = await window.processUrlRoomAccess();
+if (processed) return; // Sudah masuk room dari URL, skip session restore
+}
+
+// Check if there's a saved room session
+const { savedRoomId, savedRoomPin, savedRoomRole } = getSavedRoomSession();
+
+// Handle auto-refresh from room entry
+if (consumeAutoRefreshFlag()) {
+console.log('[SESSION] Auto-refresh detected, will restore room session');
+// JANGAN clear room session! Biarkan masuk room lagi setelah refresh
+}
+
+await restoreRoomSession({ savedRoomId, savedRoomPin, savedRoomRole });
+}
+} else {
+showAuth();
+}
+});
+
+// Update display for guest users
+function updateGuestDisplay() {
+updateGuestDisplayData(window.guestData, setupGuestUI);
+}
+
+// Setup UI elements khusus untuk guest
+function setupGuestUI() {
+setupGuestUIState(window.isGuestUser);
+}
+
+async function updateUserDisplay() {
+// Jika guest mode, gunakan display guest
+if (window.isGuestUser) {
+updateGuestDisplay();
+return;
+}
+if (!currentUser) return;
+const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'));
+const profileData = userDoc.data() || {};
+const displayName = currentUser.displayName || profileData.name || "Dosen UNSAM";
+document.querySelectorAll('.user-name-text').forEach(el => el.innerText = displayName);
+document.querySelectorAll('.user-email-text').forEach(el => el.innerText = currentUser.email || "Akun Anonim");
+const photoURL = currentUser.photoURL || `https://ui-avatars.com/api/?name=${displayName}&background=6366f1&color=fff&bold=true`;
+document.querySelectorAll('.user-avatar-img').forEach(el => { el.src = photoURL; });
+const hour = new Date().getHours();
+let greeting = "Selamat Malam";
+if (hour < 12) greeting = "Selamat Pagi";
+else if (hour < 15) greeting = "Selamat Siang";
+else if (hour < 18) greeting = "Selamat Sore";
+const welcomeGreeting = document.getElementById('welcomeGreeting');
+if (welcomeGreeting) welcomeGreeting.innerText = `${greeting},`;
+const nipInput = document.getElementById('settingsNip');
+if (nipInput) nipInput.value = profileData.nip || '';
+const nidnInput = document.getElementById('settingsNidn');
+if (nidnInput) nidnInput.value = profileData.nidn || '';
+const nidkInput = document.getElementById('settingsNidk');
+if (nidkInput) nidkInput.value = profileData.nidk || '';
+const unitKerjaInput = document.getElementById('settingsUnitKerja');
+if (unitKerjaInput) unitKerjaInput.value = profileData.unitKerja || '';
+const jabatanFungsionalInput = document.getElementById('settingsJabatanFungsional');
+if (jabatanFungsionalInput) jabatanFungsionalInput.value = profileData.jabatanFungsional || '';
+const nameInput = document.getElementById('settingsName');
+if (nameInput) nameInput.value = displayName;
+const settingsEmailInput = document.getElementById('settingsEmail');
+if (settingsEmailInput) {
+settingsEmailInput.value = currentUser.email || "";
+}
+// Ensure guest-only fields stay hidden for internal users
+setupGuestUIState(false);
+
+// Update settings profile card using reusable component
+const settingsCardContainer = document.getElementById('settingsProfileCardContainer');
+if (settingsCardContainer) {
+    const cardHtml = createProfileCardHTML({
+        name: displayName,
+        email: currentUser.email,
+        nip: profileData.nip,
+        nidn: profileData.nidn,
+        nidk: profileData.nidk,
+        unitKerja: profileData.unitKerja,
+        jabatanFungsional: profileData.jabatanFungsional,
+        photoURL: currentUser.photoURL
+    }, {
+        isModal: false,
+        idPrefix: 'settingsCard'
+    });
+    settingsCardContainer.innerHTML = cardHtml;
+}
+updateEmailVerificationBadge();
+}
+
+function bindSettingsCardLivePreview() {
+    const nipEl = document.getElementById('settingsNip');
+    const nidnEl = document.getElementById('settingsNidn');
+    const nidkEl = document.getElementById('settingsNidk');
+    const unitEl = document.getElementById('settingsUnitKerja');
+    const jabatanEl = document.getElementById('settingsJabatanFungsional');
+    const settingsCardContainer = document.getElementById('settingsProfileCardContainer');
+
+    if (!settingsCardContainer) return;
+
+    const refresh = () => {
+        const nip = (nipEl?.value || '').trim();
+        const nidn = (nidnEl?.value || '').trim();
+        const nidk = (nidkEl?.value || '').trim();
+        const unit = (unitEl?.value || '').trim();
+        const jabatan = (jabatanEl?.value || '').trim();
+        
+        // Update individual fields for live preview
+        const cardNip = document.getElementById('settingsCardNip');
+        const cardNidnNidk = document.getElementById('settingsCardNidnNidk');
+        const cardUnit = document.getElementById('settingsCardUnitKerja');
+        const cardJabatan = document.getElementById('settingsCardJabatanFungsional');
+        
+        if (cardNip) cardNip.innerText = nip || '-';
+        if (cardNidnNidk) cardNidnNidk.innerText = nidn ? `NIDN: ${nidn}` : (nidk ? `NIDK: ${nidk}` : '-');
+        if (cardUnit) cardUnit.innerText = unit || '-';
+        if (cardJabatan) cardJabatan.innerText = jabatan || '-';
+    };
+
+    [nipEl, nidnEl, nidkEl, unitEl, jabatanEl].forEach((el) => {
+        if (!el) return;
+        el.addEventListener('input', refresh);
+        el.addEventListener('change', refresh);
+    });
+
+    refresh();
+}
+
+function updateEmailVerificationBadge() {
+const badgeContainer = document.getElementById('emailVerificationStatus');
+const noticeBox = document.getElementById('emailResetNotice');
+if (!badgeContainer) return;
+if (!currentUser || !currentUser.email) {
+badgeContainer.innerHTML = `
+<div class="flex items-center gap-3 p-3 bg-red-50 border border-red-100 rounded-xl">
+<div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+</div>
+<div>
+<p class="text-sm font-bold text-red-700">Email belum ditambahkan</p>
+<p class="text-[11px] text-red-500">Tambahkan email untuk fitur reset password.</p>
+</div>
+</div>`;
+noticeBox.classList.remove('hidden');
+return;
+}
+if (currentUser.emailVerified) {
+badgeContainer.innerHTML = `
+<div class="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+<div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+</div>
+<p class="text-sm font-bold text-emerald-700">Email Terverifikasi</p>
+</div>`;
+noticeBox.classList.add('hidden');
+} else {
+badgeContainer.innerHTML = `
+<div class="flex items-center gap-3 p-3 bg-amber-50 border border-amber-100 rounded-xl">
+<div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold text-amber-700">Email belum terverifikasi</p>
+<button onclick="window.sendVerificationEmailAction()" class="text-[11px] font-bold text-amber-600 hover:underline mt-0.5">Kirim Verifikasi Ulang</button>
+</div>
+</div>`;
+noticeBox.classList.remove('hidden');
+}
+}
+
+window.enableEmailEdit = () => {
+settingsModule.enableEmailEdit();
+};
+window.cancelEmailChange = () => {
+settingsModule.cancelEmailChange();
+};
+window.submitEmailChange = async () => {
+await settingsModule.submitEmailChange();
+};
+
+window.toggleDeveloperSettings = () => {
+toggleDeveloperSettingsPanel();
+};
+
+window.activateDeveloperMode = async () => {
+const pinInput = document.getElementById('devPinInput');
+const pin = pinInput.value;
+const devPin = typeof __DEV_PIN__ !== 'undefined' ? __DEV_PIN__ : null;
+if (!devPin) {
+showToast("Konfigurasi developer PIN belum tersedia.");
+return;
+}
+if (pin === devPin) {
+showLoading(true, "Verifikasi Developer...");
+try {
+await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), { isDeveloper: true }, { merge: true });
+isDeveloper = true;
+pinInput.value = '';
+document.getElementById('devPinInputPanel').classList.add('hidden');
+document.getElementById('devActivePanel').classList.remove('hidden');
+updateDeveloperUI();
+showToast("🚀 Mode Developer Berhasil Diaktifkan!");
+} catch (e) {
+showToast("Gagal: " + e.message);
+} finally { showLoading(false); }
+} else {
+showToast("❌ Kode Akses Salah!");
+pinInput.classList.add('border-red-500', 'bg-red-50');
+setTimeout(() => {
+pinInput.classList.remove('border-red-500', 'bg-red-50');
+}, 2000);
+}
+};
+
+window.deactivateDeveloperMode = async () => {
+if(!confirm("Yakin ingin menonaktifkan Mode Developer?")) return;
+showLoading(true, "Menonaktifkan...");
+try {
+await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), { isDeveloper: false }, { merge: true });
+isDeveloper = false;
+document.getElementById('devPinInputPanel').classList.remove('hidden');
+document.getElementById('devActivePanel').classList.add('hidden');
+updateDeveloperUI();
+showToast("Mode Developer dinonaktifkan.");
+} catch (e) {
+showToast("Gagal: " + e.message);
+} finally { showLoading(false); }
+};
+
+function updateDeveloperUI() {
+updateDeveloperUIState(isDeveloper, currentUser, setupDashboardListener);
+}
+
+// Dashboard module delegations
+window.setupDashboardListener = () => dashboardModule.setupDashboardListener();
+window.deleteRoom = async (roomId) => await dashboardModule.deleteRoom(roomId);
+window.enterRoomFromCalendar = async (roomId, roomTitle, roomStatus, creatorUid) => await dashboardModule.enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid);
+window.quickJoinRoom = async () => await dashboardModule.quickJoinRoom();
+window.showCalendarAgenda = (y, m, d) => dashboardModule.showCalendarAgenda(y, m, d);
+window.changeCalendarMonth = (offset) => dashboardModule.changeCalendarMonth(offset);
+function generateMeetingInfoTable(roomData) { return dashboardModule.generateMeetingInfoTable(roomData); }
+function renderMiniCalendar() { return dashboardModule.renderMiniCalendar(); }
+
+// Room Initialization Modal Helper
+async function createNewRoom(title, description, date, startTime, endTime, location, participants) {
+await roomManagementModule.createNewRoom(title, description, date, startTime, endTime, location, participants);
+}
+
+async function validateAndJoin(roomId, inputPin) {
+await roomEntryModule.validateAndJoin(roomId, inputPin);
+}
+
+async function enterRoom(roomId, pin, isNotulen, isCreator = false) {
+await roomEntryModule.enterRoom(roomId, pin, isNotulen, isCreator);
+}
+
+async function continueEnterRoom(roomId, pin, isNotulen) {
+await roomEntryModule.continueEnterRoom(roomId, pin, isNotulen);
+}
+
+// Add guest entry to attendance collection
+async function addGuestToAttendance(roomId) {
+await guestModule.addGuestToAttendance(roomId);
+}
+
+// Enter room as guest (without authentication)
+async function enterRoomAsGuest(roomId, roomData) {
+    await guestModule.enterRoomAsGuest(roomId, roomData);
+}
+
+// Export to global scope
+window.enterRoomAsGuest = enterRoomAsGuest;
+
+async function initQuillEditorWithRetry() {
+console.log('[QUILL INIT] Starting initialization...');
+
+// Get all relevant elements
+let editorEl = document.getElementById('minutesInput');
+const editMinutesEl = document.getElementById('editMinutes');
+const wrapperEl = document.getElementById('editorWrapper');
+const viewLive = document.getElementById('view-live');
+const displayMinutes = document.getElementById('displayMinutes');
+
+console.log('[QUILL INIT] Element check:', {
+minutesInput: !!editorEl,
+editMinutes: !!editMinutesEl,
+editorWrapper: !!wrapperEl,
+viewLive: !!viewLive,
+displayMinutes: !!displayMinutes
+});
+
+// JIKA elemen tidak ada, coba buat ulang di wrapper
+if (!editorEl && wrapperEl) {
+console.log('[QUILL INIT] Creating fresh editor element...');
+const freshEditor = document.createElement('div');
+freshEditor.id = 'minutesInput';
+wrapperEl.appendChild(freshEditor);
+editorEl = freshEditor;
+console.log('[QUILL INIT] Fresh editor created');
+}
+
+if (!editorEl) {
+console.error('[QUILL INIT] Editor element #minutesInput not found in DOM');
+console.log('[QUILL INIT] view-live visible:', viewLive && !viewLive.classList.contains('hidden'));
+
+// Retry after short delay
+if (window.quillInitRetryCount === undefined) window.quillInitRetryCount = 0;
+window.quillInitRetryCount++;
+
+if (window.quillInitRetryCount <= 15) {
+console.log(`[QUILL INIT] Retry ${window.quillInitRetryCount}/15 in 200ms...`);
+setTimeout(() => initQuillEditorWithRetry(), 200);
+} else {
+console.error('[QUILL INIT] Max retries reached, editor will not be initialized');
+showToast('❌ Editor tidak dapat dimuat setelah 15 percobaan');
+window.quillInitRetryCount = 0;
+}
+return;
+}
+
+console.log('[QUILL INIT] Editor element found');
+window.quillInitRetryCount = 0;
+
+// Force show ALL parent containers - IN ORDER dari luar ke dalam
+console.log('[QUILL INIT] Forcing containers visible...');
+
+// 1. Sembunyikan display mode
+if (displayMinutes) {
+displayMinutes.classList.add('hidden');
+displayMinutes.style.display = 'none';
+}
+
+// 2. Tampilkan edit mode container (parent langsung dari editorWrapper)
+if (editMinutesEl) {
+editMinutesEl.classList.remove('hidden');
+editMinutesEl.style.display = 'flex';
+console.log('[QUILL INIT] editMinutes shown, display:', editMinutesEl.style.display);
+}
+
+// 3. Tampilkan wrapper
+if (wrapperEl) {
+wrapperEl.classList.remove('hidden');
+wrapperEl.style.display = 'block';
+console.log('[QUILL INIT] editorWrapper shown, display:', wrapperEl.style.display);
+}
+
+// Force reflow untuk memastikan DOM sudah update
+document.body.offsetHeight;
+
+// Tunggu sebentar untuk browser render
+await new Promise(r => setTimeout(r, 100));
+
+// Check visibility lagi setelah force show
+if (!editorEl.offsetParent) {
+console.log('[QUILL INIT] Editor still not visible after force show, retrying...');
+console.log('[QUILL INIT] editorEl.offsetParent:', editorEl?.offsetParent?.id || null);
+console.log('[QUILL INIT] wrapperEl.offsetParent:', wrapperEl?.offsetParent?.id || null);
+console.log('[QUILL INIT] editMinutesEl.offsetParent:', editMinutesEl?.offsetParent?.id || null);
+
+if (window.quillInitRetryCount === undefined) window.quillInitRetryCount = 0;
+window.quillInitRetryCount++;
+
+if (window.quillInitRetryCount <= 10) {
+setTimeout(() => initQuillEditorWithRetry(), 300);
+return;
+} else {
+console.error('[QUILL INIT] Editor failed to become visible after 10 retries');
+showToast('❌ Editor tidak dapat dimuat');
+window.quillInitRetryCount = 0;
+return;
+}
+}
+
+console.log('[QUILL INIT] All containers visible, proceeding with Quill init...');
+
+// Destroy any existing Quill instance first
+destroyQuill();
+
+// PASTIKAN elemen benar-benar fresh - hapus semua jejak Quill lama
+if (wrapperEl) {
+// Hapus semua konten di wrapper dan buat elemen baru yang fresh
+wrapperEl.innerHTML = '';
+
+// Buat elemen baru untuk editor (fresh, tanpa jejak Quill lama)
+const freshEditor = document.createElement('div');
+freshEditor.id = 'minutesInput';
+wrapperEl.appendChild(freshEditor);
+
+console.log('[QUILL] Created fresh editor element:', freshEditor);
+console.log('[QUILL] Fresh editor parent:', freshEditor.parentElement?.id);
+
+// Update reference ke elemen baru
+editorEl = freshEditor;
+}
+
+// Add small delay to ensure DOM is fully ready
+await new Promise(r => setTimeout(r, 200));
+
+// Color palette yang konsisten dengan CSS template
+// Menggunakan warna primary-600 (#4f46e5) dan success-600 (#059669) yang sama dengan template
+const quillColorPalette = [
+  // Primary colors (indigo) - untuk heading/h2
+  '#4f46e5', // primary-600 - heading strong
+  '#6366f1', // primary-500
+  '#4338ca', // primary-700
+  
+  // Success colors (green) - untuk list item strong
+  '#059669', // success-600 - list item strong
+  '#10b981', // success-500
+  '#047857', // success-700
+  
+  // Standard colors
+  '#000000', '#1e293b', '#475569', '#64748b', '#94a3b8', '#cbd5e1', '#ffffff',
+  
+  // Semantic colors
+  '#ef4444', // red
+  '#f97316', // orange
+  '#eab308', // yellow
+  '#22c55e', // green bright
+  '#3b82f6', // blue
+  '#a855f7', // purple
+  '#f43f5e', // pink
+  '#14b8a6', // teal
+  '#8b5cf6', // violet
+  
+  // Light tints
+  '#e0e7ff', // primary-100
+  '#d1fae5', // success-100
+  '#fecaca', // red-100
+  '#ffedd5', // orange-100
+  '#fef08a', // yellow-100
+  '#bbf7d0', // green-100
+  '#bfdbfe', // blue-100
+  '#f3e8ff', // purple-100
+];
+
+try {
+console.log('[QUILL] Initializing editor on element:', editorEl);
+console.log('[QUILL] Element exists:', !!editorEl);
+console.log('[QUILL] Element parent:', editorEl?.parentElement?.id);
+console.log('[QUILL] Wrapper exists:', !!wrapperEl);
+
+// Pastikan elemen terlihat dan valid
+if (!editorEl || !wrapperEl) {
+throw new Error('Required DOM elements not found');
+}
+
+// Hapus konten lama jika ada untuk clean slate
+editorEl.innerHTML = '';
+
+quill = new Quill(editorEl, {
+theme: 'snow',
+placeholder: 'Ketik notulensi rapat...',
+modules: {
+toolbar: {
+container: [
+[{ 'header': [1, 2, 3, false] }],
+['bold', 'italic', 'underline', 'strike'],
+[{ 'color': quillColorPalette }, { 'background': quillColorPalette }], // Gunakan palette yang konsisten dengan template
+[{ 'list': 'ordered'}, { 'list': 'bullet' }],
+['blockquote', 'code-block'],
+['link'],
+['clean']
+// Note: Template button ditambahkan manual via setTimeout di bawah
+]
+}
+// Keyboard bindings: Menggunakan default Quill (Ctrl+B, Ctrl+I, Ctrl+U)
+// Tidak perlu custom binding, default sudah berfungsi sempurna
+}
+});
+
+console.log('Quill editor initialized successfully:', { quill: !!quill, isEnabled: quill?.isEnabled() });
+
+if (quill) {
+quill.enable();
+}
+
+function updateWordCount() {
+try {
+if (!quill) return;
+const text = quill.getText().trim();
+const words = text ? text.split(/\s+/).length : 0;
+const chars = quill.getLength() - 1;
+console.log(`Words: ${words}, Characters: ${chars}`);
+} catch (e) {
+console.warn('Error updating word count:', e);
+}
+}
+
+quillTextChangeListener = (delta, oldDelta, source) => {
+// Log hanya saat debugging diperlukan (dikomentari untuk performance)
+// console.log('Quill text-change event:', { source, hasQuill: !!quill });
+updateWordCount();
+if (source === 'user') {
+const content = quill.root.innerHTML;
+if (content.length > 50000) {
+showToast('Konten terlalu panjang. Simpan dalam beberapa bagian.');
+return;
+}
+if (typeof DOMPurify === 'undefined') {
+console.error('DOMPurify is required for security but not loaded');
+showToast('Error: Security module not loaded. Please refresh the page.');
+return;
+}
+const sanitizedContent = DOMPurify.sanitize(content);
+syncMinutes(sanitizedContent);
+}
+};
+
+quill.on('text-change', quillTextChangeListener);
+updateWordCount();
+
+// Add template button to toolbar after Quill init
+// Template button ditambahkan manual karena bukan bagian dari toolbar bawaan Quill
+setTimeout(() => {
+try {
+const toolbar = document.querySelector('.ql-toolbar');
+if (toolbar && !toolbar.querySelector('.ql-template')) {
+const templateBtn = document.createElement('button');
+templateBtn.className = 'ql-template';
+templateBtn.setAttribute('type', 'button');
+templateBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="11" y2="15"/></svg>';
+templateBtn.title = 'Insert Template Struktur Notulensi';
+templateBtn.onclick = (e) => {
+e.preventDefault();
+e.stopPropagation();
+if (window.insertNotulenTemplate) {
+window.insertNotulenTemplate();
+} else {
+console.error('Template function not found');
+showToast('Error: Fitur template tidak tersedia');
+}
+};
+toolbar.appendChild(templateBtn);
+console.log('[QUILL] Template button added successfully');
+}
+} catch (err) {
+console.error('[QUILL] Error adding template button:', err);
+}
+}, 200);
+
+} catch (error) {
+console.error('[QUILL] Initialization failed:', error);
+console.error('[QUILL] Error stack:', error.stack);
+console.error('[QUILL] Editor element state:', {
+exists: !!editorEl,
+innerHTML: editorEl?.innerHTML?.substring(0, 100),
+parentElement: editorEl?.parentElement?.id,
+offsetParent: editorEl?.offsetParent?.id,
+classList: editorEl?.classList?.toString()
+});
+editorEl.innerHTML = '<div class="flex items-center justify-center h-32 text-red-500"><span>Gagal memuat editor</span></div>';
+showToast('Error: Gagal memuat editor');
+}
+}
+
+function setupRealtimeRoomInfo(roomId) {
+const unsub = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId), (snap) => {
+if (snap.exists()) {
+const data = snap.data();
+activeRoom = { id: roomId, pin: activeRoom?.pin, ...data };
+
+// Populate Meeting Info Section
+updateMeetingInfoSection(data);
+
+if (data.status === 'archived') {
+stopMeetingDuration();
+const durationEl = document.getElementById('meetingDuration');
+if (durationEl && data.endedAt) {
+const diff = Math.floor((new Date(data.endedAt).getTime() - new Date(data.createdAt).getTime()) / 1000);
+const h = Math.floor(diff / 3600); const m = Math.floor((diff % 3600) / 60); const s = diff % 60;
+durationEl.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+// Switch to readonly view for archived rooms
+setUIRole('peserta');
+['addResourceBtn', 'addResourceBtnMobile', 'editRoomInfoBtn'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
+// Hanya notulen (creator) yang bisa lihat kontrol export PDF di arsip
+const isCreator = data.creatorUid === currentUser?.uid;
+const endBtn = document.getElementById('endMeetingBtn');
+const endActionBtn = document.getElementById('endMeetingActionBtn');
+if (endBtn) {
+if (isCreator || isDeveloper) {
+endBtn.classList.remove('hidden');
+// Sembunyikan tombol Akhiri Rapat di arsip (karena sudah selesai)
+if (endActionBtn) endActionBtn.classList.add('hidden');
+} else {
+endBtn.classList.add('hidden');
+}
+}
+} else {
+// Handle role-based editor management
+if (userRole === 'notulen') {
+// Quill is already initialized in enterRoom, just ensure it's enabled
+if (quill && !quill.isEnabled()) {
+quill.enable();
+}
+// Pastikan tombol Akhiri Rapat tampil untuk notulen saat room aktif
+const endActionBtn = document.getElementById('endMeetingActionBtn');
+if (endActionBtn) endActionBtn.classList.remove('hidden');
+} else {
+// If user is not notulen, ensure Quill is destroyed
+if (quill) {
+destroyQuill();
+}
+}
+startMeetingDuration();
+}
+}
+});
+unsubscribers.push(unsub);
+}
+
+// Function to update Meeting Info Section
+function updateMeetingInfoSection(data) {
+    // Store data for editing
+    currentMeetingData = data;
+
+    const titleEl = document.getElementById('meetingInfoTitle');
+    const descEl = document.getElementById('meetingInfoDesc');
+    const dateEl = document.getElementById('meetingInfoDate');
+    const timeEl = document.getElementById('meetingInfoTime');
+    const locationEl = document.getElementById('meetingInfoLocation');
+    const participantsEl = document.getElementById('meetingInfoParticipants');
+
+    if (titleEl) titleEl.innerText = data.title || '-';
+    if (descEl) descEl.innerText = data.description || '-';
+
+    // Format date
+    if (dateEl) {
+        if (data.meetingDate) {
+            dateEl.innerText = formatIndonesianLongDate(data.meetingDate);
+        } else {
+            dateEl.innerText = '-';
+        }
+    }
+
+    // Format time
+    if (timeEl) {
+        timeEl.innerText = formatMeetingTime(data.meetingStartTime, data.meetingEndTime);
+    }
+
+    // Location
+    if (locationEl) locationEl.innerText = data.meetingLocation || '-';
+
+    // Participants with badges
+    if (participantsEl) {
+        const participants = data.meetingParticipants || [];
+        if (participants.length > 0) {
+            participantsEl.innerHTML = participants.map(p =>
+                `<span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">${escapeHtml(p)}</span>`
+            ).join('');
+        } else {
+            participantsEl.innerHTML = '<span class="text-sm text-slate-500">-</span>';
+        }
+    }
+
+    // Default expanded (user requested)
+    const content = document.getElementById('meetingInfoContent');
+    const icon = document.getElementById('meetingInfoToggleIcon');
+    if (content && icon) {
+        content.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+    }
+}
+
+// Toggle Meeting Info Section
+window.toggleMeetingInfo = function() {
+    const content = document.getElementById('meetingInfoContent');
+    const icon = document.getElementById('meetingInfoToggleIcon');
+    if (content && icon) {
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            content.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+        }
+    }
+}
+
+// Toggle Sidebar Panels (Resources & Participants)
+window.toggleSidebarPanel = function(panelName) {
+    const content = document.getElementById(panelName + 'PanelContent');
+    const icon = document.getElementById(panelName + 'ToggleIcon');
+    if (content && icon) {
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            content.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+        }
+    }
+}
+
+// Store current room data for editing
+let currentMeetingData = null;
+
+// Open Edit Meeting Info Modal
+window.toggleEditMeetingInfo = function() {
+    if (!currentMeetingData) return;
+
+    // Populate edit fields with current data
+    document.getElementById('editMeetingTitle').value = currentMeetingData.title || '';
+    document.getElementById('editMeetingDesc').value = currentMeetingData.description || '';
+    document.getElementById('editMeetingDate').value = currentMeetingData.meetingDate || '';
+    document.getElementById('editMeetingLocation').value = currentMeetingData.meetingLocation || '';
+    document.getElementById('editMeetingStartTime').value = currentMeetingData.meetingStartTime || '';
+    document.getElementById('editMeetingEndTime').value = currentMeetingData.meetingEndTime || '';
+
+    // Set participants textarea (convert array to newline-separated string)
+    const participants = currentMeetingData.meetingParticipants || [];
+    document.getElementById('editMeetingParticipants').value = participants.join('\n');
+
+    // Open modal
+    window.toggleModal('editMeetingInfoModal', true);
+}
+
+// Handle Edit Meeting Info Form Submit
+window.handleEditMeetingInfo = async function(e) {
+    e.preventDefault();
+
+    if (!activeRoom || !activeRoom.id) {
+        showToast('Error: Tidak ada room aktif');
+        return;
+    }
+
+    // Collect data from edit fields
+    const title = document.getElementById('editMeetingTitle').value.trim();
+    const description = document.getElementById('editMeetingDesc').value.trim();
+    const meetingDate = document.getElementById('editMeetingDate').value;
+    const meetingLocation = document.getElementById('editMeetingLocation').value.trim();
+    const meetingStartTime = document.getElementById('editMeetingStartTime').value;
+    const meetingEndTime = document.getElementById('editMeetingEndTime').value;
+
+    // Collect participants from textarea (split by newline, filter empty lines)
+    const participantsText = document.getElementById('editMeetingParticipants').value;
+    const participants = participantsText
+        .split('\n')
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+
+    // Validate required fields
+    if (!title || !meetingDate || !meetingLocation || !meetingStartTime || !meetingEndTime) {
+        showToast('Error: Semua field wajib harus diisi');
+        return;
+    }
+
+    showLoading(true, 'Menyimpan perubahan...');
+
+    try {
+        const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', activeRoom.id);
+        await updateDoc(roomRef, {
+            title,
+            description,
+            meetingDate,
+            meetingLocation,
+            meetingStartTime,
+            meetingEndTime,
+            meetingParticipants: participants,
+            updatedAt: new Date().toISOString()
+        });
+
+        // Update local data
+        currentMeetingData = {
+            ...currentMeetingData,
+            title,
+            description,
+            meetingDate,
+            meetingLocation,
+            meetingStartTime,
+            meetingEndTime,
+            meetingParticipants: participants
+        };
+
+        // Close modal
+        window.toggleModal('editMeetingInfoModal', false);
+        showToast('Informasi rapat berhasil diperbarui!');
+    } catch (error) {
+        console.error('Error updating meeting info:', error);
+        showToast('Error: Gagal menyimpan perubahan');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function handleAutoAbsensi(roomId) {
+    if (!currentUser) {
+        console.warn('[AUTO ABSENSI] No current user, skipping');
+        return;
+    }
+    
+    console.log('[AUTO ABSENSI] Starting for room:', roomId, 'user:', currentUser.uid, 'role:', userRole);
+    
+    try {
+        // Cek status room terlebih dahulu - jangan absen jika room sudah arsip
+        const roomSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId));
+        if (roomSnap.exists() && roomSnap.data().status === 'archived') {
+            console.log('[AUTO ABSENSI] Room is archived, skipping');
+            return;
+        }
+        
+        // Developer tidak pernah terdaftar di absensi (invisible mode)
+        if (isDeveloper) {
+            console.log('[AUTO ABSENSI] Developer mode - skipping (invisible)');
+            return;
+        }
+        
+        // Query dengan filter untuk cek apakah user sudah absen di room ini
+        const attCol = collection(db, 'artifacts', appId, 'public', 'data', 'attendance');
+        const q = query(attCol, where('roomId', '==', roomId), where('uid', '==', currentUser.uid));
+        const snap = await getDocs(q);
+        
+        let present = false;
+        let existingDocId = null;
+
+        snap.forEach(d => {
+            present = true;
+            existingDocId = d.id;
+            console.log('[AUTO ABSENSI] User already present, docId:', d.id);
+        });
+
+        if (!present) {
+            console.log('[AUTO ABSENSI] User not present, adding to attendance...');
+            
+            // Read profile fields (for NIP display, etc.)
+            let profileData = {};
+            try {
+                const profileSnap = await getDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'));
+                profileData = profileSnap.exists() ? (profileSnap.data() || {}) : {};
+            } catch (e) {
+                console.warn('[AUTO ABSENSI] Could not read profile:', e.message);
+            }
+
+            const userEmail = currentUser.email || 'Guest@unsam.ac.id';
+            const namePrefix = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
+            
+            const attendanceData = {
+                uid: currentUser.uid, 
+                roomId,
+                name: currentUser.displayName || namePrefix,
+                nip: profileData.nip || '',
+                nidn: profileData.nidn || '',
+                nidk: profileData.nidk || '',
+                unitKerja: profileData.unitKerja || '',
+                jabatanFungsional: profileData.jabatanFungsional || '',
+                role: userRole || 'peserta',
+                isDeveloper: isDeveloper || false,
+                email: currentUser.email || '',
+                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date().toISOString(),
+                joinedAt: serverTimestamp()
+            };
+            
+            await addDoc(attCol, attendanceData);
+            console.log('[AUTO ABSENSI] Successfully added to attendance');
+        } else {
+            console.log('[AUTO ABSENSI] User already in attendance, skipping');
+        }
+    } catch (err) { 
+        console.error('[AUTO ABSENSI] Error:', err); 
+    }
+}
+
+function setupRealtimeMinutes(roomId) {
+    let isFirstLoad = true;
+    let retryCount = 0;
+    let retryTimeout = null;
+    const maxRetries = 10;
+
+    const unsub = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', roomId), (snap) => {
+        const data = snap.data();
+        const display = document.getElementById('displayMinutes');
+        const autosave = document.getElementById('autosaveIndicator');
+
+        console.log('[MINUTES LISTENER] Data received:', {
+            exists: snap.exists(),
+            hasData: !!data,
+            hasText: !!(data && data.text),
+            textLength: data?.text?.length || 0,
+            isFirstLoad: isFirstLoad,
+            userRole: userRole
+        });
+
+        try {
+            if (data && data.text) {
+                // ADA DATA - Load ke editor
+                if (userRole === 'peserta' && display) {
+                    display.innerHTML = DOMPurify.sanitize(data.text || "<p class='text-slate-400'>Belum ada notulensi...</p>");
+                } else if (userRole === 'notulen') {
+                    if (retryTimeout) {
+                        clearTimeout(retryTimeout);
+                        retryTimeout = null;
+                    }
+                    
+                    if (quill && isFirstLoad) {
+                        const sanitizedContent = DOMPurify.sanitize(data.text);
+                        quill.clipboard.dangerouslyPasteHTML(sanitizedContent);
+                        console.log('[MINUTES LISTENER] ✅ Content loaded, length:', data.text.length);
+                        isFirstLoad = false;
+                        retryCount = 0;
+                    } else if (!quill && isFirstLoad && retryCount < maxRetries) {
+                        retryCount++;
+                        const delay = Math.min(100 * retryCount, 2000);
+                        
+                        retryTimeout = setTimeout(() => {
+                            retryTimeout = null;
+                            if (quill && isFirstLoad) {
+                                const sanitizedContent = DOMPurify.sanitize(data.text);
+                                quill.clipboard.dangerouslyPasteHTML(sanitizedContent);
+                                console.log('[MINUTES LISTENER] ✅ Content loaded (retry), length:', data.text.length);
+                                isFirstLoad = false;
+                                retryCount = 0;
+                            } else if (!quill && isFirstLoad && retryCount >= maxRetries) {
+                                console.warn('[MINUTES LISTENER] Quill failed after max retries');
+                                showToast('Warning: Editor tidak dapat dimuat dengan benar');
+                                isFirstLoad = false;
+                            }
+                        }, delay);
+                    }
+                }
+            } else if (!snap.exists() && isFirstLoad) {
+                // Dokumen benar-benar TIDAK ADA di Firestore
+                if (retryTimeout) {
+                    clearTimeout(retryTimeout);
+                    retryTimeout = null;
+                }
+                
+                if (userRole === 'peserta' && display) {
+                    display.innerHTML = "<p class='text-slate-400'>Belum ada notulensi...</p>";
+                } else if (userRole === 'notulen' && quill) {
+                    console.log('[MINUTES LISTENER] Document does not exist, clearing editor');
+                    quill.setText('');
+                }
+                isFirstLoad = false;
+            } else if (isFirstLoad && snap.exists()) {
+                // Dokumen ADA tapi text kosong (masih loading dari cache, tunggu server)
+                console.log('[MINUTES LISTENER] Document exists but no text yet, waiting for server data...');
+                // JANGAN kosongkan editor, biarkan retry mechanism bekerja
+            }
+
+            if (autosave && userRole === 'notulen') {
+                autosave.innerHTML = `<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Tersimpan`;
+                autosave.classList.replace('text-amber-500', 'text-emerald-500');
+            }
+        } catch (error) {
+            console.error("[MINUTES LISTENER] Error:", error);
+            showToast("Error: Gagal memuat notulensi");
+        }
+    }, (err) => {
+        if (retryTimeout) {
+            clearTimeout(retryTimeout);
+            retryTimeout = null;
+        }
+        
+        if (err.code !== 'permission-denied') {
+            console.error("[MINUTES LISTENER] Sync error:", err);
+            showToast("Error: Gagal sinkronisasi notulensi");
+        }
+    });
+
+    unsubscribers.push(() => {
+        unsub();
+        if (retryTimeout) {
+            clearTimeout(retryTimeout);
+            retryTimeout = null;
+        }
+    });
+}
+
+let saveTimeout;
+
+async function syncMinutes(text) {
+    if (!activeRoom || userRole !== 'notulen') return;
+
+    const autosave = document.getElementById('autosaveIndicator');
+    if (autosave) {
+        autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>Menyimpan...';
+        autosave.classList.replace('text-emerald-500', 'text-amber-500');
+    }
+
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(async () => {
+        try {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', activeRoom.id), {
+                text,
+                lastUpdated: new Date().toISOString(),
+                wordCount: text ? text.split(/\s+/).filter(word => word.length > 0).length : 0
+            }, { merge: true });
+
+            if (autosave) {
+                autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Tersimpan';
+                autosave.classList.replace('text-amber-500', 'text-emerald-500');
+            }
+        } catch (err) {
+            console.error("Auto-sync error:", err);
+            if (autosave) {
+                autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>Gagal Simpan';
+                autosave.classList.replace('text-emerald-500', 'text-red-500');
+            }
+            showToast("Gagal menyimpan: " + err.message);
+        }
+    }, 1000); // Debounce 1 detik
+}
+
+function destroyQuill() {
+    if (quill) {
+        try {
+            // Remove stored text-change listener specifically
+            if (quillTextChangeListener) {
+                quill.off('text-change', quillTextChangeListener);
+                quillTextChangeListener = null;
+            }
+            // Remove all other event listeners
+            quill.off('text-change');
+            quill.off('selection-change');
+            quill.off('editor-change');
+            
+            // Clear the Quill content properly
+            if (quill.root) {
+                quill.root.innerHTML = '';
+            }
+            
+            // Destroy the Quill instance
+            quill = null;
+        } catch (error) {
+            console.warn('Error destroying Quill:', error);
+            quill = null;
+            quillTextChangeListener = null;
+        }
+    }
+
+    // Clear the DOM element to ensure clean slate
+    const editorEl = document.getElementById('minutesInput');
+    const wrapperEl = document.getElementById('editorWrapper');
+    if (wrapperEl) {
+        // Remove ALL Quill elements (toolbar + container) inside wrapper
+        wrapperEl.querySelectorAll('.ql-toolbar, .ql-container').forEach(el => el.remove());
+    }
+    if (editorEl) {
+        editorEl.innerHTML = '';
+        // Remove any Quill-related classes or attributes
+        editorEl.className = editorEl.className.replace(/ql-[\w-]+/g, '').trim();
+        editorEl.removeAttribute('contenteditable');
+        editorEl.removeAttribute('data-gramm');
+        editorEl.removeAttribute('data-grm-correct');
+    }
+}
+
+// Export ke global scope (delegasi ke minutes-tools-module.js)
+window.exportRoomToPDF = async () => { await minutesToolsModule.exportRoomToPDF(); };
+window.exportMinutes = () => minutesToolsModule.exportMinutes();
+
+const attendanceModule = createAttendanceModule({
+db,
+appId,
+collection,
+query,
+where,
+onSnapshot,
+doc,
+updateDoc,
+deleteDoc,
+escapeJsString,
+escapeHtml,
+showToast,
+showLoading,
+getUserRole: () => userRole,
+getIsDeveloper: () => isDeveloper,
+getActiveRoom: () => activeRoom,
+getCurrentUser: () => currentUser,
+getUnsubscribers: () => unsubscribers
+});
+
+function setupRealtimeAttendance(roomId) {
+attendanceModule.setupRealtimeAttendance(roomId);
+}
+
+window.pingParticipant = async (docId) => {
+await attendanceModule.pingParticipant(docId);
+};
+
+window.deleteAttendance = async (docId) => {
+await attendanceModule.deleteAttendance(docId);
+};
+
+const resourceModule = createResourceModule({
+appState,
+db,
+appId,
+collection,
+query,
+where,
+onSnapshot,
+doc,
+deleteDoc,
+updateDoc,
+addDoc,
+escapeJsString,
+escapeHtml,
+escapeAttr,
+normalizeSafeUrl,
+getResourceIcon,
+toggleModal,
+showLoading,
+showToast,
+getUserRole: () => userRole,
+getIsDeveloper: () => isDeveloper,
+getActiveRoom: () => activeRoom,
+getUnsubscribers: () => unsubscribers
+});
+
+function setupRealtimeResources(roomId) {
+resourceModule.setupRealtimeResources(roomId);
+}
+
+window.deleteResource = async (docId) => {
+await resourceModule.deleteResource(docId);
+};
+
+window.openEditResourceModal = (docId) => {
+resourceModule.openEditResourceModal(docId);
+};
+
+window.submitEditResource = async (e) => {
+await resourceModule.submitEditResource(e);
+};
+
+window.submitResource = async (e) => {
+await resourceModule.submitResource(e);
+};
+
+window.pastePin = async () => {
+try {
+const text = await navigator.clipboard.readText();
+if (text) {
+const input = document.getElementById('joinPinInput');
+if (input) {
+input.value = text.trim().substring(0, 6);
+showToast("PIN Ditempel!");
+}
+}
+} catch (err) {
+showToast("Gagal mengakses clipboard. Gunakan Ctrl+V.");
+}
+};
+
+window.confirmEndMeeting = async () => {
+await roomManagementModule.confirmEndMeeting();
+};
+
+window.copyToClipboard = async function(text) {
+try {
+await navigator.clipboard.writeText(text);
+showToast('PIN Disalin!');
+} catch (err) {
+const textArea = document.createElement("textarea"); 
+textArea.value = text; 
+textArea.style.position = "fixed"; 
+textArea.style.left = "-999999px"; 
+textArea.style.top = "-999999px";
+document.body.appendChild(textArea); 
+textArea.focus(); 
+textArea.select();
+try { document.execCommand('copy'); showToast('PIN Disalin!'); } catch (fallbackErr) { showToast('Gagal menyalin PIN'); }
+document.body.removeChild(textArea);
+}
+};
+
+
+// Developer Mode: Handle attendance choice
+window.handleDevAttendanceChoice = function(choice) {
+// choice: true = daftar hadir, false = tidak daftar
+const modal = document.getElementById('devAttendanceModal');
+if (modal) {
+modal.classList.add('hidden');
+modal.classList.remove('flex');
+}
+
+if (choice) {
+devAttendanceChoice = 'yes';
+showToast('Developer akan terdaftar sebagai peserta hadir');
+} else {
+devAttendanceChoice = 'no';
+showToast('Developer masuk sebagai pengamat (tidak terdaftar hadir)');
+}
+
+// Continue room entry
+if (pendingDevRoomEntry) {
+const { roomId, pin, isNotulen } = pendingDevRoomEntry;
+pendingDevRoomEntry = null;
+continueEnterRoom(roomId, pin, isNotulen);
+}
+};
+
+window.handleCreateRoom = (e) => {
+roomManagementModule.handleCreateRoom(e);
+};
+
+window.openCreateRoomModal = () => {
+roomManagementModule.openCreateRoomModal();
+};
+
+window.openJoinModal = (id, title) => { roomEntryModule.openJoinModal(id, title); };
+window.openEditRoomModal = () => { roomManagementModule.openEditRoomModal(); };
+window.handleEditRoom = async (e) => { await roomManagementModule.handleEditRoom(e); };
+window.handleJoinRoom = (e) => { roomEntryModule.handleJoinRoom(e); };
+window.handleDirectEntry = async (id, pin) => { 
+await roomEntryModule.handleDirectEntry(id, pin);
+};
+
+// Guest Join Functions
+window.openGuestLoginModal = () => {
+guestModule.openGuestLoginModal();
+};
+
+window.closeGuestJoinModal = () => {
+guestModule.closeGuestJoinModal();
+};
+
+window.switchToGuestJoin = () => {
+guestModule.switchToGuestJoin();
+};
+
+window.handleGuestJoin = async (e) => {
+await guestModule.handleGuestJoin(e);
+};
+
+window.switchAuthMode = (mode) => {
+authModule.switchAuthMode(mode);
+};
+
+window.handleSocialLogin = async () => {
+await authModule.handleSocialLogin();
+};
+
+window.handleAuthSubmit = async (e, type) => {
+await authModule.handleAuthSubmit(e, type);
+};
+
+window.handleSetupProfile = async (e) => {
+await authModule.handleSetupProfile(e);
+};
+
+window.handleHeaderLogoClick = async () => {
+    // If user is a guest and currently in a room, prevent going to dashboard
+    if (window.isGuestUser && activeRoom) {
+        showToast("Tamu tidak dapat mengakses dashboard. Silakan keluar dari rapat terlebih dahulu.");
+        return;
+    }
+    
+    // FLUSH: Simpan data pending sebelum keluar (sama seperti minimizeRoom)
+    if (saveTimeout && quill && activeRoom && userRole === 'notulen') {
+        console.log('[LOGO CLICK] Flushing pending save...');
+        clearTimeout(saveTimeout);
+        saveTimeout = null;
+        try {
+            const content = quill.root.innerHTML;
+            const sanitizedContent = DOMPurify.sanitize(content);
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', activeRoom.id), {
+                text: sanitizedContent,
+                lastUpdated: new Date().toISOString(),
+                wordCount: sanitizedContent ? sanitizedContent.split(/\s+/).filter(word => word.length > 0).length : 0
+            }, { merge: true });
+            console.log('[LOGO CLICK] Final save completed');
+        } catch (err) {
+            console.error('[LOGO CLICK] Final save failed:', err);
+        }
+    }
+    
+    // Destroy Quill and clear listeners before switching
+    destroyQuill();
+    clearListeners();
+    
+    // Clear room session when manually going to dashboard
+    clearSavedRoomSession();
+    activeRoom = null;
+    
+    // Otherwise, go to dashboard and setup listener
+    setupDashboardListener();
+    switchView('dashboard');
+};
+
+window.handleLogout = async () => {
+if(confirm("Yakin ingin keluar dari E-Rapat?")) {
+// FLUSH: Simpan data pending jika logout saat di room
+if (saveTimeout && quill && activeRoom && userRole === 'notulen') {
+console.log('[LOGOUT] Flushing pending save...');
+clearTimeout(saveTimeout);
+saveTimeout = null;
+try {
+const content = quill.root.innerHTML;
+const sanitizedContent = DOMPurify.sanitize(content);
+await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', activeRoom.id), {
+text: sanitizedContent,
+lastUpdated: new Date().toISOString(),
+wordCount: sanitizedContent ? sanitizedContent.split(/\s+/).filter(word => word.length > 0).length : 0
+}, { merge: true });
+console.log('[LOGOUT] Final save completed');
+} catch (err) {
+console.error('[LOGOUT] Final save failed:', err);
+}
+}
+
+// Clear room session on logout
+await authModule.handleLogout();
+}
+};
+
+window.minimizeRoom = async () => {
+    console.log('[MINIMIZE] Starting room exit, flushing pending saves...');
+    
+    // FLUSH: Tunggu save pending selesai sebelum keluar
+    if (saveTimeout) {
+        console.log('[MINIMIZE] Flushing pending save...');
+        clearTimeout(saveTimeout);
+        saveTimeout = null;
+        
+        // Simpan data terakhir segera (tanpa debounce)
+        if (quill && activeRoom && userRole === 'notulen') {
+            try {
+                const content = quill.root.innerHTML;
+                const contentLength = content.length;
+                console.log('[MINIMIZE] Saving content length:', contentLength);
+                console.log('[MINIMIZE] Content preview:', content.substring(0, 200));
+                
+                const sanitizedContent = DOMPurify.sanitize(content);
+                const saveData = {
+                    text: sanitizedContent,
+                    lastUpdated: new Date().toISOString(),
+                    wordCount: sanitizedContent ? sanitizedContent.split(/\s+/).filter(word => word.length > 0).length : 0
+                };
+                console.log('[MINIMIZE] Save data:', saveData);
+                
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', activeRoom.id), saveData, { merge: true });
+                console.log('[MINIMIZE] Final save completed SUCCESSFULLY');
+                showToast('Notulen disimpan sebelum keluar');
+            } catch (err) {
+                console.error('[MINIMIZE] Final save failed:', err);
+                showToast('Gagal menyimpan: ' + err.message);
+            }
+        } else {
+            console.log('[MINIMIZE] No quill/activeRoom/notulen role, skipping save');
+            console.log('[MINIMIZE] Conditions:', { hasQuill: !!quill, hasActiveRoom: !!activeRoom, userRole, roomId: activeRoom?.id });
+        }
+    } else {
+        console.log('[MINIMIZE] No pending save (saveTimeout is null)');
+    }
+    
+    destroyQuill();
+    clearListeners();
+    stopMeetingDuration();
+    
+    // Clear room session when manually leaving
+    clearSavedRoomSession();
+    sessionStorage.removeItem('guestSession');
+    
+    // If guest user, redirect to login page instead of dashboard
+    if (window.isGuestUser) {
+        window.isGuestUser = false;
+        window.guestData = null;
+        switchView('login');
+        document.getElementById('authPage').classList.remove('hidden');
+        document.getElementById('mainApp').classList.add('hidden');
+    } else {
+        setupDashboardListener();
+        switchView('dashboard');
+    }
+    activeRoom = null;
+    console.log('[MINIMIZE] Room exit completed');
+};
+
+window.openResourceModal = () => { const n = document.getElementById('resName'); const u = document.getElementById('resUrl'); if(n) n.value = ''; if(u) u.value = ''; toggleModal('addResourceModal', true); };
+
+window.checkPasswordStrength = function(inputSelector, textSelector, barSelector, containerSelector) {
+const input = document.querySelector(inputSelector);
+const container = document.querySelector(containerSelector);
+const text = document.querySelector(textSelector);
+const bar = document.querySelector(barSelector);
+if (!input || !container || !text || !bar) return;
+const p = input.value;
+if (!p) { container.classList.add('hidden'); return; }
+container.classList.remove('hidden');
+let s = 0;
+if (p.length >= 6) s += 1;
+if (p.length >= 8) s += 1;
+if (/[A-Z]/.test(p)) s += 1;
+if (/[0-9]/.test(p)) s += 1;
+if (/[^A-Za-z0-9]/.test(p)) s += 1;
+let txt = ''; let cls = ''; let w = '0%'; let tc = '';
+if (s <= 1) { txt = 'Sangat Lemah'; cls = 'bg-red-500'; w = '20%'; tc = 'text-red-500'; }
+else if (s === 2) { txt = 'Lemah'; cls = 'bg-orange-500'; w = '40%'; tc = 'text-orange-500'; }
+else if (s === 3) { txt = 'Sedang'; cls = 'bg-yellow-500'; w = '60%'; tc = 'text-yellow-600'; }
+else if (s === 4) { txt = 'Kuat'; cls = 'bg-emerald-500'; w = '80%'; tc = 'text-emerald-500'; }
+else { txt = 'Sangat Kuat'; cls = 'bg-indigo-600'; w = '100%'; tc = 'text-indigo-600'; }
+text.innerText = txt; text.className = `text-[10px] font-bold ${tc}`;
+bar.className = `h-full transition-all duration-300 ${cls}`; bar.style.width = w;
+};
+
+// Template Notulensi - Insert structured template
+window.insertNotulenTemplate = function() {
+    minutesToolsModule.insertNotulenTemplate();
+};
+
+// Scroll to specific H2 section in editor
+window.scrollToSection = (index) => {
+    minutesToolsModule.scrollToSection(index);
+};
+
+window.checkPasswordMatch = (context) => {
+let passEl, confirmEl;
+if (context === 'settings') {
+passEl = document.getElementById('settingsPassword');
+confirmEl = document.getElementById('settingsConfirmPassword');
+} else if (context === 'setup') {
+passEl = document.getElementById('setupPassword');
+confirmEl = document.getElementById('setupConfirmPassword');
+} else if (context === 'register') {
+passEl = document.getElementById('regPassword');
+confirmEl = document.getElementById('regConfirmPassword');
+}
+if (!confirmEl) return;
+const p = passEl ? passEl.value : '';
+const c = confirmEl.value;
+confirmEl.classList.remove('input-match-valid', 'input-match-invalid');
+if (c.length === 0) return;
+if (p === c) {
+confirmEl.classList.add('input-match-valid');
+} else {
+confirmEl.classList.add('input-match-invalid');
+}
+};
+
+window.sendVerificationEmailAction = async () => {
+await settingsModule.sendVerificationEmailAction();
+};
+
+window.requestPasswordReset = async () => {
+await settingsModule.requestPasswordReset();
+};
+
+// Update user name across all attendance records (real-time update)
+async function updateUserNameAcrossSystem(newName) {
+await settingsModule.updateUserNameAcrossSystem(newName);
+}
+
+window.saveProfileSettings = async (e) => {
+await settingsModule.saveProfileSettings(e);
+};
+
+window.handleGuestLogout = () => {
+if(confirm("Yakin ingin keluar dari rapat?")) {
+// Clear guest session
+sessionStorage.removeItem('guestSession');
+window.isGuestUser = false;
+window.guestData = null;
+
+// Clear room session if any
+clearSavedRoomSession();
+activeRoom = null;
+
+// Show auth page, hide main app
+document.getElementById('authPage').classList.remove('hidden');
+document.getElementById('mainApp').classList.add('hidden');
+
+// Reset to login view
+switchView('login');
+showToast("Anda telah keluar dari rapat.");
+}
+};
+
+initAuth();
+
+// Cek URL parameter untuk direct room access saat pertama kali load
+window.handleUrlRoomAccess();
+
+// Bind live preview for settings profile card
+bindSettingsCardLivePreview();
+
+// Mobile Panel Toggle Function (replaces tab switching)
+window.toggleMobilePanel = (panelName) => {
+    const panel = document.getElementById(panelName + 'PanelContentMobile');
+    const icon = document.getElementById(panelName + 'MobileToggleIcon');
+    if (!panel || !icon) return;
+    
+    if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        panel.classList.add('hidden');
+        icon.style.transform = 'rotate(0deg)';
+    }
+};
+
+/* --- Sidebar Resizer Logic --- */
+function initSidebarResizer() {
+    const layout = document.getElementById('desktopRoomLayout');
+    const handle = document.getElementById('resizerHandle');
+    if (!layout || !handle) return;
+
+    let isResizing = false;
+
+    // Load saved width
+    const savedWidth = localStorage.getItem('era-sidebar-width');
+    if (savedWidth) {
+        layout.style.setProperty('--sidebar-width', savedWidth);
+    }
+
+    handle.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        document.body.style.cursor = 'col-resize';
+        handle.classList.add('is-resizing');
+        document.body.classList.add('select-none'); // Prevent text selection
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        
+        const containerRect = layout.getBoundingClientRect();
+        const containerWidth = layout.offsetWidth;
+        const mouseX = e.clientX;
+        
+        // Calculate sidebar width based on distance from right edge
+        let newSidebarWidth = containerRect.right - mouseX;
+        
+        // Limits
+        const minWidth = 300;
+        const maxWidth = containerWidth * 0.45;
+
+        if (newSidebarWidth < minWidth) newSidebarWidth = minWidth;
+        if (newSidebarWidth > maxWidth) newSidebarWidth = maxWidth;
+
+        layout.style.setProperty('--sidebar-width', `${newSidebarWidth}px`);
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isResizing) {
+            isResizing = false;
+            document.body.style.cursor = '';
+            handle.classList.remove('is-resizing');
+            document.body.classList.remove('select-none');
+            localStorage.setItem('era-sidebar-width', layout.style.getPropertyValue('--sidebar-width'));
+        }
+    });
+
+    // Double click to reset
+    handle.addEventListener('dblclick', () => {
+        layout.style.setProperty('--sidebar-width', '400px');
+        localStorage.removeItem('era-sidebar-width');
+    });
+}
+
+// Call initialization
+document.addEventListener('DOMContentLoaded', initSidebarResizer);
+
+</script>
+
+<style>
+/* ============================================
+   APP-SPECIFIC STYLES & OVERRIDES
+   ============================================ */
+
+/* --- Quill Editor Integration --- */
+#tab-content-notulensi { display: flex; flex-direction: column; height: 100%; }
+#editMinutes { display: flex; flex-direction: column; height: 100%; }
+#editorWrapper { flex: 1; min-height: 650px; }
+#minutesInput { height: 100%; }
+
+/* Quill Toolbar Styling */
+.ql-toolbar.ql-snow {
+    border-color: var(--slate-200) !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+    background: white !important;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: 12px !important;
+}
+
+.ql-container.ql-snow { 
+    border-color: var(--slate-200) !important; 
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
+.ql-editor { 
+    min-height: 650px; 
+    background: white; 
+    text-align: left !important;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    padding: 1.5rem !important;
+}
+
+.ql-editor p { 
+    margin-bottom: 0.75em; 
+    text-align: left !important; 
+}
+
+.ql-editor > * { text-align: left !important; }
+
+/* Placeholder when empty */
+.ql-editor.ql-blank::before {
+    content: "Ketik notulensi rapat...";
+    color: var(--slate-400);
+    font-style: italic;
+    pointer-events: none;
+    font-size: 1rem;
+}
+
+/* Editor Container */
+#editorWrapper { 
+    position: relative; 
+    z-index: 1; 
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--slate-200);
+}
+
+#minutesInput { position: relative; }
+#minutesInput .ql-editor { cursor: text; }
+#minutesInput .ql-container { position: relative; }
+
+/* Template Button Styling */
+.ql-template {
+    width: 28px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    margin-left: 8px;
+    border-radius: var(--radius);
+    transition: all var(--transition-fast);
+}
+
+.ql-template:hover {
+    background: var(--slate-100);
+}
+
+.ql-template svg { stroke: var(--slate-600); }
+.ql-template:hover svg { stroke: var(--primary-600); }
+
+/* Notulensi Template Section Styling - Intelligent & Premium */
+.ql-editor h2, #displayMinutes h2 {
+    position: relative;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--slate-200);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1.3;
+}
+
+/* First H2: Ringkasan Pembahasan */
+.ql-editor h2:nth-of-type(1), #displayMinutes h2:nth-of-type(1) {
+    color: var(--primary-700) !important;
+    border-bottom-color: var(--primary-200);
+}
+.ql-editor h2:nth-of-type(1)::before, #displayMinutes h2:nth-of-type(1)::before {
+    content: '📘';
+    font-style: normal;
+}
+
+/* Second H2: Keputusan Rapat */
+.ql-editor h2:nth-of-type(2), #displayMinutes h2:nth-of-type(2) {
+    color: var(--success-600) !important;
+    border-bottom-color: var(--success-200);
+}
+.ql-editor h2:nth-of-type(2)::before, #displayMinutes h2:nth-of-type(2)::before {
+    content: '✅';
+    font-style: normal;
+}
+
+/* Third H2: Tindak Lanjut */
+.ql-editor h2:nth-of-type(3), #displayMinutes h2:nth-of-type(3) {
+    color: var(--warning-600) !important;
+    border-bottom-color: var(--warning-200);
+}
+.ql-editor h2:nth-of-type(3)::before, #displayMinutes h2:nth-of-type(3)::before {
+    content: '🚀';
+    font-style: normal;
+}
+
+.ql-editor h2:first-of-type, #displayMinutes h2:first-of-type { margin-top: 0; }
+
+.ql-editor ul, #displayMinutes ul {
+    padding-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+.ql-editor li, #displayMinutes li { margin-bottom: 0.5em; }
+
+.ql-editor li strong, #displayMinutes li strong {
+    color: var(--success-600);
+    font-weight: 600;
+}
+
+/* --- Display Minutes Styles --- */
+#displayMinutes {
+    font-family: var(--font-sans);
+    line-height: 1.7;
+    color: var(--slate-700);
+    padding: 1.5rem;
+}
+
+#displayMinutes h1, 
+#displayMinutes h2, 
+#displayMinutes h3, 
+#displayMinutes h4, 
+#displayMinutes h5, 
+#displayMinutes h6 {
+    color: var(--slate-800);
+    font-weight: 700;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    padding-bottom: 0.25em;
+    border-bottom: 2px solid var(--slate-200);
+    line-height: 1.3;
+}
+
+#displayMinutes h1 { font-size: 1.5rem; }
+#displayMinutes h2 { font-size: 1.25rem; color: var(--primary-600); }
+#displayMinutes h3 { font-size: 1.125rem; }
+
+#displayMinutes h2:first-of-type,
+#displayMinutes h1:first-of-type {
+    margin-top: 0;
+}
+
+#displayMinutes p {
+    margin-bottom: 0.75em;
+    text-align: left !important;
+}
+
+#displayMinutes ul, 
+#displayMinutes ol {
+    padding-left: 1.5em;
+    margin-bottom: 1em;
+}
+
+#displayMinutes li { margin-bottom: 0.5em; }
+
+#displayMinutes li strong {
+    color: var(--success-600);
+    font-weight: 600;
+}
+
+#displayMinutes blockquote {
+    border-left: 4px solid var(--primary-400);
+    padding-left: 1em;
+    margin-left: 0;
+    color: var(--slate-600);
+    font-style: italic;
+    background: var(--slate-50);
+    padding: 1rem 1.25rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+#displayMinutes a {
+    color: var(--primary-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+#displayMinutes a:hover { color: var(--primary-700); }
+
+#displayMinutes strong {
+    font-weight: 700;
+    color: var(--slate-800);
+}
+
+#displayMinutes em { font-style: italic; }
+#displayMinutes u { text-decoration: underline; }
+#displayMinutes s { text-decoration: line-through; }
+
+#displayMinutes code {
+    background: var(--slate-100);
+    padding: 0.2em 0.4em;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    color: var(--slate-700);
+}
+
+#displayMinutes pre {
+    background: var(--slate-100);
+    padding: 1em;
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+}
+
+#displayMinutes img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Section Navigator for Editor */
+.section-nav {
+    position: absolute;
+    right: -50px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 20;
+}
+
+@media (max-width: 1280px) {
+    .section-nav {
+        display: none;
+    }
+}
+
+.nav-item {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+    color: var(--slate-400);
+}
+
+.nav-item:hover {
+    color: var(--primary-600);
+    border-color: var(--primary-200);
+    transform: translateX(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.nav-item.active {
+    background: var(--primary-600);
+    color: white;
+    border-color: var(--primary-600);
+}
+
+.input-match-valid {
+    border-color: var(--success-500) !important;
+    background-color: var(--success-50) !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+.input-match-invalid {
+    border-color: var(--error-500) !important;
+    background-color: var(--error-50) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* --- Legacy Button Hover Override --- */
+button:hover {
+    transform: translateY(-1px);
+    transition: all var(--transition-fast);
+}
+
+/* --- Responsive Design --- */
+
+/* Desktop (Large screens) */
+@media (min-width: 1025px) {
+    #view-live {
+        height: calc(100vh - 64px);
+    }
+    
+    /* Sidebar container */
+    .hidden.lg\:flex.flex-col.w-80 {
+        max-height: calc(100vh - 200px) !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Participants Panel */
+    #participantsPanelContent {
+        max-height: none !important;
+        min-height: 100px;
+        max-height: 400px !important;
+    }
+    
+    /* Resources Panel */
+    #resourcesPanelContent {
+        max-height: 300px !important;
+    }
+
+    /* Sidebar Resizer Layout */
+    #desktopRoomLayout {
+        grid-template-columns: 1fr 6px var(--sidebar-width, 400px) !important;
+        gap: 0 !important;
+    }
+
+    .resizer-handle {
+        width: 6px;
+        cursor: col-resize;
+        background: transparent;
+        transition: all 0.2s ease;
+        z-index: 40;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 -3px; /* Pull handle over both columns for better hit area */
+    }
+
+    .resizer-handle::after {
+        content: '';
+        width: 2px;
+        height: 100px;
+        background: #e2e8f0;
+        border-radius: 10px;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .resizer-handle:hover::after, 
+    .resizer-handle.is-resizing::after {
+        opacity: 1;
+        height: 100%;
+        background: #6366f1;
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .resizer-handle:hover {
+        background: rgba(99, 102, 241, 0.03);
+    }
+
+    .resizer-handle.is-resizing {
+        background: rgba(99, 102, 241, 0.08);
+    }
+}
+
+/* Tablet & Mobile */
+@media (max-width: 1024px) {
+    #view-live:not(.hidden) {
+        padding: 0 !important;
+        min-height: calc(100vh - 64px); 
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        overflow: visible;
+    }
+    
+    #view-live.hidden {
+        display: none !important;
+    }
+    
+    /* Hide footer in live room mobile view */
+    #view-live ~ footer,
+    #mainApp:has(#view-live:not(.hidden)) footer {
+        display: none !important;
+    }
+    
+    .live-sidebar-container {
+        display: none !important;
+    }
+    
+    /* Mobile tabs must be clickable */
+    .lg\:hidden.flex {
+        position: relative;
+        z-index: 50;
+    }
+    
+    #mobile-tab-btn-notulensi,
+    #mobile-tab-btn-lampiran,
+    #mobile-tab-btn-peserta {
+        position: relative;
+        z-index: 51;
+        pointer-events: auto;
+        cursor: pointer;
+    }
+    
+    .mobile-tab-content {
+        flex: 1;
+        overflow: visible;
+        min-height: 0;
+    }
+    
+    #tab-content-notulensi {
+        min-height: 70vh;
+    }
+    
+    #displayMinutes, #editMinutes {
+        min-height: 65vh;
+        height: auto !important;
+    }
+    
+    #editorWrapper {
+        min-height: 55vh;
+    }
+    
+    #minutesInput .ql-editor {
+        min-height: 50vh;
+    }
+
+    #mainApp footer {
+        display: block !important;
+    }
+    
+    #participantsPanelContentMobile {
+        max-height: 60vh !important;
+    }
+}
+
+/* Panel Peserta - Ensure scrollable on all screen sizes */
+#participantsPanelContent,
+#participantsPanelContentMobile {
+    max-height: none !important;
+    overflow-y: auto !important;
+}
+
+/* --- Print Styles --- */
+@media print {
+    .no-print,
+    #loadingOverlay,
+    #authPage,
+    nav,
+    header,
+    footer,
+    .btn,
+    .ql-toolbar {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    #displayMinutes {
+        padding: 0;
+        font-size: 12pt;
+        line-height: 1.5;
+    }
+}
+
+/* --- Login Background Animation --- */
+@keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+}
+.animate-blob {
+    animation: blob 7s infinite;
+}
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+</style>
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[300] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+<div class="flex flex-col items-center gap-4">
+<div class="relative w-10 h-10"><div class="absolute inset-0 border-2 border-indigo-100 rounded-full"></div><div class="absolute inset-0 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>
+<p id="loadingMsg" class="font-bold text-indigo-900 text-[10px] uppercase tracking-wider">Memproses...</p>
+</div>
+</div>
+
+<!-- Login Page -->
+<div id="authPage" class="min-h-screen w-full flex flex-col items-center justify-center p-4 bg-slate-50 hidden relative">
+<!-- Decorative Background -->
+<div class="absolute inset-0 overflow-hidden pointer-events-none">
+<div class="absolute -top-40 -right-40 w-96 h-96 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+<div class="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+</div>
+
+<div class="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-xl overflow-hidden flex flex-col md:flex-row page-fade border border-slate-100 z-10 my-4 min-h-[600px]">
+<!-- Left Side: Branding Banner -->
+<div class="md:w-5/12 bg-indigo-600 text-white flex flex-col justify-between relative overflow-hidden shrink-0">
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+<div class="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+<div class="absolute -left-20 -bottom-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+
+<div class="relative z-10 p-10 flex flex-col h-full justify-center">
+<div class="text-center mb-8">
+<div class="inline-flex items-center justify-center w-24 h-24 bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-6 border border-white/20 shadow-inner">
+<img src="assets/images/Logo-Universitas-Samudra-150px.png" class="w-full h-full object-contain drop-shadow-md">
+</div>
+<h2 class="text-3xl font-bold leading-tight mb-4 tracking-tight">E-Rapat<br>Universitas Samudra</h2>
+<div class="w-12 h-1 bg-indigo-400 mx-auto rounded-full mb-6"></div>
+<p class="text-indigo-100/90 text-sm leading-relaxed max-w-xs mx-auto font-medium">
+Transformasi digital untuk pengelolaan notulensi rapat yang lebih efisien, transparan, dan terintegrasi.
+</p>
+</div>
+</div>
+</div>
+
+<!-- Right Side: Auth Forms -->
+<div class="md:w-7/12 p-8 lg:p-12 flex flex-col justify-center bg-white w-full relative">
+<div class="max-w-sm w-full mx-auto">
+<div class="mb-8">
+<h3 id="authModeTitle" class="text-3xl font-extrabold text-slate-800 tracking-tight mb-2">Selamat Datang</h3>
+<p class="text-slate-500 text-sm font-medium">Silakan masuk ke akun Anda untuk melanjutkan.</p>
+</div>
+
+<div id="loginFormContainer">
+<button onclick="window.handleSocialLogin()" class="w-full flex items-center justify-center gap-3 py-3 px-4 border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all duration-200 mb-6 font-bold text-slate-700 text-sm shadow-sm hover:shadow group">
+<svg width="18" height="18" viewBox="0 0 24 24" class="group-hover:scale-110 transition-transform">
+<path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+<path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+<path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+<path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-7.9 2.47-9.82 6.13l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+</svg>
+Lanjutkan dengan Google
+</button>
+
+<div class="relative flex items-center py-5 mb-2">
+<div class="flex-grow border-t border-slate-200"></div>
+<span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-bold uppercase tracking-wider">Atau dengan Email</span>
+<div class="flex-grow border-t border-slate-200"></div>
+</div>
+
+<form onsubmit="window.handleAuthSubmit(event, 'login')" class="space-y-4">
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">Email</label>
+<input type="email" required placeholder="dosen@unsam.ac.id" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">Kata Sandi</label>
+<input type="password" required placeholder="••••••••" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+</div>
+<div class="flex justify-end pt-1">
+<button type="button" onclick="window.toggleModal('forgotPasswordModal', true)" class="text-xs text-indigo-600 font-bold hover:text-indigo-800 transition-colors">Lupa Kata Sandi?</button>
+</div>
+<button type="submit" class="w-full py-3.5 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm mt-2">Masuk Dashboard</button>
+</form>
+
+<div class="mt-8 pt-6 border-t border-slate-100 text-center">
+<p class="text-sm text-slate-500 font-medium">
+Belum memiliki akun? <button onclick="window.switchAuthMode('register')" class="text-indigo-600 font-bold hover:underline transition-colors">Daftar Sekarang</button>
+</p>
+</div>
+
+<div class="mt-4 pt-4 text-center">
+<button onclick="window.openGuestLoginModal()" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-teal-50 text-teal-700 rounded-xl font-bold hover:bg-teal-100 transition-colors text-xs border border-teal-100">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+Masuk sebagai Tamu
+</button>
+</div>
+</div>
+
+<div id="registerFormContainer" class="hidden">
+<form onsubmit="window.handleAuthSubmit(event, 'register')" class="space-y-4">
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">Nama Lengkap & Gelar</label>
+<input type="text" id="regName" required placeholder="Contoh: Dr. Budi Santoso, M.T." class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">NIP / NIDN <span class="text-slate-400 font-normal">(Opsional)</span></label>
+<input type="text" id="regNip" placeholder="Masukkan NIP/NIDN jika ada" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">Email</label>
+<input type="email" required placeholder="dosen@unsam.ac.id" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+</div>
+<div class="space-y-1">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">Kata Sandi</label>
+<input type="password" id="regPassword" required placeholder="Minimal 6 karakter" oninput="window.checkPasswordStrength('#regPassword', '#regStrengthText', '#regStrengthBar', '#regStrengthContainer')" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+<div id="regStrengthContainer" class="hidden px-2 pt-1">
+<div class="flex justify-between items-center mb-1.5"><span id="regStrengthText" class="text-[10px] font-bold uppercase tracking-wider"></span></div>
+<div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden"><div id="regStrengthBar" class="h-full w-0 transition-all duration-300"></div></div>
+</div>
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">Konfirmasi Kata Sandi</label>
+<input type="password" id="regConfirmPassword" required oninput="window.checkPasswordMatch('register')" placeholder="Ulangi kata sandi" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
+</div>
+<button type="submit" class="w-full py-3.5 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm mt-6">Buat Akun</button>
+</form>
+
+<div class="mt-8 pt-6 border-t border-slate-100 text-center">
+<p class="text-sm text-slate-500 font-medium">
+Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="text-indigo-600 font-bold hover:underline transition-colors">Login Disini</button>
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- MAIN APP STRUCTURE -->
+<div id="mainApp" class="bg-slate-50 min-h-screen">
+<header class="glass-header z-50 px-4 py-3 border-b border-slate-200 relative">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 cursor-pointer" onclick="window.handleHeaderLogoClick()">
+<img src="assets/images/Logo-Universitas-Samudra-150px.png" alt="Logo UNSAM" class="h-8 w-8 md:h-10 md:w-10 object-contain">
+<h2 class="hidden md:block text-sm md:text-base font-bold text-slate-800 leading-none">E-Rapat Universitas Samudra</h2>
+</div>
+<div class="flex items-center gap-2 relative z-[9999]">
+<button onclick="window.toggleProfileMenu(event)" class="focus:outline-none flex items-center gap-2">
+<span class="user-name-text hidden md:block text-sm font-semibold text-slate-700 whitespace-nowrap">Dosen UNSAM</span>
+<img id="userAvatarDisplay" src="" class="user-avatar-img w-8 h-8 md:w-9 md:h-9 rounded-lg border border-slate-200 object-cover bg-white shadow-sm">
+</button>
+<div id="profileDropdown" class="hidden absolute right-0 top-12 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-[99999] transform origin-top-right transition-all duration-200 opacity-0 scale-95">
+<button onclick="window.switchView('settings');" class="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-3">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Pengaturan Akun
+</button>
+<button onclick="window.handleLogout();" class="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-3">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg> Keluar
+</button>
+</div>
+</div>
+</div>
+</header>
+
+<main class="overflow-y-auto custom-scrollbar flex flex-col" style="min-height: calc(100vh - 64px);">
+<!-- VIEW: SETUP PROFILE -->
+<div id="view-setup-profile" class="hidden page-fade max-w-xl w-full mx-auto p-6 lg:p-10 space-y-8 flex-1 flex flex-col justify-center">
+<div class="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+<div class="text-center">
+<h4 class="text-2xl font-bold text-slate-800">Lengkapi Profil Anda</h4>
+<p class="text-xs text-slate-500 mt-1">Harap atur identitas dan kata sandi pertama Anda.</p>
+</div>
+<form onsubmit="window.handleSetupProfile(event)" class="space-y-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Nama & Gelar</label>
+<input type="text" id="setupName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">NIP <span class="text-red-500">*</span></label>
+<input type="text" id="setupNip" required placeholder="Masukkan NIP" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">NIDN <span class="text-slate-400 font-normal">(Opsional)</span></label>
+<input type="text" id="setupNidn" placeholder="Untuk dosen tetap" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">NIDK <span class="text-slate-400 font-normal">(Opsional)</span></label>
+<input type="text" id="setupNidk" placeholder="Untuk dosen kontrak" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Unit Kerja <span class="text-red-500">*</span></label>
+<input type="text" id="setupUnitKerja" required placeholder="Fakultas/Prodi/Departemen" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Jabatan Fungsional <span class="text-red-500">*</span></label>
+<input type="text" id="setupJabatanFungsional" required placeholder="Contoh: Lektor, Guru Besar" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+<div class="space-y-1 pt-4 border-t border-slate-50">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Atur Kata Sandi Baru</label>
+<input type="password" id="setupPassword" required oninput="window.checkPasswordStrength('#setupPassword', '#setupStrengthText', '#setupStrengthBar', '#setupStrengthContainer')" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<div id="setupStrengthContainer" class="hidden px-1">
+<div class="flex justify-between items-center mb-1"><span id="setupStrengthText" class="text-[9px] font-bold"></span></div>
+<div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden"><div id="setupStrengthBar" class="h-full w-0 transition-all"></div></div>
+</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Konfirmasi Kata Sandi</label>
+<input type="password" id="setupConfirmPassword" required oninput="window.checkPasswordMatch('setup')" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+<button type="submit" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors mt-4">Simpan Profil & Lanjut</button>
+</form>
+</div>
+</div>
+
+<!-- VIEW: DASHBOARD -->
+<div id="view-dashboard" class="page-fade max-w-7xl w-full mx-auto p-4 lg:p-8 space-y-6 flex-1">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+<div class="lg:col-span-2 bg-indigo-600 rounded-[2rem] p-6 lg:p-8 text-white relative overflow-hidden shadow-lg border border-indigo-500">
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+<div class="absolute -left-20 -bottom-20 w-60 h-60 bg-white/5 rounded-full blur-3xl"></div>
+<div class="relative z-10 mb-6">
+<h3 id="welcomeGreeting" class="text-sm font-semibold text-indigo-100 mb-1 tracking-wide uppercase">Selamat Pagi,</h3>
+<h4 class="user-name-text text-2xl lg:text-4xl font-bold mb-2 tracking-tight">Dosen UNSAM</h4>
+<p class="text-indigo-100/80 text-sm max-w-md leading-relaxed">Pusat kontrol agenda dan notulensi digital.</p>
+</div>
+<div class="relative z-10 flex flex-col sm:flex-row gap-3 mb-8">
+<button onclick="window.openCreateRoomModal()" class="w-full sm:w-auto px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 shrink-0">
+<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+<span>Buat Agenda</span>
+</button>
+<div class="flex-1 bg-white/10 backdrop-blur-md rounded-xl flex items-center gap-2 px-2 py-1.5 min-w-0 border border-white/20">
+<input type="text" id="quickPinInput" placeholder="Masukkan PIN Room..." class="flex-1 bg-transparent text-white px-3 py-2 text-sm outline-none placeholder-indigo-200 min-w-0 font-medium tracking-wide">
+<button onclick="window.quickJoinRoom()" class="px-4 py-2 bg-indigo-500 hover:bg-indigo-400 text-white rounded-lg text-sm font-bold shadow-sm transition-all whitespace-nowrap shrink-0">Gabung</button>
+</div>
+</div>
+<div class="relative z-10 grid grid-cols-3 gap-3">
+<div class="bg-indigo-700/50 backdrop-blur-sm rounded-xl p-3 border border-indigo-500/50 text-center hover:bg-indigo-700/70 transition-colors">
+<span id="berlangsungCount" class="block text-2xl lg:text-3xl font-bold mb-0.5 tracking-tight text-emerald-400">0</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-indigo-100">Berlangsung</span>
+</div>
+<div class="bg-indigo-700/50 backdrop-blur-sm rounded-xl p-3 border border-indigo-500/50 text-center hover:bg-indigo-700/70 transition-colors">
+<span id="akanDatangCount" class="block text-2xl lg:text-3xl font-bold mb-0.5 tracking-tight text-amber-400">0</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-indigo-100">Terjadwal</span>
+</div>
+<div class="bg-indigo-700/50 backdrop-blur-sm rounded-xl p-3 border border-indigo-500/50 text-center hover:bg-indigo-700/70 transition-colors">
+<span id="selesaiCount" class="block text-2xl lg:text-3xl font-bold mb-0.5 tracking-tight text-white">0</span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-indigo-100">Selesai</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-1 bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm flex flex-col min-h-[220px]">
+<div class="flex justify-between items-center mb-4">
+<h5 class="font-bold text-slate-800 text-sm flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-600"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Kalender Akademik</h5>
+<div class="flex gap-1">
+<button onclick="window.changeCalendarMonth(-1)" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+<button onclick="window.changeCalendarMonth(1)" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+</div>
+</div>
+<div id="calendarMonthYear" class="text-center mb-4 text-xs font-extrabold text-indigo-600 uppercase tracking-widest">Bulan Tahun</div>
+<div class="grid grid-cols-7 gap-1 text-center mb-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+<div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
+</div>
+<div id="miniCalendarDays" class="grid grid-cols-7 gap-1 flex-1 font-medium"></div>
+<div id="calendarAgendaDetails" class="hidden mt-3 pt-3 border-t border-slate-100 flex-col gap-2 max-h-[100px] overflow-y-auto custom-scrollbar"></div>
+</div>
+</div>
+<div class="flex items-center gap-6 border-b border-slate-200 mt-2">
+<button id="tabActiveBtn" onclick="window.switchDashboardTab('active')" class="pb-3 px-2 text-sm font-bold text-indigo-600 border-b-[3px] border-indigo-600 transition-colors">Agenda Aktif</button>
+<button id="tabArchiveBtn" onclick="window.switchDashboardTab('archive')" class="pb-3 px-2 text-sm font-bold text-slate-400 hover:text-slate-800 border-b-[3px] border-transparent transition-colors">Arsip Agenda</button>
+</div>
+<div id="roomListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mt-4"></div>
+<div id="archiveListContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mt-4"></div>
+</div>
+
+<!-- VIEW: SETTINGS -->
+<div id="view-settings" class="hidden page-fade w-full mx-auto max-w-4xl p-6 lg:p-10 space-y-8 flex-1 flex flex-col">
+<button onclick="window.switchView(window.previousView === 'live' ? 'live' : 'dashboard')" class="group flex items-center gap-2.5 px-4 h-11 rounded-2xl bg-slate-100/50 border border-slate-200/60 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-100 transition-all duration-300 shadow-sm hover:shadow w-fit">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="group-hover:-translate-x-1 transition-transform">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    <span class="text-sm font-bold tracking-wide">Kembali</span>
+</button>
+<!-- Profile Card Container (Content generated dynamically via createProfileCardHTML) -->
+<div id="settingsProfileCardContainer">
+    <!-- Content will be injected by JavaScript -->
+</div>
+<div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+<h5 class="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-600"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+Pengaturan Akun
+</h5>
+<form onsubmit="window.saveProfileSettings(event)" class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">Nama & Gelar</label>
+<input type="text" id="settingsName" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<div class="space-y-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">NIP</label>
+<input type="text" id="settingsNip" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<div class="space-y-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">NIDN <span class="text-slate-400 font-normal">(Opsional)</span></label>
+<input type="text" id="settingsNidn" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<div class="space-y-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">NIDK <span class="text-slate-400 font-normal">(Opsional)</span></label>
+<input type="text" id="settingsNidk" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<!-- Field Unit Kerja untuk User UNSAM -->
+<div class="space-y-2" id="settingsUnitKerjaContainer">
+<label class="block text-xs font-bold text-slate-500 uppercase">Unit Kerja</label>
+<input type="text" id="settingsUnitKerja" placeholder="Contoh: Fakultas Teknik, Biro Akademik, dll" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<div class="space-y-2" id="settingsJabatanFungsionalContainer">
+<label class="block text-xs font-bold text-slate-500 uppercase">Jabatan Fungsional</label>
+<input type="text" id="settingsJabatanFungsional" placeholder="Contoh: Lektor, Guru Besar" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<!-- Guest-only fields: Jabatan & Instansi -->
+<div class="space-y-2 hidden" id="settingsPositionContainer">
+<label class="block text-xs font-bold text-slate-500 uppercase">Jabatan</label>
+<input type="text" id="settingsPosition" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<div class="space-y-2 hidden" id="settingsInstitutionContainer">
+<label class="block text-xs font-bold text-slate-500 uppercase">Instansi</label>
+<input type="text" id="settingsInstitution" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<div class="space-y-2 col-span-full border-t pt-6">
+<h6 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">Ubah Kata Sandi <span class="text-xs font-normal text-slate-400">(Opsional)</span></h6>
+<label class="block text-xs font-bold text-slate-500 uppercase">Kata Sandi Lama</label>
+<input type="password" id="settingsOldPassword" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<div class="space-y-2 col-span-full md:col-span-1">
+<label class="block text-xs font-bold text-slate-500 uppercase">Kata Sandi Baru</label>
+<input type="password" id="settingsPassword" oninput="window.checkPasswordStrength('#settingsPassword', '#passwordStrengthText', '#passwordStrengthBar', '#passwordStrengthContainer')" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+<div id="passwordStrengthContainer" class="hidden pt-1">
+<div class="flex justify-between items-center mb-1"><span id="passwordStrengthText" class="text-[9px] font-bold"></span></div>
+<div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden"><div id="passwordStrengthBar" class="h-full w-0 transition-all"></div></div>
+</div>
+</div>
+<div class="space-y-2 col-span-full md:col-span-1">
+<label class="block text-xs font-bold text-slate-500 uppercase">Konfirmasi Baru</label>
+<input type="password" id="settingsConfirmPassword" oninput="window.checkPasswordMatch('settings')" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+</div>
+<div class="flex justify-end pt-4"><button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700">Simpan Perubahan</button></div>
+</form>
+</div>
+<div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+<h5 class="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-600"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+Email & Verifikasi
+</h5>
+<div class="space-y-4">
+<div id="emailResetNotice" class="hidden bg-blue-50 border border-blue-100 rounded-xl p-3 flex gap-3 items-start">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" class="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+<div class="text-[11px] text-blue-700 leading-relaxed">
+<strong>Penting:</strong> Menambahkan & memverifikasi email sangat diperlukan. Email ini akan digunakan untuk mereset kata sandi jika Anda lupa password di kemudian hari.
+</div>
+</div>
+<div id="emailVerificationStatus"></div>
+<div class="space-y-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">Alamat Email</label>
+<input type="email" id="settingsEmail" readonly
+class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500 disabled:opacity-60"
+placeholder="email@unsam.ac.id">
+<button onclick="window.enableEmailEdit()" id="editEmailBtn"
+class="w-full mt-2 px-4 py-3 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 sm:w-auto sm:mt-0 sm:inline-flex">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+Ubah Email
+</button>
+</div>
+<div id="changeEmailActions" class="hidden space-y-3 pt-4 border-t border-slate-100">
+<div class="bg-amber-50 border border-amber-100 rounded-xl p-3 flex gap-2">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" class="shrink-0 mt-0.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+<p class="text-[11px] text-amber-700 leading-relaxed">
+Link verifikasi akan dikirim ke email Anda. Akun email baru akan aktif setelah Anda mengklik link tersebut. Jika email tidak muncul di kotak masuk, periksa folder spam.
+</p>
+</div>
+<div class="flex flex-col sm:flex-row gap-3">
+<button onclick="window.cancelEmailChange()"
+class="w-full px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-sm font-semibold hover:bg-slate-200 transition-colors">
+Batal
+</button>
+<button onclick="window.submitEmailChange()" id="sendVerifyLinkBtn"
+class="w-full px-4 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-semibold hover:bg-amber-700 transition-colors flex items-center justify-center gap-2">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+Kirim Link Verifikasi
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+<button onclick="window.toggleDeveloperSettings()" class="w-full flex items-center justify-between group focus:outline-none">
+<h5 class="text-sm font-bold text-slate-800 flex items-center gap-2 group-hover:text-indigo-600 transition-colors">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-purple-600"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+Pengaturan Lanjutan
+</h5>
+<svg id="devSettingsArrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400 transition-transform duration-300"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</button>
+<div id="developerSettingsPanel" class="hidden mt-6 pt-6 border-t border-slate-100 space-y-6">
+<div id="devPinInputPanel" class="space-y-4">
+<div class="bg-slate-50 p-4 rounded-xl">
+<p class="text-sm font-semibold text-slate-700 mb-2">Masukkan Kode Akses</p>
+<p class="text-xs text-slate-500 mb-4">Kode ini diperlukan untuk mengaktifkan hak akses penuh sebagai Developer.</p>
+<input type="text" id="devPinInput" maxlength="6" placeholder="6 Digit Angka" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:border-purple-500 outline-none font-mono tracking-widest mb-3">
+<button onclick="window.activateDeveloperMode()" class="w-full px-6 py-3 bg-purple-600 text-white rounded-xl text-sm font-semibold hover:bg-purple-700 transition-colors sm:w-auto sm:px-6 sm:py-2">Verifikasi</button>
+</div>
+</div>
+<div id="devActivePanel" class="hidden space-y-4">
+<div class="flex items-center justify-between bg-purple-50 border border-purple-100 p-4 rounded-xl flex-col sm:flex-row gap-3">
+<div>
+<p class="text-sm font-bold text-purple-900">Mode Developer Aktif</p>
+<p class="text-xs text-purple-700 mt-0.5">Anda memiliki akses penuh ke manajemen sistem.</p>
+</div>
+<button onclick="window.deactivateDeveloperMode()" class="w-full sm:w-auto px-4 py-2 bg-white border border-purple-200 text-purple-600 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors">Nonaktifkan</button>
+</div>
+</div>
+<div id="devCapabilitiesInfo" class="hidden bg-purple-50 border border-purple-100 rounded-xl p-4 text-xs text-purple-800 space-y-2">
+<p class="font-bold text-purple-900 mb-1">Hak Akses Developer:</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+<p class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Hapus Room Aktif & Arsip</p>
+<p class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Masuk Room Tanpa PIN</p>
+<p class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Edit Semua Notulensi</p>
+<p class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Kelola Lampiran</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- VIEW: LIVE ROOM (MODERN DESIGN) -->
+<div id="view-live" class="hidden h-full flex flex-col bg-gradient-to-br from-slate-50 to-indigo-50/20 page-fade">
+    <!-- Modern Header with Enhanced Design -->
+    <div class="shrink-0 bg-white/90 backdrop-blur-xl border-b border-slate-200/40 shadow-sm px-4 lg:px-6 py-3 z-10">
+        <div class="flex items-center justify-between w-full">
+            <!-- Back Button with Refined Design -->
+            <button onclick="window.minimizeRoom()" class="group flex items-center gap-2.5 px-4 h-11 rounded-2xl bg-slate-100/50 border border-slate-200/60 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-100 transition-all duration-300 shadow-sm hover:shadow">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="group-hover:-translate-x-1 transition-transform">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                <span class="text-sm font-bold hidden sm:block tracking-wide">Kembali</span>
+            </button>
+
+            <!-- Right Side: PIN & Status -->
+            <div class="flex items-center gap-3 shrink-0">
+                <!-- PIN Access Badge (Refined Dual-Tone Design) -->
+                <div id="roomPinDisplay" class="flex items-center h-11 bg-indigo-50/50 border border-indigo-100/80 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-all group/pin">
+                    <div class="px-3 h-full flex items-center gap-2 border-r border-indigo-100/80 bg-indigo-100/30">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-indigo-600">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-indigo-700 hidden lg:block">Room PIN</span>
+                    </div>
+                    <div class="px-4 h-full flex items-center gap-3">
+                        <span id="displayPin" onclick="window.copyToClipboard(this.innerText)" class="text-indigo-900 font-mono font-bold text-base cursor-pointer hover:text-indigo-600 transition-colors select-none tracking-[0.15em]">000000</span>
+                        <button onclick="window.copyToClipboard(document.getElementById('displayPin').innerText)" class="p-1.5 text-indigo-300 hover:text-indigo-600 hover:bg-white rounded-lg transition-all shadow-none hover:shadow-sm" title="Salin PIN">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Monitor Bar (Consistent Height) -->
+                <div class="hidden md:flex items-center h-11 bg-slate-100/50 px-5 rounded-2xl border border-slate-200/60 gap-5 shadow-sm">
+                    <!-- Timer -->
+                    <div class="flex items-center gap-2.5">
+                        <div class="p-1 rounded-md bg-white shadow-sm">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-indigo-500">
+                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <span id="meetingDuration" class="text-sm font-bold text-slate-700 font-mono tracking-tight">00:00:00</span>
+                    </div>
+                    
+                    <!-- Vertical Separator -->
+                    <div class="w-px h-4 bg-slate-300"></div>
+
+                    <!-- Autosave Status -->
+                    <div id="autosaveIndicator" class="flex items-center gap-2.5">
+                        <div class="relative flex items-center justify-center">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse z-10"></div>
+                            <div class="absolute w-4 h-4 bg-emerald-400/30 rounded-full animate-ping"></div>
+                        </div>
+                        <span class="text-xs font-bold text-slate-600 tracking-wide">Tersimpan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meeting Info Section -->
+    <div id="meetingInfoSection" class="px-4 lg:px-6 pt-2 shrink-0 max-w-[1600px] w-full mx-auto">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+            <!-- Header with toggle and edit -->
+            <div onclick="window.toggleMeetingInfo()" class="px-4 py-2.5 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200/60 flex items-center justify-between cursor-pointer hover:bg-indigo-100/40 transition-colors">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-800 tracking-wide">Informasi Rapat</h3>
+                </div>
+                <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+                    <button id="editRoomInfoBtn" onclick="window.toggleEditMeetingInfo()" class="hidden p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-md transition-all" title="Edit Informasi Rapat">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                    </button>
+                    <button class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-md transition-all" title="Tampilkan/Sembunyikan">
+                        <svg id="meetingInfoToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
+                            <polyline points="18 15 12 9 6 15"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Meeting Details Content -->
+            <div id="meetingInfoContent" class="p-3">
+                <!-- View Mode -->
+                <div id="meetingInfoViewMode" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    <!-- Left Column: Judul & Deskripsi -->
+                    <div class="space-y-2.5">
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Judul Agenda</label>
+                            <h2 id="meetingInfoTitle" class="text-base font-bold text-slate-800 mt-0.5 leading-tight">-</h2>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Deskripsi</label>
+                            <p id="meetingInfoDesc" class="text-xs text-slate-600 mt-0.5 leading-relaxed">-</p>
+                        </div>
+                    </div>
+                    <!-- Right Column: Detail Lainnya -->
+                    <div class="space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                                <div class="flex items-center gap-1.5 mb-0.5">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-indigo-500">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase">Tanggal</label>
+                                </div>
+                                <p id="meetingInfoDate" class="text-xs font-semibold text-slate-800">-</p>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                                <div class="flex items-center gap-1.5 mb-0.5">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-indigo-500">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <polyline points="12 6 12 12 16 14"/>
+                                    </svg>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase">Waktu</label>
+                                </div>
+                                <p id="meetingInfoTime" class="text-xs font-semibold text-slate-800">-</p>
+                            </div>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                            <div class="flex items-center gap-1.5 mb-0.5">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-indigo-500">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Tempat</label>
+                            </div>
+                            <p id="meetingInfoLocation" class="text-xs font-semibold text-slate-800">-</p>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-indigo-500">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Peserta Undangan</label>
+                            </div>
+                            <div id="meetingInfoParticipants" class="flex flex-wrap gap-1.5">
+                                <span class="text-xs text-slate-500">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area - Normal Flow Layout -->
+    <div id="desktopRoomLayout" class="px-4 lg:px-6 pt-3 space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[1fr_6px_var(--sidebar-width,400px)] lg:gap-0 max-w-[1600px] w-full mx-auto" style="--sidebar-width: 400px;">
+        <!-- Main Content Panel -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden min-w-0">
+            <!-- Notulensi Section -->
+            <div id="notulensiSection">
+                <div id="displayMinutes" class="flex-1 overflow-y-auto p-4 lg:p-6 prose prose-slate max-w-none text-slate-700 hidden"></div>
+                <div id="editMinutes" class="hidden flex-1 flex-col relative" style="min-height: 0;">
+                    <!-- Section Navigator -->
+                    <div class="section-nav no-print">
+                        <button onclick="window.scrollToSection(1)" class="nav-item" title="Ringkasan Pembahasan">📘</button>
+                        <button onclick="window.scrollToSection(2)" class="nav-item" title="Keputusan Rapat">✅</button>
+                        <button onclick="window.scrollToSection(3)" class="nav-item" title="Tindak Lanjut">🚀</button>
+                    </div>
+                    <div id="editorWrapper" style="flex: 1; min-height: 500px; max-height: calc(100vh - 300px); overflow: auto;">
+                        <div id="minutesInput"></div>
+                    </div>
+                    <div id="endMeetingBtn" class="hidden flex items-center justify-between" style="border-top: 1px solid #e2e8f0; background: #f8fafc; padding: 0.75rem 1rem;">
+                        <div class="flex items-center gap-2 hidden sm:flex">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            <span class="text-xs text-slate-500 font-medium tracking-wide">Kontrol Notulen</span>
+                        </div>
+                        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            <button onclick="exportRoomToPDF()"
+                                    class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 flex items-center gap-2">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Export PDF
+                            </button>
+                            <button id="endMeetingActionBtn" onclick="window.toggleModal('endMeetingModal', true)"
+                                    class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 flex items-center gap-2">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 6L6 18"/>
+                                    <path d="M6 6l12 12"/>
+                                </svg>
+                                Akhiri Rapat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar Panels (Stacked below notulensi on mobile) -->
+            <div class="lg:hidden flex flex-col gap-4 mt-4">
+                <!-- Lampiran Panel Mobile -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+                    <div class="p-4 border-b border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors" onclick="window.toggleMobilePanel('resources')">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800">Lampiran</h3>
+                                    <p class="text-[10px] text-slate-500">Dokumen & file rapat</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="addResourceBtnMobile" onclick="event.stopPropagation(); window.openResourceModal()"
+                                        class="hidden p-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-all duration-200 shadow-sm">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" x2="12" y1="5" y2="19"/>
+                                        <line x1="5" x2="19" y1="12" x2="12" y2="12"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all">
+                                    <svg id="resourcesMobileToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
+                                        <polyline points="18 15 12 9 6 15"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="resourcesPanelContentMobile" class="p-4 max-h-64 overflow-y-auto custom-scrollbar"></div>
+                </div>
+
+                <!-- Peserta Panel Mobile -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+                    <div class="p-4 border-b border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors" onclick="window.toggleMobilePanel('participants')">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800">Peserta</h3>
+                                    <p class="text-[10px] text-slate-500">Yang sedang hadir</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-lg">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span class="text-sm font-bold text-emerald-700" id="participantCountMobile">0</span>
+                                </div>
+                                <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all">
+                                    <svg id="participantsMobileToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
+                                        <polyline points="18 15 12 9 6 15"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="participantsPanelContentMobile" class="p-4 overflow-y-auto custom-scrollbar" style="max-height: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Resizer Handle (Desktop Only) -->
+        <div id="resizerHandle" class="hidden lg:flex resizer-handle" title="Tarik untuk mengubah ukuran sidebar"></div>
+
+        <!-- Enhanced Sidebar for Desktop -->
+        <div class="hidden lg:block space-y-4 min-w-0">
+            <!-- Resources Panel -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+                <div class="p-4 border-b border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors" onclick="window.toggleSidebarPanel('resources')">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800">Lampiran</h3>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Dokumen & file rapat</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="addResourceBtn" onclick="event.stopPropagation(); window.openResourceModal()"
+                                    class="hidden p-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-all duration-200 shadow-sm">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" x2="12" y1="5" y2="19"/>
+                                    <line x1="5" x2="19" y1="12" x2="12" y2="12"/>
+                                </svg>
+                            </button>
+                            <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all" title="Tampilkan/Sembunyikan">
+                                <svg id="resourcesToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
+                                    <polyline points="18 15 12 9 6 15"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="resourcesPanelContent" class="p-4 overflow-y-auto custom-scrollbar flex-1" style="max-height: none;"></div>
+            </div>
+
+            <!-- Participants Panel -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden flex-1">
+                <div class="p-4 border-b border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors" onclick="window.toggleSidebarPanel('participants')">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800">Peserta</h3>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Yang sedang hadir</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-lg">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                <span class="text-sm font-bold text-emerald-700" id="participantCount">0</span>
+                            </div>
+                            <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all" title="Tampilkan/Sembunyikan">
+                                <svg id="participantsToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
+                                    <polyline points="18 15 12 9 6 15"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="participantsPanelContent" class="p-4 overflow-y-auto custom-scrollbar flex-1" style="max-height: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-white border-t border-slate-200 px-6 py-4 shrink-0">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-[11px] text-slate-500 leading-relaxed text-center md:text-left">
+            <p class="font-medium">Platform E-Rapat Universitas Samudra ini dirancang untuk memenuhi kebutuhan tugas Latsar CPNS 2026.</p>
+            <p class="mt-0.5">Dirancang dan dikembangkan oleh <span class="font-semibold text-slate-700">Rahimah Ulfah Harahap, S.Pd., M.Pd.</span> dan <span class="font-semibold text-slate-700">Ahmad Syarif Fauzi, S.Ds.</span></p>
+        </div>
+        <div class="flex items-center gap-4 text-[11px] text-slate-500">
+            <span class="font-semibold text-slate-700"> 2026 Universitas Samudra</span>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <a href="https://e-rapat-unsam.pages.dev/Panduan-E-Rapat-Universitas-Samudra.pdf" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 transition-colors">Panduan</a>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <a href="https://api.whatsapp.com/send/?phone=6281262444546&text=Halo+saya+ingin+bertanya" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 transition-colors">Support</a>
+        </div>
+    </div>
+</footer>
+
+<!-- MODALS -->
+<div id="joinRoomModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
+<div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg transform scale-95 text-center relative transition-all duration-300">
+<button onclick="window.toggleModal('joinRoomModal', false)" class="absolute top-4 right-4 text-slate-400">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+</button>
+<h3 id="joinRoomTitleDisplay" class="text-lg font-bold text-slate-800 mb-6 truncate px-2">Judul Rapat</h3>
+<form onsubmit="window.handleJoinRoom(event)" class="space-y-4">
+<div class="relative group">
+<input type="text" id="joinPinInput" maxlength="6" required placeholder="PIN" class="w-full text-center text-3xl tracking-[0.4em] font-bold py-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-indigo-500 text-indigo-700 uppercase outline-none">
+<button type="button" onclick="window.pastePin()" class="mt-2 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center justify-center gap-1 mx-auto">
+<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+Tempel dari Clipboard
+</button>
+</div>
+<button type="submit" class="w-full py-3 bg-slate-800 text-white rounded-xl font-semibold hover:bg-black transition-colors">Gabung Rapat</button>
+</form>
+</div>
+</div>
+
+<div id="forgotPasswordModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
+<div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg transform scale-95 relative transition-all duration-300">
+<button onclick="window.toggleModal('forgotPasswordModal', false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+</button>
+<div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 border border-indigo-100">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Lupa Kata Sandi</h3>
+<p class="text-sm text-slate-500 mb-6 text-center leading-relaxed">Masukkan email Anda. Kami akan mengirim link untuk mengatur ulang kata sandi.</p>
+<div class="space-y-4">
+<input type="email" id="resetPasswordEmail" required placeholder="Email terdaftar Anda" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+<div class="bg-amber-50 border border-amber-100 rounded-lg p-3 text-[11px] text-amber-700">
+ <strong>Tips:</strong> Periksa folder <strong>Spam</strong> atau <strong>Promotions</strong> jika email tidak muncul di inbox.
+</div>
+<button onclick="window.requestPasswordReset()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors">Kirim Link Reset</button>
+</div>
+</div>
+</div>
+
+<!-- MODAL: GUEST JOIN -->
+<div id="guestJoinModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
+<div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg transform scale-95 relative transition-all duration-300">
+<button onclick="window.closeGuestJoinModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+</button>
+<div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 border border-indigo-100">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+</div>
+<h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Masuk sebagai Tamu</h3>
+<p class="text-sm text-slate-500 mb-6 text-center leading-relaxed">Isi data diri Anda untuk bergabung dalam rapat ini.</p>
+<form onsubmit="window.handleGuestJoin(event)" class="space-y-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap <span class="text-red-500">*</span></label>
+<input type="text" id="guestName" required placeholder="Contoh: Ahmad Fauzi" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Jabatan <span class="text-red-500">*</span></label>
+<input type="text" id="guestPosition" required placeholder="Contoh: Direktur PT. ABC" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Instansi/Perusahaan <span class="text-red-500">*</span></label>
+<input type="text" id="guestInstitution" required placeholder="Contoh: PT. Maju Jaya" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">PIN Rapat <span class="text-red-500">*</span></label>
+<input type="text" id="guestPinInput" maxlength="6" required placeholder="PIN 6 digit" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500 font-mono tracking-widest text-center">
+</div>
+<button type="submit" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors">Gabung Rapat</button>
+</form>
+<p class="text-[10px] text-slate-400 mt-4 text-center">Tamu eksternal dapat melihat notulensi namun tidak dapat mengeditnya.</p>
+</div>
+</div>
+
+<!-- MODAL: ADD RESOURCE -->
+<div id="addResourceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
+<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl transform scale-95 relative transition-all duration-300 border border-slate-100">
+<button onclick="window.toggleModal('addResourceModal', false)" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 hover:rotate-90 transition-all">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+</button>
+<div class="mb-8">
+<h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Tambah Lampiran</h3>
+<p class="text-xs text-slate-500 font-medium mt-1">Bagikan dokumen atau tautan ke peserta rapat.</p>
+</div>
+<form onsubmit="window.submitResource(event)" class="space-y-5">
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Kategori File</label>
+<select id="resCategory" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer">
+<option value="Folder Dokumentasi">📁 Folder Dokumentasi</option>
+<option value="Folder Lampiran">📂 Folder Lampiran</option>
+<option value="File">📄 File (PDF/Word/dll)</option>
+<option value="Link Unduhan">⬇️ Link Unduhan</option>
+<option value="Folder Foto">🖼️ Folder Foto</option>
+<option value="Folder Video">🎬 Folder Video</option>
+<option value="Tautan Lainnya">🔗 Tautan Lainnya</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nama / Label</label>
+<input type="text" id="resName" required placeholder="Contoh: SK Rektor No. 123" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">URL / Link Tautan</label>
+<input type="url" id="resUrl" required placeholder="https://drive.google.com/..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<button type="submit" class="w-full py-3.5 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm mt-2">Simpan & Bagikan</button>
+</form>
+</div>
+</div>
+
+<!-- MODAL: EDIT RESOURCE -->
+<div id="editResourceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
+<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl transform scale-95 relative transition-all duration-300 border border-slate-100">
+<button onclick="window.toggleModal('editResourceModal', false)" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 hover:rotate-90 transition-all">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+</button>
+<div class="mb-8">
+<h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Edit Lampiran</h3>
+<p class="text-xs text-slate-500 font-medium mt-1">Perbarui informasi lampiran rapat.</p>
+</div>
+<form onsubmit="window.submitEditResource(event)" class="space-y-5">
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Kategori</label>
+<select id="editResCategory" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer">
+<option value="Folder Dokumentasi">📁 Folder Dokumentasi</option>
+<option value="Folder Lampiran">📂 Folder Lampiran</option>
+<option value="File">📄 File (PDF/Word/dll)</option>
+<option value="Link Unduhan">⬇️ Link Unduhan</option>
+<option value="Folder Foto">🖼️ Folder Foto</option>
+<option value="Folder Video">🎬 Folder Video</option>
+<option value="Tautan Lainnya">🔗 Tautan Lainnya</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nama / Label</label>
+<input type="text" id="editResName" required placeholder="Nama Lampiran" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">URL / Link</label>
+<input type="url" id="editResUrl" required placeholder="https://..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<button type="submit" class="w-full py-3.5 bg-amber-500 text-white rounded-2xl font-bold hover:bg-amber-600 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm mt-2">Simpan Perubahan</button>
+</form>
+</div>
+</div>
+
+<!-- MODAL: CREATE ROOM -->
+<div id="createRoomModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
+<div class="bg-white w-full max-w-2xl rounded-[2.5rem] p-8 shadow-2xl transform scale-95 relative transition-all duration-300 max-h-[90vh] overflow-y-auto border border-slate-100">
+<button onclick="window.toggleModal('createRoomModal', false)" class="absolute top-8 right-8 text-slate-400 hover:text-slate-600 hover:rotate-90 transition-all">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+</button>
+<div class="mb-8">
+<h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Buat Agenda Baru</h3>
+<p class="text-sm text-slate-500 font-medium mt-1">Lengkapi detail untuk menerbitkan jadwal rapat digital.</p>
+</div>
+<form onsubmit="window.handleCreateRoom(event)" class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Left: Title & Desc -->
+<div class="space-y-5">
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Judul Agenda <span class="text-red-500">*</span></label>
+<input type="text" id="newRoomTitle" required placeholder="Masukkan judul agenda rapat..." class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Deskripsi Singkat</label>
+<textarea id="newRoomDesc" rows="6" placeholder="Tulis deskripsi atau tujuan rapat..." class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none"></textarea>
+</div>
+</div>
+<!-- Right: Details -->
+<div class="space-y-5">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Tanggal <span class="text-red-500">*</span></label>
+<input type="date" id="newRoomDate" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Tempat <span class="text-red-500">*</span></label>
+<input type="text" id="newRoomLocation" required placeholder="Gedung / Ruang" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Waktu Mulai <span class="text-red-500">*</span></label>
+<input type="time" id="newRoomStartTime" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Waktu Selesai <span class="text-red-500">*</span></label>
+<input type="time" id="newRoomEndTime" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Peserta Undangan <span class="text-slate-400 font-normal normal-case">(satu per baris)</span></label>
+<textarea id="newRoomParticipants" rows="4" placeholder="Contoh:&#10;Dekan&#10;Wakil Dekan I" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none"></textarea>
+<p class="text-[10px] text-slate-400 mt-2 ml-1">Nama-nama ini akan muncul di daftar peserta rapat.</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-100">
+<button type="button" onclick="window.toggleModal('createRoomModal', false)" class="px-8 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-all text-sm">
+Batal
+</button>
+<button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm">
+Terbitkan Agenda
+</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- MODAL: EDIT ROOM (QUICK EDIT) -->
+<div id="editRoomModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
+<div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl transform scale-95 relative transition-all duration-300 border border-slate-100">
+<button onclick="window.toggleModal('editRoomModal', false)" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 hover:rotate-90 transition-all">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+</button>
+<div class="mb-8">
+<h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Edit Info Agenda</h3>
+<p class="text-xs text-slate-500 font-medium mt-1">Ubah ringkasan informasi agenda.</p>
+</div>
+<form onsubmit="window.handleEditRoom(event)" class="space-y-5">
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Judul Rapat</label>
+<input type="text" id="editRoomTitle" required placeholder="Judul Rapat..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Keterangan</label>
+<textarea id="editRoomDesc" placeholder="Deskripsi singkat" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all h-24 resize-none"></textarea>
+</div>
+<div class="space-y-1.5">
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Jadwal Tanggal & Waktu</label>
+<input type="datetime-local" id="editRoomSchedule" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<button type="submit" class="w-full py-3.5 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm mt-2">Simpan Perubahan</button>
+</form>
+</div>
+</div>
+
+<!-- MODAL: EDIT MEETING INFO (DETAILED) -->
+<div id="editMeetingInfoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
+<div class="bg-white w-full max-w-2xl rounded-[2.5rem] p-8 shadow-2xl transform scale-95 relative transition-all duration-300 max-h-[90vh] overflow-y-auto border border-slate-100">
+<button onclick="window.toggleModal('editMeetingInfoModal', false)" class="absolute top-8 right-8 text-slate-400 hover:text-slate-600 hover:rotate-90 transition-all">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+</button>
+<div class="mb-8">
+<h3 class="text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-3">
+<div class="p-2 bg-indigo-100 rounded-xl">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-indigo-600">
+<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+</svg>
+</div>
+Edit Informasi Rapat
+</h3>
+</div>
+<form onsubmit="window.handleEditMeetingInfo(event)" class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Left: Title & Desc -->
+<div class="space-y-5">
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Judul Agenda <span class="text-red-500">*</span></label>
+<input type="text" id="editMeetingTitle" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Deskripsi</label>
+<textarea id="editMeetingDesc" rows="6" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none"></textarea>
+</div>
+</div>
+<!-- Right: Details -->
+<div class="space-y-5">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Tanggal <span class="text-red-500">*</span></label>
+<input type="date" id="editMeetingDate" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Tempat <span class="text-red-500">*</span></label>
+<input type="text" id="editMeetingLocation" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Waktu Mulai <span class="text-red-500">*</span></label>
+<input type="time" id="editMeetingStartTime" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Waktu Selesai <span class="text-red-500">*</span></label>
+<input type="time" id="editMeetingEndTime" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+</div>
+</div>
+<div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Peserta Undangan <span class="text-slate-400 font-normal normal-case">(satu per baris)</span></label>
+<textarea id="editMeetingParticipants" rows="4" placeholder="Contoh:&#10;Dekan&#10;Wakil Dekan I" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none"></textarea>
+<p class="text-[10px] text-slate-400 mt-2 ml-1">Tulis setiap nama peserta di baris baru.</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-100">
+<button type="button" onclick="window.toggleModal('editMeetingInfoModal', false)" class="px-8 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-all text-sm">
+Batal
+</button>
+<button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm">
+Simpan Perubahan
+</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- MODAL: END MEETING -->
+<div id="endMeetingModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
+<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl transform scale-95 text-center relative transition-all duration-300 border border-slate-100">
+<div class="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-100/50">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+</div>
+<h3 class="text-2xl font-extrabold text-slate-800 tracking-tight mb-3">Akhiri & Arsipkan?</h3>
+<p class="text-sm text-slate-500 mb-8 leading-relaxed font-medium">Agenda ini akan dipindahkan ke **Arsip** dan tidak dapat diedit lagi di masa mendatang.</p>
+<div class="flex flex-col gap-3">
+<button onclick="window.confirmEndMeeting()" class="w-full py-4 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm">Ya, Akhiri Rapat</button>
+<button onclick="window.toggleModal('endMeetingModal', false)" class="w-full py-4 bg-slate-100 text-slate-700 rounded-2xl font-bold hover:bg-slate-200 transition-all text-sm">Batal</button>
+</div>
+</div>
+</div>
+
+<!-- Room Initialization Loading Modal -->
+<div id="roomInitModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[200] flex items-center justify-center p-4 hidden">
+<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl text-center border border-slate-100 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-indigo-50">
+<div id="roomInitProgressTop" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
+</div>
+<div class="relative w-20 h-20 mx-auto mb-6">
+<div class="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
+<div class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<svg class="w-8 h-8 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+<path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+</svg>
+</div>
+</div>
+<h3 id="roomInitTitle" class="text-2xl font-extrabold text-slate-800 tracking-tight mb-2">Menyiapkan Ruangan</h3>
+<p id="roomInitDesc" class="text-sm text-slate-500 mb-6 font-medium">Harap tunggu sebentar, kami sedang menyiapkan notulensi digital Anda...</p>
+<div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden shadow-inner">
+<div id="roomInitProgress" class="bg-indigo-600 h-full rounded-full transition-all duration-500 shadow-sm" style="width: 0%"></div>
+</div>
+<p id="roomInitStatus" class="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-4 animate-pulse">Initializing System...</p>
+</div>
+</div>
+
+<!-- Developer Mode: Attendance Choice Modal -->
+<div id="devAttendanceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[250] flex items-center justify-center p-4 hidden">
+<div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl border border-slate-100">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+<path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+<line x1="12" y1="19" x2="12" y2="23"/>
+<line x1="8" y1="23" x2="16" y2="23"/>
+</svg>
+</div>
+<div>
+<h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Mode Developer</h3>
+<p class="text-xs text-slate-500 font-medium">Konfirmasi hak akses khusus Anda.</p>
+</div>
+</div>
+
+<div class="bg-amber-50 border border-amber-100 rounded-2xl p-5 mb-8">
+<div class="flex items-start gap-3">
+<div class="p-1.5 bg-amber-100 rounded-lg shrink-0">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-600">
+<circle cx="12" cy="12" r="10"/>
+<line x1="12" y1="8" x2="12" y2="12"/>
+<line x1="12" y1="16" x2="12.01" y2="16"/>
+</svg>
+</div>
+<div>
+<p class="text-sm font-bold text-amber-900 leading-tight">Pilihan Kehadiran</p>
+<p class="text-xs text-amber-700/80 mt-1 font-medium leading-relaxed">Sebagai Developer, apakah Anda ingin terdaftar resmi dalam daftar hadir (presensi) rapat ini?</p>
+</div>
+</div>
+</div>
+
+<div class="flex flex-col sm:flex-row gap-3">
+<button onclick="window.handleDevAttendanceChoice(false)" class="flex-1 py-4 px-4 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+Hanya Mengamati
+</button>
+<button onclick="window.handleDevAttendanceChoice(true)" class="flex-1 py-4 px-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+Ya, Daftar Hadir
+</button>
+</div>
+</div>
+</div>
+
+<!-- Modal: Participant Profile Card (Content generated dynamically via createProfileCardHTML) -->
+<div id="participantProfileCardModal" class="fixed inset-0 z-[260] hidden" aria-modal="true" role="dialog">
+    <!-- Backdrop with fade animation -->
+    <div id="participantCardBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-all duration-300 ease-out opacity-0"></div>
+    <!-- Card container with scale animation -->
+    <div class="relative w-full h-full flex items-center justify-center p-4">
+        <div id="participantCardWrapper" class="w-full max-w-4xl transform transition-all duration-300 ease-out scale-95 opacity-0 translate-y-4"></div>
+    </div>
+</div>
+
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-6 py-3.5 rounded-2xl shadow-2xl opacity-0 translate-y-4 transition-all duration-300 z-[400] pointer-events-none text-sm font-bold flex items-center gap-3 border border-white/10">
+    <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+    <span id="toastMsg"></span>
+</div>
+</body>
+</html>
