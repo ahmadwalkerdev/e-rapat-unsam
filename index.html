@@ -60,6 +60,7 @@ import { createGuestModule } from "./guest-module.js";
 import { createRoomManagementModule } from "./room-management-module.js";
 import { createAuthModule } from "./auth-module.js";
 import { createSettingsModule } from "./settings-module.js";
+import { createMinutesModule } from "./minutes-module.js";
 import { createMinutesToolsModule } from "./minutes-tools-module.js";
 import { createDashboardModule } from "./dashboard-module.js";
 import { createProfileCardHTML } from "./profile-card-utils.js";
@@ -118,34 +119,73 @@ function setUIRole(role) {
 if (typeof window.setUIRole === 'function') return window.setUIRole(role);
 }
 
+const minutesToolsModule = createMinutesToolsModule({
+    db,
+    appId,
+    activeRoom: () => activeRoom,
+    getQuill: () => quill,
+    showToast,
+    showLoading,
+    buildRoomJoinUrl: (id) => `${window.location.origin}${window.location.pathname}?room=${id}`,
+    collection, query, where, getDocs, doc, setDoc,
+    DOMPurify
+});
+
+const minutesModule = createMinutesModule({
+    db,
+    appId,
+    doc,
+    setDoc,
+    getDoc,
+    collection,
+    addDoc,
+    query,
+    where,
+    onSnapshot,
+    getDocs,
+    serverTimestamp,
+    showToast,
+    showLoading,
+    getCurrentUser: () => currentUser,
+    getUserRole: () => userRole,
+    getIsDeveloper: () => isDeveloper,
+    getActiveRoom: () => activeRoom,
+    getQuill: () => quill,
+    setQuill: (q) => { quill = q; window.quill = q; },
+    getUnsubscribers: () => unsubscribers,
+    DOMPurify,
+    Quill,
+    insertNotulenTemplate: () => minutesToolsModule.insertNotulenTemplate()
+});
+
 const roomEntryModule = createRoomEntryModule({
-db,
-appId,
-appState,
-doc,
-getDoc,
-showLoading,
-showToast,
-toggleModal,
-debugLog,
-debugError,
-clearListeners,
-showRoomInitModal,
-updateRoomInitProgress,
-hideRoomInitModal,
-setUIRole,
-switchView: (viewId) => window.switchView(viewId),
-initQuillEditorWithRetry,
-setupRealtimeRoomInfo,
-setupRealtimeMinutes,
-setupRealtimeAttendance,
-setupRealtimeResources,
-handleAutoAbsensi,
-getCurrentUser: () => currentUser,
-getIsDeveloper: () => isDeveloper,
-getUserRole: () => userRole,
-setUserRole: (role) => { userRole = role; },
-getQuill: () => quill
+    db,
+    appId,
+    appState,
+    doc,
+    getDoc,
+    showLoading,
+    showToast,
+    toggleModal,
+    debugLog,
+    debugError,
+    clearListeners,
+    showRoomInitModal,
+    updateRoomInitProgress,
+    hideRoomInitModal,
+    setUIRole,
+    switchView: (viewId) => window.switchView(viewId),
+    initQuillEditorWithRetry: () => minutesModule.initQuillEditorWithRetry(),
+    setupRealtimeRoomInfo,
+    setupRealtimeMinutes: (id) => minutesModule.setupRealtimeMinutes(id),
+    setupRealtimeAttendance,
+    setupRealtimeResources,
+    handleAutoAbsensi: (id) => minutesModule.handleAutoAbsensi(id),
+    getCurrentUser: () => currentUser,
+    getIsDeveloper: () => isDeveloper,
+    getUserRole: () => userRole,
+    setUserRole: (role) => { userRole = role; },
+    getQuill: () => quill
 });
 
 const guestModule = createGuestModule({
@@ -229,71 +269,56 @@ setupDashboardListener: setupDashboardListenerWrapper
 });
 
 const settingsModule = createSettingsModule({
-db,
-appId,
-auth,
-collection,
-query,
-where,
-getDocs,
-updateDoc,
-setDoc,
-doc,
-updateProfile,
-EmailAuthProvider,
-reauthenticateWithCredential,
-updatePassword,
-sendEmailVerification,
-sendPasswordResetEmail,
-verifyBeforeUpdateEmail,
-showLoading,
-showToast,
-toggleModal,
-updateUserDisplay,
-updateGuestDisplay,
-updateEmailVerificationBadge,
-getCurrentUser: () => currentUser
-});
-
-const minutesToolsModule = createMinutesToolsModule({
-db,
-appId,
-collection,
-query,
-where,
-getDocs,
-showToast,
-showLoading,
-buildSafePdfFileName,
-getActiveRoom: () => activeRoom,
-getCurrentMeetingData: () => currentMeetingData,
-getQuill: () => quill
+    db,
+    appId,
+    auth,
+    collection,
+    query,
+    where,
+    getDocs,
+    updateDoc,
+    setDoc,
+    doc,
+    updateProfile,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    updatePassword,
+    sendEmailVerification,
+    sendPasswordResetEmail,
+    verifyBeforeUpdateEmail,
+    showLoading,
+    showToast,
+    toggleModal,
+    updateUserDisplay,
+    updateGuestDisplay,
+    updateEmailVerificationBadge,
+    getCurrentUser: () => currentUser
 });
 
 const dashboardModule = createDashboardModule({
-db,
-appId,
-collection,
-onSnapshot,
-doc,
-getDoc,
-query,
-where,
-getDocs,
-deleteDoc,
-showToast,
-showLoading,
-getCurrentUser: () => currentUser,
-getIsDeveloper: () => isDeveloper,
-clearListeners,
-getUnsubscribers: () => unsubscribers,
-formatIndonesianLongDate,
-formatMeetingTime,
-escapeHtml,
-escapeJsString,
-enterRoom,
-roomEntryModule,
-buildSafePdfFileName
+    db,
+    appId,
+    collection,
+    onSnapshot,
+    doc,
+    getDoc,
+    query,
+    where,
+    getDocs,
+    deleteDoc,
+    showToast,
+    showLoading,
+    getCurrentUser: () => currentUser,
+    getIsDeveloper: () => isDeveloper,
+    clearListeners,
+    getUnsubscribers: () => unsubscribers,
+    formatIndonesianLongDate,
+    formatMeetingTime,
+    escapeHtml,
+    escapeJsString,
+    enterRoom,
+    roomEntryModule,
+    buildSafePdfFileName
 });
 _dashboardModuleRef = dashboardModule;
 
@@ -821,290 +846,7 @@ async function enterRoomAsGuest(roomId, roomData) {
 // Export to global scope
 window.enterRoomAsGuest = enterRoomAsGuest;
 
-async function initQuillEditorWithRetry() {
-console.log('[QUILL INIT] Starting initialization...');
-
-// Get all relevant elements
-let editorEl = document.getElementById('minutesInput');
-const editMinutesEl = document.getElementById('editMinutes');
-const wrapperEl = document.getElementById('editorWrapper');
-const viewLive = document.getElementById('view-live');
-const displayMinutes = document.getElementById('displayMinutes');
-
-console.log('[QUILL INIT] Element check:', {
-minutesInput: !!editorEl,
-editMinutes: !!editMinutesEl,
-editorWrapper: !!wrapperEl,
-viewLive: !!viewLive,
-displayMinutes: !!displayMinutes
-});
-
-// JIKA elemen tidak ada, coba buat ulang di wrapper
-if (!editorEl && wrapperEl) {
-console.log('[QUILL INIT] Creating fresh editor element...');
-const freshEditor = document.createElement('div');
-freshEditor.id = 'minutesInput';
-wrapperEl.appendChild(freshEditor);
-editorEl = freshEditor;
-console.log('[QUILL INIT] Fresh editor created');
-}
-
-if (!editorEl) {
-console.error('[QUILL INIT] Editor element #minutesInput not found in DOM');
-console.log('[QUILL INIT] view-live visible:', viewLive && !viewLive.classList.contains('hidden'));
-
-// Retry after short delay
-if (window.quillInitRetryCount === undefined) window.quillInitRetryCount = 0;
-window.quillInitRetryCount++;
-
-if (window.quillInitRetryCount <= 15) {
-console.log(`[QUILL INIT] Retry ${window.quillInitRetryCount}/15 in 200ms...`);
-setTimeout(() => initQuillEditorWithRetry(), 200);
-} else {
-console.error('[QUILL INIT] Max retries reached, editor will not be initialized');
-showToast('❌ Editor tidak dapat dimuat setelah 15 percobaan');
-window.quillInitRetryCount = 0;
-}
-return;
-}
-
-console.log('[QUILL INIT] Editor element found');
-window.quillInitRetryCount = 0;
-
-// Force show ALL parent containers - IN ORDER dari luar ke dalam
-console.log('[QUILL INIT] Forcing containers visible...');
-
-// 1. Sembunyikan display mode
-if (displayMinutes) {
-displayMinutes.classList.add('hidden');
-displayMinutes.style.display = 'none';
-}
-
-// 2. Tampilkan edit mode container (parent langsung dari editorWrapper)
-if (editMinutesEl) {
-editMinutesEl.classList.remove('hidden');
-editMinutesEl.style.display = 'flex';
-console.log('[QUILL INIT] editMinutes shown, display:', editMinutesEl.style.display);
-}
-
-// 3. Tampilkan wrapper
-if (wrapperEl) {
-wrapperEl.classList.remove('hidden');
-wrapperEl.style.display = 'block';
-console.log('[QUILL INIT] editorWrapper shown, display:', wrapperEl.style.display);
-}
-
-// Force reflow untuk memastikan DOM sudah update
-document.body.offsetHeight;
-
-// Tunggu sebentar untuk browser render
-await new Promise(r => setTimeout(r, 100));
-
-// Check visibility lagi setelah force show
-if (!editorEl.offsetParent) {
-console.log('[QUILL INIT] Editor still not visible after force show, retrying...');
-console.log('[QUILL INIT] editorEl.offsetParent:', editorEl?.offsetParent?.id || null);
-console.log('[QUILL INIT] wrapperEl.offsetParent:', wrapperEl?.offsetParent?.id || null);
-console.log('[QUILL INIT] editMinutesEl.offsetParent:', editMinutesEl?.offsetParent?.id || null);
-
-if (window.quillInitRetryCount === undefined) window.quillInitRetryCount = 0;
-window.quillInitRetryCount++;
-
-if (window.quillInitRetryCount <= 10) {
-setTimeout(() => initQuillEditorWithRetry(), 300);
-return;
-} else {
-console.error('[QUILL INIT] Editor failed to become visible after 10 retries');
-showToast('❌ Editor tidak dapat dimuat');
-window.quillInitRetryCount = 0;
-return;
-}
-}
-
-console.log('[QUILL INIT] All containers visible, proceeding with Quill init...');
-
-// Destroy any existing Quill instance first
-destroyQuill();
-
-// PASTIKAN elemen benar-benar fresh - hapus semua jejak Quill lama
-if (wrapperEl) {
-// Hapus semua konten di wrapper dan buat elemen baru yang fresh
-wrapperEl.innerHTML = '';
-
-// Buat elemen baru untuk editor (fresh, tanpa jejak Quill lama)
-const freshEditor = document.createElement('div');
-freshEditor.id = 'minutesInput';
-wrapperEl.appendChild(freshEditor);
-
-console.log('[QUILL] Created fresh editor element:', freshEditor);
-console.log('[QUILL] Fresh editor parent:', freshEditor.parentElement?.id);
-
-// Update reference ke elemen baru
-editorEl = freshEditor;
-}
-
-// Add small delay to ensure DOM is fully ready
-await new Promise(r => setTimeout(r, 200));
-
-// Color palette yang konsisten dengan CSS template
-// Menggunakan warna primary-600 (#4f46e5) dan success-600 (#059669) yang sama dengan template
-const quillColorPalette = [
-  // Primary colors (indigo) - untuk heading/h2
-  '#4f46e5', // primary-600 - heading strong
-  '#6366f1', // primary-500
-  '#4338ca', // primary-700
-  
-  // Success colors (green) - untuk list item strong
-  '#059669', // success-600 - list item strong
-  '#10b981', // success-500
-  '#047857', // success-700
-  
-  // Standard colors
-  '#000000', '#1e293b', '#475569', '#64748b', '#94a3b8', '#cbd5e1', '#ffffff',
-  
-  // Semantic colors
-  '#ef4444', // red
-  '#f97316', // orange
-  '#eab308', // yellow
-  '#22c55e', // green bright
-  '#3b82f6', // blue
-  '#a855f7', // purple
-  '#f43f5e', // pink
-  '#14b8a6', // teal
-  '#8b5cf6', // violet
-  
-  // Light tints
-  '#e0e7ff', // primary-100
-  '#d1fae5', // success-100
-  '#fecaca', // red-100
-  '#ffedd5', // orange-100
-  '#fef08a', // yellow-100
-  '#bbf7d0', // green-100
-  '#bfdbfe', // blue-100
-  '#f3e8ff', // purple-100
-];
-
-try {
-console.log('[QUILL] Initializing editor on element:', editorEl);
-console.log('[QUILL] Element exists:', !!editorEl);
-console.log('[QUILL] Element parent:', editorEl?.parentElement?.id);
-console.log('[QUILL] Wrapper exists:', !!wrapperEl);
-
-// Pastikan elemen terlihat dan valid
-if (!editorEl || !wrapperEl) {
-throw new Error('Required DOM elements not found');
-}
-
-// Hapus konten lama jika ada untuk clean slate
-editorEl.innerHTML = '';
-
-quill = new Quill(editorEl, {
-theme: 'snow',
-placeholder: 'Ketik notulensi rapat...',
-modules: {
-toolbar: {
-container: [
-[{ 'header': [1, 2, 3, false] }],
-['bold', 'italic', 'underline', 'strike'],
-[{ 'color': quillColorPalette }, { 'background': quillColorPalette }], // Gunakan palette yang konsisten dengan template
-[{ 'list': 'ordered'}, { 'list': 'bullet' }],
-['blockquote', 'code-block'],
-['link'],
-['clean']
-// Note: Template button ditambahkan manual via setTimeout di bawah
-]
-}
-// Keyboard bindings: Menggunakan default Quill (Ctrl+B, Ctrl+I, Ctrl+U)
-// Tidak perlu custom binding, default sudah berfungsi sempurna
-}
-});
-
-console.log('Quill editor initialized successfully:', { quill: !!quill, isEnabled: quill?.isEnabled() });
-
-if (quill) {
-quill.enable();
-}
-
-function updateWordCount() {
-try {
-if (!quill) return;
-const text = quill.getText().trim();
-const words = text ? text.split(/\s+/).length : 0;
-const chars = quill.getLength() - 1;
-console.log(`Words: ${words}, Characters: ${chars}`);
-} catch (e) {
-console.warn('Error updating word count:', e);
-}
-}
-
-quillTextChangeListener = (delta, oldDelta, source) => {
-// Log hanya saat debugging diperlukan (dikomentari untuk performance)
-// console.log('Quill text-change event:', { source, hasQuill: !!quill });
-updateWordCount();
-if (source === 'user') {
-const content = quill.root.innerHTML;
-if (content.length > 50000) {
-showToast('Konten terlalu panjang. Simpan dalam beberapa bagian.');
-return;
-}
-if (typeof DOMPurify === 'undefined') {
-console.error('DOMPurify is required for security but not loaded');
-showToast('Error: Security module not loaded. Please refresh the page.');
-return;
-}
-const sanitizedContent = DOMPurify.sanitize(content);
-syncMinutes(sanitizedContent);
-}
-};
-
-quill.on('text-change', quillTextChangeListener);
-updateWordCount();
-
-// Add template button to toolbar after Quill init
-// Template button ditambahkan manual karena bukan bagian dari toolbar bawaan Quill
-setTimeout(() => {
-try {
-const toolbar = document.querySelector('.ql-toolbar');
-if (toolbar && !toolbar.querySelector('.ql-template')) {
-const templateBtn = document.createElement('button');
-templateBtn.className = 'ql-template';
-templateBtn.setAttribute('type', 'button');
-templateBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="11" y2="15"/></svg>';
-templateBtn.title = 'Insert Template Struktur Notulensi';
-templateBtn.onclick = (e) => {
-e.preventDefault();
-e.stopPropagation();
-if (window.insertNotulenTemplate) {
-window.insertNotulenTemplate();
-} else {
-console.error('Template function not found');
-showToast('Error: Fitur template tidak tersedia');
-}
-};
-toolbar.appendChild(templateBtn);
-console.log('[QUILL] Template button added successfully');
-}
-} catch (err) {
-console.error('[QUILL] Error adding template button:', err);
-}
-}, 200);
-
-} catch (error) {
-console.error('[QUILL] Initialization failed:', error);
-console.error('[QUILL] Error stack:', error.stack);
-console.error('[QUILL] Editor element state:', {
-exists: !!editorEl,
-innerHTML: editorEl?.innerHTML?.substring(0, 100),
-parentElement: editorEl?.parentElement?.id,
-offsetParent: editorEl?.offsetParent?.id,
-classList: editorEl?.classList?.toString()
-});
-editorEl.innerHTML = '<div class="flex items-center justify-center h-32 text-red-500"><span>Gagal memuat editor</span></div>';
-showToast('Error: Gagal memuat editor');
-}
-}
-
-function setupRealtimeRoomInfo(roomId) {
+async function setupRealtimeRoomInfo(roomId) {
 const unsub = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId), (snap) => {
 if (snap.exists()) {
 const data = snap.data();
@@ -1334,267 +1076,21 @@ window.handleEditMeetingInfo = async function(e) {
     }
 }
 
+// Modularized functions are now handled by minutesModule
 async function handleAutoAbsensi(roomId) {
-    if (!currentUser) {
-        console.warn('[AUTO ABSENSI] No current user, skipping');
-        return;
-    }
-    
-    console.log('[AUTO ABSENSI] Starting for room:', roomId, 'user:', currentUser.uid, 'role:', userRole);
-    
-    try {
-        // Cek status room terlebih dahulu - jangan absen jika room sudah arsip
-        const roomSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId));
-        if (roomSnap.exists() && roomSnap.data().status === 'archived') {
-            console.log('[AUTO ABSENSI] Room is archived, skipping');
-            return;
-        }
-        
-        // Developer tidak pernah terdaftar di absensi (invisible mode)
-        if (isDeveloper) {
-            console.log('[AUTO ABSENSI] Developer mode - skipping (invisible)');
-            return;
-        }
-        
-        // Query dengan filter untuk cek apakah user sudah absen di room ini
-        const attCol = collection(db, 'artifacts', appId, 'public', 'data', 'attendance');
-        const q = query(attCol, where('roomId', '==', roomId), where('uid', '==', currentUser.uid));
-        const snap = await getDocs(q);
-        
-        let present = false;
-        let existingDocId = null;
-
-        snap.forEach(d => {
-            present = true;
-            existingDocId = d.id;
-            console.log('[AUTO ABSENSI] User already present, docId:', d.id);
-        });
-
-        if (!present) {
-            console.log('[AUTO ABSENSI] User not present, adding to attendance...');
-            
-            // Read profile fields (for NIP display, etc.)
-            let profileData = {};
-            try {
-                const profileSnap = await getDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'));
-                profileData = profileSnap.exists() ? (profileSnap.data() || {}) : {};
-            } catch (e) {
-                console.warn('[AUTO ABSENSI] Could not read profile:', e.message);
-            }
-
-            const userEmail = currentUser.email || 'Guest@unsam.ac.id';
-            const namePrefix = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
-            
-            const attendanceData = {
-                uid: currentUser.uid, 
-                roomId,
-                name: currentUser.displayName || namePrefix,
-                nip: profileData.nip || '',
-                nidn: profileData.nidn || '',
-                nidk: profileData.nidk || '',
-                unitKerja: profileData.unitKerja || '',
-                jabatanFungsional: profileData.jabatanFungsional || '',
-                role: userRole || 'peserta',
-                isDeveloper: isDeveloper || false,
-                email: currentUser.email || '',
-                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-                timestamp: new Date().toISOString(),
-                joinedAt: serverTimestamp()
-            };
-            
-            await addDoc(attCol, attendanceData);
-            console.log('[AUTO ABSENSI] Successfully added to attendance');
-        } else {
-            console.log('[AUTO ABSENSI] User already in attendance, skipping');
-        }
-    } catch (err) { 
-        console.error('[AUTO ABSENSI] Error:', err); 
-    }
+    return minutesModule.handleAutoAbsensi(roomId);
 }
 
 function setupRealtimeMinutes(roomId) {
-    let isFirstLoad = true;
-    let retryCount = 0;
-    let retryTimeout = null;
-    const maxRetries = 10;
-
-    const unsub = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', roomId), (snap) => {
-        const data = snap.data();
-        const display = document.getElementById('displayMinutes');
-        const autosave = document.getElementById('autosaveIndicator');
-
-        console.log('[MINUTES LISTENER] Data received:', {
-            exists: snap.exists(),
-            hasData: !!data,
-            hasText: !!(data && data.text),
-            textLength: data?.text?.length || 0,
-            isFirstLoad: isFirstLoad,
-            userRole: userRole
-        });
-
-        try {
-            if (data && data.text) {
-                // ADA DATA - Load ke editor
-                if (userRole === 'peserta' && display) {
-                    display.innerHTML = DOMPurify.sanitize(data.text || "<p class='text-slate-400'>Belum ada notulensi...</p>");
-                } else if (userRole === 'notulen') {
-                    if (retryTimeout) {
-                        clearTimeout(retryTimeout);
-                        retryTimeout = null;
-                    }
-                    
-                    if (quill && isFirstLoad) {
-                        const sanitizedContent = DOMPurify.sanitize(data.text);
-                        quill.clipboard.dangerouslyPasteHTML(sanitizedContent);
-                        console.log('[MINUTES LISTENER] ✅ Content loaded, length:', data.text.length);
-                        isFirstLoad = false;
-                        retryCount = 0;
-                    } else if (!quill && isFirstLoad && retryCount < maxRetries) {
-                        retryCount++;
-                        const delay = Math.min(100 * retryCount, 2000);
-                        
-                        retryTimeout = setTimeout(() => {
-                            retryTimeout = null;
-                            if (quill && isFirstLoad) {
-                                const sanitizedContent = DOMPurify.sanitize(data.text);
-                                quill.clipboard.dangerouslyPasteHTML(sanitizedContent);
-                                console.log('[MINUTES LISTENER] ✅ Content loaded (retry), length:', data.text.length);
-                                isFirstLoad = false;
-                                retryCount = 0;
-                            } else if (!quill && isFirstLoad && retryCount >= maxRetries) {
-                                console.warn('[MINUTES LISTENER] Quill failed after max retries');
-                                showToast('Warning: Editor tidak dapat dimuat dengan benar');
-                                isFirstLoad = false;
-                            }
-                        }, delay);
-                    }
-                }
-            } else if (!snap.exists() && isFirstLoad) {
-                // Dokumen benar-benar TIDAK ADA di Firestore
-                if (retryTimeout) {
-                    clearTimeout(retryTimeout);
-                    retryTimeout = null;
-                }
-                
-                if (userRole === 'peserta' && display) {
-                    display.innerHTML = "<p class='text-slate-400'>Belum ada notulensi...</p>";
-                } else if (userRole === 'notulen' && quill) {
-                    console.log('[MINUTES LISTENER] Document does not exist, clearing editor');
-                    quill.setText('');
-                }
-                isFirstLoad = false;
-            } else if (isFirstLoad && snap.exists()) {
-                // Dokumen ADA tapi text kosong (masih loading dari cache, tunggu server)
-                console.log('[MINUTES LISTENER] Document exists but no text yet, waiting for server data...');
-                // JANGAN kosongkan editor, biarkan retry mechanism bekerja
-            }
-
-            if (autosave && userRole === 'notulen') {
-                autosave.innerHTML = `<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Tersimpan`;
-                autosave.classList.replace('text-amber-500', 'text-emerald-500');
-            }
-        } catch (error) {
-            console.error("[MINUTES LISTENER] Error:", error);
-            showToast("Error: Gagal memuat notulensi");
-        }
-    }, (err) => {
-        if (retryTimeout) {
-            clearTimeout(retryTimeout);
-            retryTimeout = null;
-        }
-        
-        if (err.code !== 'permission-denied') {
-            console.error("[MINUTES LISTENER] Sync error:", err);
-            showToast("Error: Gagal sinkronisasi notulensi");
-        }
-    });
-
-    unsubscribers.push(() => {
-        unsub();
-        if (retryTimeout) {
-            clearTimeout(retryTimeout);
-            retryTimeout = null;
-        }
-    });
+    return minutesModule.setupRealtimeMinutes(roomId);
 }
 
-let saveTimeout;
-
 async function syncMinutes(text) {
-    if (!activeRoom || userRole !== 'notulen') return;
-
-    const autosave = document.getElementById('autosaveIndicator');
-    if (autosave) {
-        autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>Menyimpan...';
-        autosave.classList.replace('text-emerald-500', 'text-amber-500');
-    }
-
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(async () => {
-        try {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', activeRoom.id), {
-                text,
-                lastUpdated: new Date().toISOString(),
-                wordCount: text ? text.split(/\s+/).filter(word => word.length > 0).length : 0
-            }, { merge: true });
-
-            if (autosave) {
-                autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Tersimpan';
-                autosave.classList.replace('text-amber-500', 'text-emerald-500');
-            }
-        } catch (err) {
-            console.error("Auto-sync error:", err);
-            if (autosave) {
-                autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>Gagal Simpan';
-                autosave.classList.replace('text-emerald-500', 'text-red-500');
-            }
-            showToast("Gagal menyimpan: " + err.message);
-        }
-    }, 1000); // Debounce 1 detik
+    return minutesModule.syncMinutes(text);
 }
 
 function destroyQuill() {
-    if (quill) {
-        try {
-            // Remove stored text-change listener specifically
-            if (quillTextChangeListener) {
-                quill.off('text-change', quillTextChangeListener);
-                quillTextChangeListener = null;
-            }
-            // Remove all other event listeners
-            quill.off('text-change');
-            quill.off('selection-change');
-            quill.off('editor-change');
-            
-            // Clear the Quill content properly
-            if (quill.root) {
-                quill.root.innerHTML = '';
-            }
-            
-            // Destroy the Quill instance
-            quill = null;
-        } catch (error) {
-            console.warn('Error destroying Quill:', error);
-            quill = null;
-            quillTextChangeListener = null;
-        }
-    }
-
-    // Clear the DOM element to ensure clean slate
-    const editorEl = document.getElementById('minutesInput');
-    const wrapperEl = document.getElementById('editorWrapper');
-    if (wrapperEl) {
-        // Remove ALL Quill elements (toolbar + container) inside wrapper
-        wrapperEl.querySelectorAll('.ql-toolbar, .ql-container').forEach(el => el.remove());
-    }
-    if (editorEl) {
-        editorEl.innerHTML = '';
-        // Remove any Quill-related classes or attributes
-        editorEl.className = editorEl.className.replace(/ql-[\w-]+/g, '').trim();
-        editorEl.removeAttribute('contenteditable');
-        editorEl.removeAttribute('data-gramm');
-        editorEl.removeAttribute('data-grm-correct');
-    }
+    return minutesModule.destroyQuill();
 }
 
 // Export ke global scope (delegasi ke minutes-tools-module.js)
