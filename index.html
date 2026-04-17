@@ -1909,28 +1909,48 @@ window.closeUnsavedModal = () => {
 };
 
 window.saveAndProceed = async () => {
+    console.log('[DEBUG] saveAndProceed triggered. pending:', pendingViewSwitch, 'previous:', window.previousView);
     // Save changes first
     const success = await settingsModule.saveProfileSettings(new Event('submit'));
     
     if (success) {
+        console.log('[DEBUG] Save success, proceeding to navigate...');
         isSettingsDirty = false;
+        
+        // LOGIKA CERDAS: Prioritaskan tujuan klik, fallback ke halaman asal
+        const targetView = pendingViewSwitch || window.previousView || 'dashboard';
+        console.log('[DEBUG] Final target determined:', targetView);
+        
+        pendingViewSwitch = null;
         window.closeUnsavedModal();
-        if (pendingViewSwitch) {
-            const targetView = pendingViewSwitch;
-            pendingViewSwitch = null;
-            setTimeout(() => window.switchView(targetView), 500);
-        }
+        
+        setTimeout(() => {
+            console.log('[DEBUG] Navigating to:', targetView);
+            window.switchView(targetView);
+        }, 350);
     }
 };
 
-window.discardAndProceed = () => {
+window.discardAndProceed = async () => {
+    console.log('[DEBUG] discardAndProceed triggered. pending:', pendingViewSwitch, 'previous:', window.previousView);
     isSettingsDirty = false;
-    window.closeUnsavedModal();
-    if (pendingViewSwitch) {
-        const targetView = pendingViewSwitch;
-        pendingViewSwitch = null;
-        setTimeout(() => window.switchView(targetView), 500);
+    
+    // Reset inputs to original state
+    if (typeof updateUserDisplay === 'function') {
+        await updateUserDisplay();
     }
+    
+    // LOGIKA CERDAS: Prioritaskan tujuan klik, fallback ke halaman asal
+    const targetView = pendingViewSwitch || window.previousView || 'dashboard';
+    console.log('[DEBUG] Final target determined:', targetView);
+    
+    pendingViewSwitch = null;
+    window.closeUnsavedModal();
+    
+    setTimeout(() => {
+        console.log('[DEBUG] Navigating to:', targetView);
+        window.switchView(targetView);
+    }, 350);
 };
 
 // Handle Browser Refresh/Close
