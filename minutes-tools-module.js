@@ -392,31 +392,37 @@ async function exportRoomToPDF() {
             const tableY = yPos - 5;
             const rowPadY = 2;
             // A4 portrait contentWidth ~= 170mm
-            const wNo = 10;
-            const wName = 62;
-            const wUnit = 42;
-            const wJabatan = 34;
-            const wTime = contentWidth - (wNo + wName + wUnit + wJabatan);
+            const wNo = 8;
+            const wName = 40;
+            const wUnit = 32;
+            const wJabatan = 28;
+            const wTime = 16;
+            const wDate = 22;
+            const wSig = contentWidth - (wNo + wName + wUnit + wJabatan + wTime + wDate);
             const xNo = tableX;
             const xName = xNo + wNo;
             const xUnit = xName + wName;
             const xJabatan = xUnit + wUnit;
             const xTime = xJabatan + wJabatan;
+            const xDate = xTime + wTime;
+            const xSig = xDate + wDate;
 
             pdf.setFillColor(99, 102, 241);
             pdf.rect(tableX, tableY, contentWidth, 8, 'F');
             pdf.setTextColor(255, 255, 255);
-            pdf.setFontSize(8.5);
+            pdf.setFontSize(8);
             pdf.setFont('helvetica', 'bold');
-            pdf.text('No', xNo + 2, yPos);
+            pdf.text('No', xNo + 1.5, yPos);
             pdf.text('Nama', xName + 1.5, yPos);
             pdf.text('Unit Kerja', xUnit + 1.5, yPos);
             pdf.text('Jabatan', xJabatan + 1.5, yPos);
             pdf.text('Waktu', xTime + 1.5, yPos);
+            pdf.text('Tanggal', xDate + 1.5, yPos);
+            pdf.text('Tanda Tangan', xSig + 1.5, yPos);
             // Header vertical lines
             pdf.setDrawColor(129, 140, 248);
             pdf.setLineWidth(0.2);
-            [xName, xUnit, xJabatan, xTime].forEach((x) => {
+            [xName, xUnit, xJabatan, xTime, xDate, xSig].forEach((x) => {
                 pdf.line(x, tableY, x, tableY + 8);
             });
             yPos += 8;
@@ -436,6 +442,17 @@ async function exportRoomToPDF() {
 
                 const name = data.name || '-';
                 const time = data.time || '-';
+                // Extract date from timestamp or joinedAt if available
+                let dateStr = '-';
+                if (data.timestamp) {
+                    try {
+                        const dObj = new Date(data.timestamp);
+                        dateStr = dObj.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+                    } catch(_) {}
+                } else if (currentMeetingData.meetingDate) {
+                    dateStr = currentMeetingData.meetingDate;
+                }
+
                 const nipText = data.nip ? `NIP: ${data.nip}` : 'NIP: -';
                 const unitKerjaText = data.unitKerja || data.institution || '-';
                 const jabatanText = data.jabatanFungsional || data.position || '-';
@@ -444,10 +461,11 @@ async function exportRoomToPDF() {
                 const unitLines = pdf.splitTextToSize(unitKerjaText, wUnit - 3.5);
                 const jabatanLines = pdf.splitTextToSize(jabatanText, wJabatan - 3.5);
                 const timeLines = pdf.splitTextToSize(time, wTime - 3.5);
+                const dateLines = pdf.splitTextToSize(dateStr, wDate - 3.5);
                 const nameBlockLines = nameLines.length + nipLines.length;
                 const textTopY = yPos + rowPadY;
-                const maxCellLines = Math.max(nameBlockLines, unitLines.length, jabatanLines.length, timeLines.length, 1);
-                const rowHeight = (maxCellLines * 4.2) + (rowPadY * 2);
+                const maxCellLines = Math.max(nameBlockLines, unitLines.length, jabatanLines.length, timeLines.length, dateLines.length, 1);
+                const rowHeight = (maxCellLines * 4) + (rowPadY * 2);
                 const rowTop = yPos - rowPadY - 0.8;
                 const rowBottom = rowTop + rowHeight;
 
@@ -459,21 +477,28 @@ async function exportRoomToPDF() {
                 pdf.setDrawColor(226, 232, 240);
                 pdf.setLineWidth(0.2);
                 pdf.line(tableX, rowBottom, pageWidth - margin, rowBottom);
-                [xName, xUnit, xJabatan, xTime].forEach((x) => {
+                [xName, xUnit, xJabatan, xTime, xDate, xSig].forEach((x) => {
                     pdf.line(x, rowTop, x, rowBottom);
                 });
 
                 pdf.setTextColor(30, 41, 59);
                 pdf.setFont('helvetica', 'normal');
-                pdf.text(String(idx), xNo + 2, textTopY);
+                pdf.setFontSize(8.5); // Slightly smaller for better fit
+                pdf.text(String(idx), xNo + 1.5, textTopY);
                 pdf.setFont('helvetica', 'bold');
                 pdf.text(nameLines, xName + 1.5, textTopY);
                 pdf.setFont('helvetica', 'normal');
-                const nipStartY = textTopY + (nameLines.length * 4.2);
+                pdf.setFontSize(7.5); // NIP even smaller
+                const nipStartY = textTopY + (nameLines.length * 4);
                 pdf.text(nipLines, xName + 1.5, nipStartY);
+                pdf.setFontSize(8.5);
                 pdf.text(unitLines, xUnit + 1.5, textTopY);
                 pdf.text(jabatanLines, xJabatan + 1.5, textTopY);
                 pdf.text(timeLines, xTime + 1.5, textTopY);
+                pdf.text(dateLines, xDate + 1.5, textTopY);
+                
+                // Signature cell text (optional, usually left empty for actual sign)
+                // pdf.text('.........', xSig + 2, textTopY + 5); 
 
                 yPos += rowHeight;
                 idx += 1;
