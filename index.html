@@ -122,7 +122,7 @@ if (typeof window.setUIRole === 'function') return window.setUIRole(role);
 const minutesToolsModule = createMinutesToolsModule({
     db,
     appId,
-    activeRoom: () => activeRoom,
+    getActiveRoom: () => activeRoom,
     getQuill: () => quill,
     showToast,
     showLoading,
@@ -1108,7 +1108,6 @@ function destroyQuill() {
 
 // Export ke global scope (delegasi ke minutes-tools-module.js)
 window.exportRoomToPDF = async () => { await minutesToolsModule.exportRoomToPDF(); };
-window.exportAttendanceToPDF = async () => { await minutesToolsModule.exportAttendanceToPDF(); };
 window.exportMinutes = () => minutesToolsModule.exportMinutes();
 
 const attendanceModule = createAttendanceModule({
@@ -2461,29 +2460,7 @@ Pengaturan Lanjutan
                                 <p class="text-[10px] text-slate-500 mt-0.5">Yang sedang hadir</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-lg">
-                                <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                                <span class="text-sm font-bold text-emerald-700" id="participantCount">0</span>
-                            </div>
-                            <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all" title="Tampilkan/Sembunyikan">
-                                <svg id="participantsToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
-                                    <polyline points="18 15 12 9 6 15"/>
-                                </svg>
-                            </button>
-                            <button onclick="window.exportAttendanceToPDF()"
-                                    class="flex-1 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-2 border border-indigo-100">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="7 10 12 15 17 10"/>
-                                    <line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
-                                Cetak Daftar Hadir
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div id="participantsPanelContent" class="p-4 overflow-y-auto custom-scrollbar flex-1" style="max-height: none;"></div>
+                        <div id="participantsPanelContent" class="space-y-1"></div>
             </div>
         </div>
     </div>
