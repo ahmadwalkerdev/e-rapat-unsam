@@ -1295,23 +1295,9 @@ window.handleHeaderLogoClick = async () => {
         return;
     }
     
-    // FLUSH: Simpan data pending sebelum keluar (sama seperti minimizeRoom)
-    if (saveTimeout && quill && activeRoom && userRole === 'notulen') {
-        console.log('[LOGO CLICK] Flushing pending save...');
-        clearTimeout(saveTimeout);
-        saveTimeout = null;
-        try {
-            const content = quill.root.innerHTML;
-            const sanitizedContent = DOMPurify.sanitize(content);
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', activeRoom.id), {
-                text: sanitizedContent,
-                lastUpdated: new Date().toISOString(),
-                wordCount: sanitizedContent ? sanitizedContent.split(/\s+/).filter(word => word.length > 0).length : 0
-            }, { merge: true });
-            console.log('[LOGO CLICK] Final save completed');
-        } catch (err) {
-            console.error('[LOGO CLICK] Final save failed:', err);
-        }
+    // FLUSH: Simpan data pending sebelum keluar
+    if (typeof minutesModule !== 'undefined') {
+        await minutesModule.flushPendingSave();
     }
     
     // Destroy Quill and clear listeners before switching
@@ -1363,9 +1349,8 @@ window.closeLogoutModal = () => {
 
 window.confirmLogout = async () => {
     // FLUSH: Simpan data pending jika logout saat di room
-    if (saveTimeout && quill && activeRoom && userRole === 'notulen') {
-        clearTimeout(saveTimeout);
-        await syncMinutes();
+    if (typeof minutesModule !== 'undefined') {
+        await minutesModule.flushPendingSave();
     }
     
     // Clear room session on logout
@@ -1460,41 +1445,9 @@ window.addEventListener('beforeunload', (e) => {
 window.minimizeRoom = async () => {
     console.log('[MINIMIZE] Starting room exit, flushing pending saves...');
     
-    // FLUSH: Tunggu save pending selesai sebelum keluar
-    if (saveTimeout) {
-        console.log('[MINIMIZE] Flushing pending save...');
-        clearTimeout(saveTimeout);
-        saveTimeout = null;
-        
-        // Simpan data terakhir segera (tanpa debounce)
-        if (quill && activeRoom && userRole === 'notulen') {
-            try {
-                const content = quill.root.innerHTML;
-                const contentLength = content.length;
-                console.log('[MINIMIZE] Saving content length:', contentLength);
-                console.log('[MINIMIZE] Content preview:', content.substring(0, 200));
-                
-                const sanitizedContent = DOMPurify.sanitize(content);
-                const saveData = {
-                    text: sanitizedContent,
-                    lastUpdated: new Date().toISOString(),
-                    wordCount: sanitizedContent ? sanitizedContent.split(/\s+/).filter(word => word.length > 0).length : 0
-                };
-                console.log('[MINIMIZE] Save data:', saveData);
-                
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', activeRoom.id), saveData, { merge: true });
-                console.log('[MINIMIZE] Final save completed SUCCESSFULLY');
-                showToast('Notulen disimpan sebelum keluar');
-            } catch (err) {
-                console.error('[MINIMIZE] Final save failed:', err);
-                showToast('Gagal menyimpan: ' + err.message);
-            }
-        } else {
-            console.log('[MINIMIZE] No quill/activeRoom/notulen role, skipping save');
-            console.log('[MINIMIZE] Conditions:', { hasQuill: !!quill, hasActiveRoom: !!activeRoom, userRole, roomId: activeRoom?.id });
-        }
-    } else {
-        console.log('[MINIMIZE] No pending save (saveTimeout is null)');
+    // FLUSH: Simpan data pending sebelum keluar
+    if (typeof minutesModule !== 'undefined') {
+        await minutesModule.flushPendingSave();
     }
     
     destroyQuill();

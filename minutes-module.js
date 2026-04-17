@@ -445,11 +445,37 @@ export function createMinutesModule(deps) {
         }
     }
 
+    async function flushPendingSave() {
+        if (saveTimeout) {
+            console.log('[MINUTES] Flushing pending save...');
+            clearTimeout(saveTimeout);
+            saveTimeout = null;
+            
+            const q = getQuill();
+            const activeRoom = getActiveRoom();
+            if (q && activeRoom && getUserRole() === 'notulen') {
+                try {
+                    const content = q.root.innerHTML;
+                    const sanitizedContent = DOMPurify.sanitize(content);
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', activeRoom.id), {
+                        text: sanitizedContent,
+                        lastUpdated: new Date().toISOString(),
+                        wordCount: sanitizedContent ? sanitizedContent.split(/\s+/).filter(word => word.length > 0).length : 0
+                    }, { merge: true });
+                    console.log('[MINUTES] Final save completed successfully');
+                } catch (err) {
+                    console.error('[MINUTES] Final save failed:', err);
+                }
+            }
+        }
+    }
+
     return {
         initQuillEditorWithRetry,
         destroyQuill,
         syncMinutes,
         setupRealtimeMinutes,
-        handleAutoAbsensi
+        handleAutoAbsensi,
+        flushPendingSave
     };
 }
