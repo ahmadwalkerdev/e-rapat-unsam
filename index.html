@@ -126,6 +126,8 @@ const minutesToolsModule = createMinutesToolsModule({
     getQuill: () => quill,
     showToast,
     showLoading,
+    buildSafePdfFileName,
+    getCurrentMeetingData: () => currentMeetingData,
     buildRoomJoinUrl: (id) => `${window.location.origin}${window.location.pathname}?room=${id}`,
     collection, query, where, getDocs, doc, setDoc,
     DOMPurify
