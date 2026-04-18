@@ -250,19 +250,18 @@ toggleModal,
 showToast,
 showLoading,
 enterRoom,
-minimizeRoom: () => window.minimizeRoom(),
+minimizeRoom,
 getCurrentUser: () => currentUser,
-getActiveRoom: () => activeRoom,
-getUserRole: () => userRole
+getActiveRoom: () => appState.activeRoom,
+getUserRole: () => appState.userRole
 });
 
-// Wrapper function - akan di-delegate ke dashboardModule setelah dibuat
-let _dashboardModuleRef = null;
-function setupDashboardListenerWrapper() {
-    if (_dashboardModuleRef) {
-        _dashboardModuleRef.setupDashboardListener();
-    }
-}
+// Map Global Window Functions for Room Management
+window.handleCreateRoom = roomManagementModule.handleCreateRoom;
+window.openCreateRoomModal = roomManagementModule.openCreateRoomModal;
+window.openEditMeetingInfoModal = roomManagementModule.openEditRoomModal; // Mapped to the module's edit function
+window.handleEditMeetingInfo = roomManagementModule.handleEditMeetingInfo;
+window.confirmEndMeeting = roomManagementModule.confirmEndMeeting;
 
 const authModule = createAuthModule({
 auth,
