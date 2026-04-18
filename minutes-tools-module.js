@@ -82,12 +82,11 @@ function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15, current
         
         // Mapping fakultas
         const facultyMap = {
-            'FKIP': { name: 'FAKULTAS KEGURUAN DAN ILMU PENDIDIKAN', web: 'fkip.unsam.ac.id' },
-            'Teknik': { name: 'FAKULTAS TEKNIK', web: 'teknik.unsam.ac.id' },
-            'Hukum': { name: 'FAKULTAS HUKUM', web: 'fh.unsam.ac.id' },
-            'Ekonomi': { name: 'FAKULTAS EKONOMI & BISNIS', web: 'feb.unsam.ac.id' },
-            'Pertanian': { name: 'FAKULTAS PERTANIAN', web: 'fp.unsam.ac.id' },
-            'Sains': { name: 'FAKULTAS SAINS DAN TEKNOLOGI', web: 'fst.unsam.ac.id' }
+            'Fakultas Keguruan dan Ilmu Pendidikan': { name: 'FAKULTAS KEGURUAN DAN ILMU PENDIDIKAN', web: 'fkip.unsam.ac.id' },
+            'Fakultas Sains dan Teknologi': { name: 'FAKULTAS SAINS DAN TEKNOLOGI', web: 'fst.unsam.ac.id' },
+            'Fakultas Hukum': { name: 'FAKULTAS HUKUM', web: 'fh.unsam.ac.id' },
+            'Fakultas Ekonomi dan Bisnis': { name: 'FAKULTAS EKONOMI & BISNIS', web: 'feb.unsam.ac.id' },
+            'Fakultas Pertanian': { name: 'FAKULTAS PERTANIAN', web: 'fp.unsam.ac.id' }
         };
 
         const facData = facultyMap[lingkup];
