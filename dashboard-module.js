@@ -655,18 +655,20 @@ ${statusBadge}
             
             // Handle Lingkup Rapat
             if (lingkupEl) {
-                // Mapping jika data lama masih menggunakan format pendek
+                // Mapping untuk mendukung data lama (Umum/Sains/Ekonomi) 
+                // maupun data baru (nama lengkap) agar tetap sinkron dengan value di HTML
                 const mapping = {
-                    'Umum': 'Universitas Samudra (Umum)',
-                    'Ekonomi': 'Fakultas Ekonomi dan Bisnis',
-                    'Hukum': 'Fakultas Hukum',
-                    'Sains': 'Fakultas Sains dan Teknologi',
-                    'Pertanian': 'Fakultas Pertanian',
-                    'FKIP': 'Fakultas Keguruan dan Ilmu Pendidikan'
+                    'Universitas Samudra (Umum)': 'Umum',
+                    'Fakultas Ekonomi dan Bisnis': 'Ekonomi',
+                    'Fakultas Hukum': 'Hukum',
+                    'Fakultas Sains dan Teknologi': 'Sains',
+                    'Fakultas Pertanian': 'Pertanian',
+                    'Fakultas Keguruan dan Ilmu Pendidikan': 'FKIP'
                 };
-                const finalValue = mapping[data.lingkup] || data.lingkup || 'Universitas Samudra (Umum)';
+                // Jika data di Firestore adalah format panjang, konversi ke format pendek agar match dengan value <option>
+                const finalValue = mapping[data.lingkup] || data.lingkup || 'Umum';
                 lingkupEl.value = finalValue;
-                console.log('[DEBUG] Setting Lingkup to:', finalValue);
+                console.log('[DEBUG] Setting Lingkup element value to:', finalValue);
             }
             
             // Handle Identitas Pimpinan Rapat (Field Terkunci)
