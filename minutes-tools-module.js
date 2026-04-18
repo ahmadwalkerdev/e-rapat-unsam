@@ -61,13 +61,13 @@ function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15, current
 
     pdf.setTextColor(0, 0, 0);
     pdf.setFont('times', 'normal');
-    pdf.setFontSize(14);
+    pdf.setFontSize(12);
     pdf.text('KEMENTERIAN PENDIDIKAN TINGGI, SAINS', centerX, yPos, { align: 'center' });
-    yPos += 5.5;
+    yPos += 5;
     pdf.text('DAN TEKNOLOGI', centerX, yPos, { align: 'center' });
     yPos += 6;
     pdf.setFont('times', 'bold');
-    pdf.setFontSize(15);
+    pdf.setFontSize(14);
     pdf.text('UNIVERSITAS SAMUDRA', centerX, yPos, { align: 'center' });
     yPos += 5.5;
 
@@ -100,7 +100,7 @@ function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15, current
     }
 
     pdf.setFont('times', 'normal');
-    pdf.setFontSize(11);
+    pdf.setFontSize(10);
     pdf.text('Jalan Prof. Dr. Syarief Thayeb, Meurandeh, Langsa, Aceh, Kode Pos 24416', centerX, yPos, { align: 'center' });
     yPos += 4.5;
     pdf.text('Telepon (0641) 426534, Faximile (0641) 426534', centerX, yPos, { align: 'center' });
@@ -293,7 +293,7 @@ async function exportRoomToPDF() {
 
         const qrUrl = buildRoomJoinUrl(activeRoom.id);
         const qrDataUrl = tryBuildQrDataUrl(qrUrl);
-        pdf.setFontSize(10);
+        pdf.setFontSize(11);
         const infoStartY = yPos;
         const qrBoxSize = 31;
         const qrPanelWidth = 38;
@@ -308,9 +308,9 @@ async function exportRoomToPDF() {
         ];
 
         infoList.forEach(([label, val]) => {
-            pdf.setFont('helvetica', 'bold');
+            pdf.setFont('times', 'bold');
             pdf.text(`${label}:`, margin, yPos);
-            pdf.setFont('helvetica', 'normal');
+            pdf.setFont('times', 'normal');
             const split = pdf.splitTextToSize(val || '-', infoValueWidth);
             pdf.text(split, margin + 35, yPos);
             yPos += (split.length * 5) + 2;
@@ -358,15 +358,15 @@ async function exportRoomToPDF() {
             yPos += 6;
             yPos = ensureSpaceOrNewPage(pdf, { yPos, neededMm: 40, pageHeight, topMm: 20 });
 
-            pdf.setFontSize(8);
-            pdf.setTextColor(79, 70, 229);
-            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(9);
+            pdf.setTextColor(0, 0, 0);
+            pdf.setFont('times', 'bold');
             pdf.text('PENANGGUNG JAWAB NOTULENSI', margin, yPos);
             yPos += 5;
 
-            pdf.setFontSize(10);
-            pdf.setTextColor(30, 41, 59);
-            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(11);
+            pdf.setTextColor(0, 0, 0);
+            pdf.setFont('times', 'normal');
             pdf.text(`${notulenName || '-'}`, margin, yPos);
             yPos += 5;
             if (notulenNip) { pdf.text(`NIP: ${notulenNip}`, margin, yPos); yPos += 5; }
@@ -391,8 +391,8 @@ async function exportRoomToPDF() {
         // NOTULENSI (render HTML structure when possible)
         yPos = ensureSpaceOrNewPage(pdf, { yPos, neededMm: 35, pageHeight, topMm: 20 });
         pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'bold');
-        pdf.setTextColor(99, 102, 241);
+        pdf.setFont('times', 'bold');
+        pdf.setTextColor(0, 0, 0);
         pdf.text('NOTULENSI RAPAT', margin, yPos);
         yPos += 10;
 
@@ -412,8 +412,8 @@ async function exportRoomToPDF() {
             yPos = 20;
 
             pdf.setFontSize(12);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(99, 102, 241);
+            pdf.setFont('times', 'bold');
+            pdf.setTextColor(0, 0, 0);
             pdf.text('DAFTAR HADIR', margin, yPos);
             yPos += 8;
 
@@ -436,11 +436,11 @@ async function exportRoomToPDF() {
             const xDate = xTime + wTime;
             const xSig = xDate + wDate;
 
-            pdf.setFillColor(99, 102, 241);
+            pdf.setFillColor(240, 240, 240);
             pdf.rect(tableX, tableY, contentWidth, 8, 'F');
-            pdf.setTextColor(255, 255, 255);
-            pdf.setFontSize(8);
-            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(0, 0, 0);
+            pdf.setFontSize(9);
+            pdf.setFont('times', 'bold');
             pdf.text('No', xNo + 1.5, yPos);
             pdf.text('Nama', xName + 1.5, yPos);
             pdf.text('Unit Kerja', xUnit + 1.5, yPos);
@@ -449,16 +449,16 @@ async function exportRoomToPDF() {
             pdf.text('Tanggal', xDate + 1.5, yPos);
             pdf.text('Tanda Tangan', xSig + 1.5, yPos);
             // Header vertical lines
-            pdf.setDrawColor(129, 140, 248);
+            pdf.setDrawColor(0, 0, 0);
             pdf.setLineWidth(0.2);
             [xName, xUnit, xJabatan, xTime, xDate, xSig].forEach((x) => {
                 pdf.line(x, tableY, x, tableY + 8);
             });
             yPos += 8;
 
-            pdf.setTextColor(30, 41, 59);
-            pdf.setFont('helvetica', 'normal');
-            pdf.setFontSize(9.5);
+            pdf.setTextColor(0, 0, 0);
+            pdf.setFont('times', 'normal');
+            pdf.setFontSize(11);
 
             const rows = [];
             attSnap.forEach((d) => rows.push(d.data() || {}));
@@ -510,17 +510,17 @@ async function exportRoomToPDF() {
                     pdf.line(x, rowTop, x, rowBottom);
                 });
 
-                pdf.setTextColor(30, 41, 59);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setFontSize(8.5); // Slightly smaller for better fit
+                pdf.setTextColor(0, 0, 0);
+                pdf.setFont('times', 'normal');
+                pdf.setFontSize(10); // Slightly smaller for better fit
                 pdf.text(String(idx), xNo + 1.5, textTopY);
-                pdf.setFont('helvetica', 'bold');
+                pdf.setFont('times', 'bold');
                 pdf.text(nameLines, xName + 1.5, textTopY);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setFontSize(7.5); // NIP even smaller
+                pdf.setFont('times', 'normal');
+                pdf.setFontSize(9); // NIP even smaller
                 const nipStartY = textTopY + (nameLines.length * 4);
                 pdf.text(nipLines, xName + 1.5, nipStartY);
-                pdf.setFontSize(8.5);
+                pdf.setFontSize(10);
                 pdf.text(unitLines, xUnit + 1.5, textTopY);
                 pdf.text(jabatanLines, xJabatan + 1.5, textTopY);
                 pdf.text(timeLines, xTime + 1.5, textTopY);
