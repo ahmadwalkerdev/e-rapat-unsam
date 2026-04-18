@@ -327,6 +327,11 @@ window.toggleRoomMenu = (btn) => {
     });
 
     if (dropdown.classList.contains('hidden')) {
+        // Calculate position since it's now 'fixed' to avoid overflow-hidden clipping
+        const rect = btn.getBoundingClientRect();
+        dropdown.style.top = `${rect.bottom + 8}px`;
+        dropdown.style.left = `${rect.right - 192}px`; // 192px is w-48
+
         dropdown.classList.remove('hidden');
         setTimeout(() => {
             dropdown.classList.remove('opacity-0', 'translate-y-2');
