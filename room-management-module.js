@@ -148,26 +148,6 @@ document.getElementById('newRoomLeaderTitle').value = '';
 toggleModal('createRoomModal', true);
 }
 
-function openEditRoomModal() {
-    const activeRoom = getActiveRoom();
-    if (!activeRoom) return;
-
-    // Fill the fields (mapped to the new UI IDs)
-    document.getElementById('editMeetingTitle').value = activeRoom.title || '';
-    document.getElementById('editMeetingDesc').value = activeRoom.description || '';
-    document.getElementById('editMeetingDate').value = activeRoom.meetingDate || '';
-    document.getElementById('editMeetingStartTime').value = activeRoom.meetingStartTime || '';
-    document.getElementById('editMeetingEndTime').value = activeRoom.meetingEndTime || '';
-    document.getElementById('editMeetingLocation').value = activeRoom.meetingLocation || '';
-    document.getElementById('editMeetingParticipants').value = (activeRoom.meetingParticipants || []).join('\n');
-    document.getElementById('editMeetingLingkup').value = activeRoom.lingkup || 'Umum';
-    document.getElementById('editMeetingLeaderName').value = activeRoom.leaderName || '';
-    document.getElementById('editMeetingLeaderNip').value = activeRoom.leaderNip || '';
-    document.getElementById('editMeetingLeaderTitle').value = activeRoom.leaderTitle || '';
-
-    toggleModal('editMeetingInfoModal', true);
-}
-
 function updateMeetingInfoPanel(data) {
     if (!data) return;
 
@@ -301,7 +281,6 @@ return {
     createNewRoom,
     handleCreateRoom,
     openCreateRoomModal,
-    openEditRoomModal,
     updateMeetingInfoPanel,
     handleEditMeetingInfo,
     confirmEndMeeting

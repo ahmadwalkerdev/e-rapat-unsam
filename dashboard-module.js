@@ -595,9 +595,11 @@ ${statusBadge}
     }
 
     window.openEditRoomModal = async (roomId) => {
+        console.log('[DEBUG] Opening Edit Modal for room:', roomId);
         // Jika dipanggil tanpa roomId (dari dalam room), ambil dari activeRoom
         if (!roomId) {
             const activeRoom = deps.getActiveRoom();
+            console.log('[DEBUG] Active room data for edit:', activeRoom);
             if (activeRoom) {
                 fillEditModal(activeRoom);
                 deps.toggleModal('editMeetingInfoModal', true);
@@ -612,12 +614,14 @@ ${statusBadge}
             if (snap.exists()) {
                 const roomData = snap.data();
                 roomData.id = roomId; // Pastikan ID ada untuk update nanti
+                console.log('[DEBUG] Firestore room data for edit:', roomData);
                 fillEditModal(roomData);
                 deps.toggleModal('editMeetingInfoModal', true);
             } else {
                 deps.showToast("Data agenda tidak ditemukan.");
             }
         } catch (e) {
+            console.error('[DEBUG] Error fetching room data:', e);
             deps.showToast("Gagal mengambil data: " + e.message);
         } finally {
             deps.showLoading(false);
@@ -625,6 +629,7 @@ ${statusBadge}
     };
 
     function fillEditModal(data) {
+        console.log('[DEBUG] Filling modal with data:', data);
         document.getElementById('editMeetingTitle').value = data.title || '';
         document.getElementById('editMeetingDesc').value = data.description || '';
         document.getElementById('editMeetingDate').value = data.meetingDate || '';
@@ -632,10 +637,19 @@ ${statusBadge}
         document.getElementById('editMeetingEndTime').value = data.meetingEndTime || '';
         document.getElementById('editMeetingLocation').value = data.meetingLocation || '';
         document.getElementById('editMeetingParticipants').value = (data.meetingParticipants || []).join('\n');
-        document.getElementById('editMeetingLingkup').value = data.lingkup || 'Umum';
-        document.getElementById('editMeetingLeaderName').value = data.leaderName || '';
-        document.getElementById('editMeetingLeaderNip').value = data.leaderNip || '';
-        document.getElementById('editMeetingLeaderTitle').value = data.leaderTitle || '';
+        
+        // Handle Lingkup Rapat
+        const lingkupEl = document.getElementById('editMeetingLingkup');
+        if (lingkupEl) lingkupEl.value = data.lingkup || 'Umum';
+        
+        // Handle Identitas Pimpinan Rapat (Field Terkunci)
+        const leaderNameEl = document.getElementById('editMeetingLeaderName');
+        const leaderNipEl = document.getElementById('editMeetingLeaderNip');
+        const leaderTitleEl = document.getElementById('editMeetingLeaderTitle');
+        
+        if (leaderNameEl) leaderNameEl.value = data.leaderName || '';
+        if (leaderNipEl) leaderNipEl.value = data.leaderNip || '';
+        if (leaderTitleEl) leaderTitleEl.value = data.leaderTitle || '';
         
         // Simpan temporary ID di form untuk handleEditMeetingInfo
         document.getElementById('editMeetingInfoModal').setAttribute('data-current-room-id', data.id);
