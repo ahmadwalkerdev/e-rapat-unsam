@@ -630,26 +630,52 @@ ${statusBadge}
 
     function fillEditModal(data) {
         console.log('[DEBUG] Filling modal with data:', data);
-        document.getElementById('editMeetingTitle').value = data.title || '';
-        document.getElementById('editMeetingDesc').value = data.description || '';
-        document.getElementById('editMeetingDate').value = data.meetingDate || '';
-        document.getElementById('editMeetingStartTime').value = data.meetingStartTime || '';
-        document.getElementById('editMeetingEndTime').value = data.meetingEndTime || '';
-        document.getElementById('editMeetingLocation').value = data.meetingLocation || '';
-        document.getElementById('editMeetingParticipants').value = (data.meetingParticipants || []).join('\n');
         
-        // Handle Lingkup Rapat
-        const lingkupEl = document.getElementById('editMeetingLingkup');
-        if (lingkupEl) lingkupEl.value = data.lingkup || 'Umum';
-        
-        // Handle Identitas Pimpinan Rapat (Field Terkunci)
-        const leaderNameEl = document.getElementById('editMeetingLeaderName');
-        const leaderNipEl = document.getElementById('editMeetingLeaderNip');
-        const leaderTitleEl = document.getElementById('editMeetingLeaderTitle');
-        
-        if (leaderNameEl) leaderNameEl.value = data.leaderName || '';
-        if (leaderNipEl) leaderNipEl.value = data.leaderNip || '';
-        if (leaderTitleEl) leaderTitleEl.value = data.leaderTitle || '';
+        // Gunakan setTimeout kecil untuk memastikan modal sudah 'ready' di DOM
+        setTimeout(() => {
+            const titleEl = document.getElementById('editMeetingTitle');
+            const descEl = document.getElementById('editMeetingDesc');
+            const dateEl = document.getElementById('editMeetingDate');
+            const startEl = document.getElementById('editMeetingStartTime');
+            const endEl = document.getElementById('editMeetingEndTime');
+            const locEl = document.getElementById('editMeetingLocation');
+            const partEl = document.getElementById('editMeetingParticipants');
+            const lingkupEl = document.getElementById('editMeetingLingkup');
+            const leaderNameEl = document.getElementById('editMeetingLeaderName');
+            const leaderNipEl = document.getElementById('editMeetingLeaderNip');
+            const leaderTitleEl = document.getElementById('editMeetingLeaderTitle');
+
+            if (titleEl) titleEl.value = data.title || '';
+            if (descEl) descEl.value = data.description || '';
+            if (dateEl) dateEl.value = data.meetingDate || '';
+            if (startEl) startEl.value = data.meetingStartTime || '';
+            if (endEl) endEl.value = data.meetingEndTime || '';
+            if (locEl) locEl.value = data.meetingLocation || '';
+            if (partEl) partEl.value = (data.meetingParticipants || []).join('\n');
+            
+            // Handle Lingkup Rapat
+            if (lingkupEl) {
+                // Mapping jika data lama masih menggunakan format pendek
+                const mapping = {
+                    'Umum': 'Universitas Samudra (Umum)',
+                    'Ekonomi': 'Fakultas Ekonomi dan Bisnis',
+                    'Hukum': 'Fakultas Hukum',
+                    'Sains': 'Fakultas Sains dan Teknologi',
+                    'Pertanian': 'Fakultas Pertanian',
+                    'FKIP': 'Fakultas Keguruan dan Ilmu Pendidikan'
+                };
+                const finalValue = mapping[data.lingkup] || data.lingkup || 'Universitas Samudra (Umum)';
+                lingkupEl.value = finalValue;
+                console.log('[DEBUG] Setting Lingkup to:', finalValue);
+            }
+            
+            // Handle Identitas Pimpinan Rapat (Field Terkunci)
+            if (leaderNameEl) leaderNameEl.value = data.leaderName || '';
+            if (leaderNipEl) leaderNipEl.value = data.leaderNip || '';
+            if (leaderTitleEl) leaderTitleEl.value = data.leaderTitle || '';
+
+            console.log('[DEBUG] Modal fields populated');
+        }, 50);
         
         // Simpan temporary ID di form untuk handleEditMeetingInfo
         document.getElementById('editMeetingInfoModal').setAttribute('data-current-room-id', data.id);
