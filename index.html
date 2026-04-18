@@ -1076,11 +1076,17 @@ window.enterRoomAsGuest = enterRoomAsGuest;
 async function setupRealtimeRoomInfo(roomId) {
 const unsub = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId), (snap) => {
 if (snap.exists()) {
-const data = snap.data();
-activeRoom = { id: roomId, pin: activeRoom?.pin, ...data };
-
-// Populate Meeting Info Section
-updateMeetingInfoSection(data);
+    const data = snap.data();
+    appState.activeRoom = { id: snap.id, ...data };
+    
+    // Update meeting info panel in UI
+    roomManagementModule.updateMeetingInfoPanel(appState.activeRoom);
+    
+    // Update header info
+    const headerTitle = document.getElementById('roomHeaderTitle');
+    if (headerTitle) headerTitle.innerText = data.title || '-';
+    
+    updateMeetingInfoSection(data);
 
 if (data.status === 'archived') {
 stopMeetingDuration();

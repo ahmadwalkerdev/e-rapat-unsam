@@ -168,6 +168,60 @@ function openEditRoomModal() {
     toggleModal('editMeetingInfoModal', true);
 }
 
+function updateMeetingInfoPanel(data) {
+    if (!data) return;
+
+    // Column 1
+    const lingkupEl = document.getElementById('meetingInfoLingkup');
+    if (lingkupEl) lingkupEl.textContent = data.lingkup || 'Umum';
+    
+    const titleEl = document.getElementById('meetingInfoTitle');
+    if (titleEl) titleEl.textContent = data.title || '-';
+    
+    const descEl = document.getElementById('meetingInfoDesc');
+    if (descEl) descEl.textContent = data.description || '-';
+
+    // Column 2
+    const dateEl = document.getElementById('meetingInfoDate');
+    if (dateEl) dateEl.textContent = data.meetingDate || '-';
+    
+    const locEl = document.getElementById('meetingInfoLocation');
+    if (locEl) locEl.textContent = data.meetingLocation || '-';
+    
+    const timeEl = document.getElementById('meetingInfoTime');
+    if (timeEl) {
+        const start = data.meetingStartTime || '';
+        const end = data.meetingEndTime || '';
+        timeEl.textContent = (start && end) ? `${start} - ${end} WIB` : (start || end || '-');
+    }
+
+    // Column 3
+    const leaderNameEl = document.getElementById('meetingInfoLeaderName');
+    if (leaderNameEl) leaderNameEl.textContent = ': ' + (data.leaderName || '-');
+    
+    const leaderNipEl = document.getElementById('meetingInfoLeaderNip');
+    if (leaderNipEl) leaderNipEl.textContent = ': ' + (data.leaderNip || '-');
+    
+    const leaderTitleEl = document.getElementById('meetingInfoLeaderTitle');
+    if (leaderTitleEl) leaderTitleEl.textContent = ': ' + (data.leaderTitle || '-');
+
+    const participantsEl = document.getElementById('meetingInfoParticipants');
+    if (participantsEl) {
+        participantsEl.innerHTML = '';
+        const participants = data.meetingParticipants || [];
+        if (participants.length === 0) {
+            participantsEl.innerHTML = '<span class="text-xs text-slate-500">-</span>';
+        } else {
+            participants.forEach(p => {
+                const span = document.createElement('span');
+                span.className = "px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[10px] font-bold border border-indigo-100";
+                span.textContent = p;
+                participantsEl.appendChild(span);
+            });
+        }
+    }
+}
+
 async function handleEditMeetingInfo(e) {
     e.preventDefault();
     const activeRoom = getActiveRoom();
@@ -248,6 +302,7 @@ return {
     handleCreateRoom,
     openCreateRoomModal,
     openEditRoomModal,
+    updateMeetingInfoPanel,
     handleEditMeetingInfo,
     confirmEndMeeting
 };
