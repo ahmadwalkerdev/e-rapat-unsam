@@ -232,7 +232,7 @@ export function createDashboardModule(deps) {
                         <div class="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                         </div>
-                        Edit Informasi Rapat
+                        Edit Info Agenda
                     </button>
                     <div class="h-px bg-slate-100 my-1 mx-2"></div>
                     <button onclick="event.stopPropagation(); window.confirmDeleteRoom('${safeRoomId}', '${safeRoomTitleJs}')" class="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors">
@@ -625,7 +625,6 @@ ${statusBadge}
     };
 
     function fillEditModal(data) {
-        // Fill editable fields
         document.getElementById('editMeetingTitle').value = data.title || '';
         document.getElementById('editMeetingDesc').value = data.description || '';
         document.getElementById('editMeetingDate').value = data.meetingDate || '';
@@ -633,23 +632,10 @@ ${statusBadge}
         document.getElementById('editMeetingEndTime').value = data.meetingEndTime || '';
         document.getElementById('editMeetingLocation').value = data.meetingLocation || '';
         document.getElementById('editMeetingParticipants').value = (data.meetingParticipants || []).join('\n');
-        
-        // Fill locked fields
         document.getElementById('editMeetingLingkup').value = data.lingkup || 'Umum';
         document.getElementById('editMeetingLeaderName').value = data.leaderName || '';
         document.getElementById('editMeetingLeaderNip').value = data.leaderNip || '';
         document.getElementById('editMeetingLeaderTitle').value = data.leaderTitle || '';
-        
-        // Lock identity fields to prevent changes after creation
-        const lockedFields = ['editMeetingLingkup', 'editMeetingLeaderName', 'editMeetingLeaderNip', 'editMeetingLeaderTitle'];
-        lockedFields.forEach(fieldId => {
-            const field = document.getElementById(fieldId);
-            if (field) {
-                field.setAttribute('disabled', '');
-                field.setAttribute('readonly', '');
-                field.classList.add('bg-slate-100', 'cursor-not-allowed');
-            }
-        });
         
         // Simpan temporary ID di form untuk handleEditMeetingInfo
         document.getElementById('editMeetingInfoModal').setAttribute('data-current-room-id', data.id);
