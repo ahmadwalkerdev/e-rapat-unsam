@@ -84,10 +84,10 @@ function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15, current
         const facultyMap = {
             'FKIP': { name: 'FAKULTAS KEGURUAN DAN ILMU PENDIDIKAN', web: 'fkip.unsam.ac.id' },
             'Teknik': { name: 'FAKULTAS TEKNIK', web: 'teknik.unsam.ac.id' },
-            'Hukum': { name: 'FAKULTAS HUKUM', web: 'fhu.unsam.ac.id' },
+            'Hukum': { name: 'FAKULTAS HUKUM', web: 'fh.unsam.ac.id' },
             'Ekonomi': { name: 'FAKULTAS EKONOMI & BISNIS', web: 'feb.unsam.ac.id' },
             'Pertanian': { name: 'FAKULTAS PERTANIAN', web: 'fp.unsam.ac.id' },
-            'Kedokteran': { name: 'FAKULTAS KEDOKTERAN', web: 'fk.unsam.ac.id' }
+            'Sains': { name: 'FAKULTAS SAINS DAN TEKNOLOGI', web: 'fst.unsam.ac.id' }
         };
 
         const facData = facultyMap[lingkup];
@@ -568,7 +568,9 @@ async function exportRoomToPDF() {
             pdf.text(`Halaman ${i} dari ${totalP}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
         }
 
-        const safeFileName = buildSafePdfFileName(currentMeetingData.title, currentMeetingData.meetingDate);
+        const lingkup = currentMeetingData?.lingkup || 'Umum';
+        const prefix = lingkup !== 'Umum' ? `${lingkup}_` : '';
+        const safeFileName = buildSafePdfFileName(`${prefix}${currentMeetingData.title}`, currentMeetingData.meetingDate);
         pdf.save(`${safeFileName}.pdf`);
         showToast('✅ PDF berhasil diekspor');
     } catch (e) {
