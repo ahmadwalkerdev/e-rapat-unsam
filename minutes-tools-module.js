@@ -45,7 +45,7 @@ function normalizePngDataUrl(maybeBase64OrDataUrl) {
     return `data:image/png;base64,${s}`;
 }
 
-function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15 }) {
+function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15, currentMeetingData }) {
     let yPos = yStartMm;
 
     // logo_b64.js defines a global `unsamLogoBase64`
@@ -70,13 +70,42 @@ function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15 }) {
     pdf.setFontSize(15);
     pdf.text('UNIVERSITAS SAMUDRA', centerX, yPos, { align: 'center' });
     yPos += 5.5;
+
+    // DINAMIS: Cek apakah lingkup fakultas
+    let websiteUrl = 'unsam.ac.id';
+    let facultyLine = '';
+    const lingkup = currentMeetingData?.lingkup || 'Umum';
+
+    if (lingkup !== 'Umum') {
+        pdf.setFont('times', 'bold');
+        pdf.setFontSize(14);
+        
+        // Mapping fakultas
+        const facultyMap = {
+            'FKIP': { name: 'FAKULTAS KEGURUAN DAN ILMU PENDIDIKAN', web: 'fkip.unsam.ac.id' },
+            'Teknik': { name: 'FAKULTAS TEKNIK', web: 'teknik.unsam.ac.id' },
+            'Hukum': { name: 'FAKULTAS HUKUM', web: 'fhu.unsam.ac.id' },
+            'Ekonomi': { name: 'FAKULTAS EKONOMI & BISNIS', web: 'feb.unsam.ac.id' },
+            'Pertanian': { name: 'FAKULTAS PERTANIAN', web: 'fp.unsam.ac.id' },
+            'Kedokteran': { name: 'FAKULTAS KEDOKTERAN', web: 'fk.unsam.ac.id' }
+        };
+
+        const facData = facultyMap[lingkup];
+        if (facData) {
+            facultyLine = facData.name;
+            websiteUrl = facData.web;
+            pdf.text(facultyLine, centerX, yPos, { align: 'center' });
+            yPos += 5.5;
+        }
+    }
+
     pdf.setFont('times', 'normal');
     pdf.setFontSize(11);
     pdf.text('Jalan Prof. Dr. Syarief Thayeb, Meurandeh, Langsa, Aceh, Kode Pos 24416', centerX, yPos, { align: 'center' });
     yPos += 4.5;
     pdf.text('Telepon (0641) 426534, Faximile (0641) 426534', centerX, yPos, { align: 'center' });
     yPos += 4.5;
-    pdf.text('Laman: unsam.ac.id', centerX, yPos, { align: 'center' });
+    pdf.text(`Laman: ${websiteUrl}`, centerX, yPos, { align: 'center' });
 
     yPos += 7;
     pdf.setLineWidth(1.0);
@@ -255,7 +284,7 @@ async function exportRoomToPDF() {
         let yPos = 15;
 
         // KOP SURAT + QR
-        const kop = drawLetterhead(pdf, { roomId: activeRoom.id, margin, pageWidth, yStartMm: yPos });
+        const kop = drawLetterhead(pdf, { roomId: activeRoom.id, margin, pageWidth, yStartMm: yPos, currentMeetingData });
         yPos = kop.yPos;
 
         // No "NOTULEN RAPAT" title per latest layout request.
@@ -513,13 +542,22 @@ async function exportRoomToPDF() {
             pdf.setTextColor(0, 0, 0);
             pdf.text('Pimpinan Rapat,', sigX, yPos);
             yPos += 5;
-            pdf.text('Dekan,', sigX, yPos);
+            
+            // DINAMIS: Ambil Jabatan Pimpinan
+            const leaderTitle = currentMeetingData.leaderTitle || 'Dekan,';
+            pdf.text(leaderTitle, sigX, yPos);
             yPos += 22;
+            
+            // DINAMIS: Ambil Nama Pimpinan
+            const leaderName = currentMeetingData.leaderName || 'Dr. Hendri Saputra., S.Pd., M.Pd';
             pdf.setFont('times', 'bold');
-            pdf.text('Dr. Hendri Saputra., S.Pd., M.Pd', sigX, yPos);
+            pdf.text(leaderName, sigX, yPos);
             yPos += 5;
+            
+            // DINAMIS: Ambil NIP Pimpinan
+            const leaderNip = currentMeetingData.leaderNip ? `NIP ${currentMeetingData.leaderNip}` : 'NIP 198807112022031006';
             pdf.setFont('times', 'normal');
-            pdf.text('NIP 198807112022031006', sigX, yPos);
+            pdf.text(leaderNip, sigX, yPos);
         }
 
         const totalP = pdf.internal.getNumberOfPages();

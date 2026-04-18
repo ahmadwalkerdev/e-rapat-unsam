@@ -20,7 +20,7 @@ getActiveRoom,
 getUserRole
 } = deps;
 
-async function createNewRoom(title, description, date, startTime, endTime, location, participants) {
+async function createNewRoom(title, description, date, startTime, endTime, location, participants, leaderName, leaderNip, leaderTitle, lingkup) {
 const currentUser = getCurrentUser();
 if (!currentUser) return;
 
@@ -46,6 +46,10 @@ meetingStartTime: startTime || '',
 meetingEndTime: endTime || '',
 meetingLocation: location || '',
 meetingParticipants: participants || [],
+leaderName: leaderName || '',
+leaderNip: leaderNip || '',
+leaderTitle: leaderTitle || '',
+lingkup: lingkup || 'Umum',
 scheduledAt: scheduledAt || new Date().toISOString()
 };
 
@@ -109,15 +113,19 @@ const startTime = document.getElementById('newRoomStartTime').value;
 const endTime = document.getElementById('newRoomEndTime').value;
 const location = document.getElementById('newRoomLocation').value.trim();
 const participantsText = document.getElementById('newRoomParticipants').value;
+const lingkup = document.getElementById('newRoomLingkup').value;
+const leaderName = document.getElementById('newRoomLeaderName').value.trim();
+const leaderNip = document.getElementById('newRoomLeaderNip').value.trim();
+const leaderTitle = document.getElementById('newRoomLeaderTitle').value.trim();
 
-if (!title || !date || !startTime || !endTime || !location) {
+if (!title || !date || !startTime || !endTime || !location || !leaderName || !leaderNip || !leaderTitle) {
 showToast("Harap isi semua field yang wajib diisi!");
 return;
 }
 
 const participants = participantsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
 console.log('[HANDLE CREATE ROOM] Creating room with title:', title);
-createNewRoom(title, description, date, startTime, endTime, location, participants);
+createNewRoom(title, description, date, startTime, endTime, location, participants, leaderName, leaderNip, leaderTitle, lingkup);
 }
 
 function openCreateRoomModal() {
@@ -133,6 +141,10 @@ document.getElementById('newRoomStartTime').value = currentTime;
 document.getElementById('newRoomEndTime').value = endTime;
 document.getElementById('newRoomLocation').value = '';
 document.getElementById('newRoomParticipants').value = '';
+document.getElementById('newRoomLingkup').value = 'Umum';
+document.getElementById('newRoomLeaderName').value = '';
+document.getElementById('newRoomLeaderNip').value = '';
+document.getElementById('newRoomLeaderTitle').value = '';
 toggleModal('createRoomModal', true);
 }
 
