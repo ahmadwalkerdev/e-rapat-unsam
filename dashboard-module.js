@@ -228,7 +228,7 @@ export function createDashboardModule(deps) {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                 </button>
                 <div class="room-menu-dropdown fixed w-48 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-200 py-2 hidden opacity-0 translate-y-2 transition-all z-[999] pointer-events-auto">
-                    <button onclick="event.stopPropagation(); window.openEditMeetingInfoModal()" class="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                    <button onclick="event.stopPropagation(); window.openEditRoomModal('${safeRoomId}')" class="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
                         <div class="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                         </div>
@@ -310,12 +310,6 @@ export function createDashboardModule(deps) {
         const safeDateDisplay = escapeHtml(dateDisplay);
         const safeTimeDisplay = escapeHtml(timeDisplay);
         const safeMeetingLocation = escapeHtml(roomData.meetingLocation || '-');
-        
-        // New Fields for Detailed View
-        const safeLingkup = escapeHtml(roomData.lingkup || 'Umum');
-        const safeLeaderName = escapeHtml(roomData.leaderName || '-');
-        const safeLeaderNip = escapeHtml(roomData.leaderNip || '-');
-        const safeLeaderTitle = escapeHtml(roomData.leaderTitle || '-');
 
         const html = `
 <div style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif; margin-bottom: 2rem;">
@@ -333,19 +327,7 @@ export function createDashboardModule(deps) {
                 <td style="padding: 1rem; color: #1e293b; vertical-align: top;">${safeDescription}</td>
             </tr>
             <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 1rem; background: #f8fafc; font-weight: 600; color: #475569; vertical-align: top;">Lingkup / Unit Kerja</td>
-                <td style="padding: 1rem; color: #1e293b; font-weight: 500; vertical-align: top;">${safeLingkup}</td>
-            </tr>
-            <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 1rem; background: #f8fafc; font-weight: 600; color: #475569; vertical-align: top;">Pimpinan Rapat</td>
-                <td style="padding: 1rem; color: #1e293b; font-weight: 500; vertical-align: top;">
-                    <div style="font-weight: 700;">${safeLeaderName}</div>
-                    <div style="font-size: 0.75rem; color: #64748b;">NIP. ${safeLeaderNip}</div>
-                    <div style="font-size: 0.75rem; color: #64748b;">${safeLeaderTitle}</div>
-                </td>
-            </tr>
-            <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 1rem; background: #f8fafc; font-weight: 600; color: #475569; vertical-align: top;">Hari / Tanggal</td>
+                <td style="padding: 1rem; background: #f8fafc; font-weight: 600; color: #475569; vertical-align: top;">Hari/Tanggal</td>
                 <td style="padding: 1rem; color: #1e293b; font-weight: 500; vertical-align: top;">${safeDateDisplay}</td>
             </tr>
             <tr style="border-bottom: 1px solid #e2e8f0;">
@@ -353,12 +335,12 @@ export function createDashboardModule(deps) {
                 <td style="padding: 1rem; color: #1e293b; font-weight: 500; vertical-align: top;">${safeTimeDisplay}</td>
             </tr>
             <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 1rem; background: #f8fafc; font-weight: 600; color: #475569; vertical-align: top;">Tempat / Lokasi</td>
+                <td style="padding: 1rem; background: #f8fafc; font-weight: 600; color: #475569; vertical-align: top;">Tempat</td>
                 <td style="padding: 1rem; color: #1e293b; font-weight: 500; vertical-align: top;">${safeMeetingLocation}</td>
             </tr>
             <tr>
                 <td style="padding: 1rem; background: #f8fafc; font-weight: 600; color: #475569; vertical-align: top;">Peserta Undangan</td>
-                <td style="padding: 1rem; color: #1e293b; vertical-align: top; line-height: 1.6;">${participantsList}</td>
+                <td style="padding: 1rem; color: #1e293b; vertical-align: top;">${participantsList}</td>
             </tr>
         </tbody>
     </table>
@@ -610,6 +592,53 @@ ${statusBadge}
 
     function getAllRoomsDataForCalendar() {
         return allRoomsDataForCalendar;
+    }
+
+    window.openEditRoomModal = async (roomId) => {
+        // Jika dipanggil tanpa roomId (dari dalam room), ambil dari activeRoom
+        if (!roomId) {
+            const activeRoom = deps.getActiveRoom();
+            if (activeRoom) {
+                fillEditModal(activeRoom);
+                deps.toggleModal('editMeetingInfoModal', true);
+            }
+            return;
+        }
+
+        // Jika dari dashboard (ada roomId), ambil data dari Firestore
+        deps.showLoading(true, "Mengambil data...");
+        try {
+            const snap = await deps.getDoc(deps.doc(deps.db, 'artifacts', deps.appId, 'public', 'data', 'rooms', roomId));
+            if (snap.exists()) {
+                const roomData = snap.data();
+                roomData.id = roomId; // Pastikan ID ada untuk update nanti
+                fillEditModal(roomData);
+                deps.toggleModal('editMeetingInfoModal', true);
+            } else {
+                deps.showToast("Data agenda tidak ditemukan.");
+            }
+        } catch (e) {
+            deps.showToast("Gagal mengambil data: " + e.message);
+        } finally {
+            deps.showLoading(false);
+        }
+    };
+
+    function fillEditModal(data) {
+        document.getElementById('editMeetingTitle').value = data.title || '';
+        document.getElementById('editMeetingDesc').value = data.description || '';
+        document.getElementById('editMeetingDate').value = data.meetingDate || '';
+        document.getElementById('editMeetingStartTime').value = data.meetingStartTime || '';
+        document.getElementById('editMeetingEndTime').value = data.meetingEndTime || '';
+        document.getElementById('editMeetingLocation').value = data.meetingLocation || '';
+        document.getElementById('editMeetingParticipants').value = (data.meetingParticipants || []).join('\n');
+        document.getElementById('editMeetingLingkup').value = data.lingkup || 'Umum';
+        document.getElementById('editMeetingLeaderName').value = data.leaderName || '';
+        document.getElementById('editMeetingLeaderNip').value = data.leaderNip || '';
+        document.getElementById('editMeetingLeaderTitle').value = data.leaderTitle || '';
+        
+        // Simpan temporary ID di form untuk handleEditMeetingInfo
+        document.getElementById('editMeetingInfoModal').setAttribute('data-current-room-id', data.id);
     }
 
     return {

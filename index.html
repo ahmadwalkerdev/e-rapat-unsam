@@ -250,18 +250,19 @@ toggleModal,
 showToast,
 showLoading,
 enterRoom,
-minimizeRoom,
+minimizeRoom: () => window.minimizeRoom(),
 getCurrentUser: () => currentUser,
-getActiveRoom: () => appState.activeRoom,
-getUserRole: () => appState.userRole
+getActiveRoom: () => activeRoom,
+getUserRole: () => userRole
 });
 
-// Map Global Window Functions for Room Management
-window.handleCreateRoom = roomManagementModule.handleCreateRoom;
-window.openCreateRoomModal = roomManagementModule.openCreateRoomModal;
-window.openEditMeetingInfoModal = roomManagementModule.openEditRoomModal; // Mapped to the module's edit function
-window.handleEditMeetingInfo = roomManagementModule.handleEditMeetingInfo;
-window.confirmEndMeeting = roomManagementModule.confirmEndMeeting;
+// Wrapper function - akan di-delegate ke dashboardModule setelah dibuat
+let _dashboardModuleRef = null;
+function setupDashboardListenerWrapper() {
+    if (_dashboardModuleRef) {
+        _dashboardModuleRef.setupDashboardListener();
+    }
+}
 
 const authModule = createAuthModule({
 auth,
@@ -397,6 +398,73 @@ window.showConfirmModal = (title, message, btnText = 'Konfirmasi', btnClass = 'b
         btnAction.onclick = () => close(true);
         btnCancel.onclick = () => close(false);
     });
+};
+
+window.handleEditMeetingInfo = async (e) => {
+    e.preventDefault();
+    
+    // Cek apakah kita sedang mengedit room spesifik (dari dashboard) atau activeRoom (dari dalam room)
+    const modal = document.getElementById('editMeetingInfoModal');
+    const specificRoomId = modal.getAttribute('data-current-room-id');
+    const activeRoom = appState.activeRoom;
+    
+    const targetRoomId = specificRoomId || (activeRoom ? activeRoom.id : null);
+    
+    if (!targetRoomId) {
+        uiShowToast("Error: ID Room tidak ditemukan.");
+        return;
+    }
+
+    uiShowLoading(true, "Menyimpan...");
+    try {
+        const title = document.getElementById('editMeetingTitle').value;
+        const description = document.getElementById('editMeetingDesc').value;
+        const date = document.getElementById('editMeetingDate').value;
+        const startTime = document.getElementById('editMeetingStartTime').value;
+        const endTime = document.getElementById('editMeetingEndTime').value;
+        const location = document.getElementById('editMeetingLocation').value;
+        const participantsText = document.getElementById('editMeetingParticipants').value;
+        const lingkup = document.getElementById('editMeetingLingkup').value;
+        const leaderName = document.getElementById('editMeetingLeaderName').value;
+        const leaderNip = document.getElementById('editMeetingLeaderNip').value;
+        const leaderTitle = document.getElementById('editMeetingLeaderTitle').value;
+
+        const participants = participantsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
+
+        const data = {
+            title,
+            description,
+            meetingDate: date,
+            meetingStartTime: startTime,
+            meetingEndTime: endTime,
+            meetingLocation: location,
+            meetingParticipants: participants,
+            lingkup,
+            leaderName,
+            leaderNip,
+            leaderTitle,
+            updatedAt: new Date().toISOString()
+        };
+
+        // Jika ada date/time, update juga scheduledAt
+        if (date && startTime) {
+            data.scheduledAt = new Date(`${date}T${startTime}`).toISOString();
+        }
+
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', targetRoomId), data);
+        
+        uiToggleModal('editMeetingInfoModal', false);
+        uiShowToast("Informasi agenda berhasil diperbarui!");
+        
+        // Bersihkan ID temporary
+        modal.removeAttribute('data-current-room-id');
+        
+    } catch (error) {
+        console.error("Edit Error:", error);
+        uiShowToast("Gagal memperbarui informasi: " + error.message);
+    } finally {
+        uiShowLoading(false);
+    }
 };
 
 const dashboardModule = createDashboardModule({
@@ -2361,6 +2429,32 @@ Pengaturan Lanjutan
                                 <label class="text-[9px] font-bold text-slate-500 uppercase">Tempat</label>
                             </div>
                             <p id="meetingInfoLocation" class="text-xs font-semibold text-slate-800">-</p>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                            <div class="flex items-center gap-1.5 mb-2 border-b border-slate-200 pb-1">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-indigo-500">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Identitas Dokumen (PDF)</label>
+                            </div>
+                            <table class="w-full text-[10px] border-collapse">
+                                <tr>
+                                    <td class="py-1 text-slate-400 font-medium w-1/3">Lingkup</td>
+                                    <td id="meetingInfoLingkup" class="py-1 text-slate-700 font-bold">: -</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 text-slate-400 font-medium">Pimpinan</td>
+                                    <td id="meetingInfoLeaderName" class="py-1 text-slate-700 font-bold">: -</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 text-slate-400 font-medium">NIP</td>
+                                    <td id="meetingInfoLeaderNip" class="py-1 text-slate-700 font-bold">: -</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-1 text-slate-400 font-medium">Jabatan</td>
+                                    <td id="meetingInfoLeaderTitle" class="py-1 text-slate-700 font-bold text-[9px]">: -</td>
+                                </tr>
+                            </table>
                         </div>
                         <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
                             <div class="flex items-center gap-1.5 mb-1.5">
