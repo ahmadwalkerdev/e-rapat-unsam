@@ -295,6 +295,12 @@ export function createDashboardModule(deps) {
     }
 
     function generateMeetingInfoTable(roomData) {
+        document.getElementById('meetingInfoLingkup').textContent = `: ${roomData.lingkup || '-'}`;
+        document.getElementById('meetingInfoJurusan').textContent = `: ${roomData.jurusan || '-'}`;
+        document.getElementById('meetingInfoLeaderName').textContent = `: ${roomData.leaderName || '-'}`;
+        document.getElementById('meetingInfoLeaderNip').textContent = `: ${roomData.leaderNip || '-'}`;
+        document.getElementById('meetingInfoLeaderTitle').textContent = `: ${roomData.leaderTitle || '-'}`;
+
         const participants = roomData.meetingParticipants || [];
         const participantsList = participants.length > 0
             ? participants.map((p, i) => `${i + 1}. ${escapeHtml(p)}`).join('<br>')
@@ -632,7 +638,14 @@ ${statusBadge}
         document.getElementById('editMeetingEndTime').value = data.meetingEndTime || '';
         document.getElementById('editMeetingLocation').value = data.meetingLocation || '';
         document.getElementById('editMeetingParticipants').value = (data.meetingParticipants || []).join('\n');
-        document.getElementById('editMeetingLingkup').value = data.lingkup || 'Umum';
+        
+        const fakultas = data.lingkup || 'Umum';
+        document.getElementById('editMeetingLingkup').value = fakultas;
+        
+        // Update jurusan dropdown first, then set value
+        window.updateJurusanDropdown('edit', fakultas);
+        document.getElementById('editMeetingJurusan').value = data.jurusan || '';
+
         document.getElementById('editMeetingLeaderName').value = data.leaderName || '';
         document.getElementById('editMeetingLeaderNip').value = data.leaderNip || '';
         document.getElementById('editMeetingLeaderTitle').value = data.leaderTitle || '';
