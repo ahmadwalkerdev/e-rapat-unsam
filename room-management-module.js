@@ -171,7 +171,12 @@ function openEditRoomModal() {
 async function handleEditMeetingInfo(e) {
     e.preventDefault();
     const activeRoom = getActiveRoom();
-    if (!activeRoom || getUserRole() !== 'notulen') return;
+    // Fallback: jika dipanggil dari dashboard, gunakan data-current-room-id dari modal
+    const modalEl = document.getElementById('editMeetingInfoModal');
+    const dashboardRoomId = modalEl?.getAttribute('data-current-room-id') || '';
+    const roomId = activeRoom?.id || dashboardRoomId;
+
+    if (!roomId || getUserRole() !== 'notulen') return;
 
     showLoading(true, "Menyimpan...");
     try {
@@ -189,7 +194,7 @@ async function handleEditMeetingInfo(e) {
 
         const participants = participantsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
 
-        let scheduledAt = activeRoom.scheduledAt;
+        let scheduledAt = activeRoom?.scheduledAt;
         if (date && startTime) {
             scheduledAt = new Date(`${date}T${startTime}`).toISOString();
         }
@@ -209,8 +214,10 @@ async function handleEditMeetingInfo(e) {
             scheduledAt
         };
 
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', activeRoom.id), data);
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId), data);
         toggleModal('editMeetingInfoModal', false);
+        // Bersihkan attribute agar tidak membocor ke edit selanjutnya
+        if (modalEl) modalEl.removeAttribute('data-current-room-id');
         showToast("Informasi rapat diperbarui.");
     } catch (error) {
         console.error("Edit Error:", error);

@@ -353,6 +353,18 @@ document.addEventListener('click', () => {
     });
 });
 
+// Close dropdown on any scroll (prevents floating dropdown out of sync with card)
+function closeAllRoomMenus() {
+    document.querySelectorAll('.room-menu-dropdown').forEach(m => {
+        if (!m.classList.contains('hidden')) {
+            m.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => m.classList.add('hidden'), 200);
+        }
+    });
+}
+// Listen scroll on window + main scrollable container (captures all scroll sources)
+window.addEventListener('scroll', closeAllRoomMenus, { passive: true, capture: true });
+
 window.confirmDeleteRoom = async (roomId, title) => {
     const confirm = await window.showConfirmModal(
         'Hapus Agenda Permanen?',
@@ -1463,7 +1475,7 @@ roomManagementModule.openCreateRoomModal();
 };
 
 window.openJoinModal = (id, title) => { roomEntryModule.openJoinModal(id, title); };
-window.openEditRoomModal = () => { roomManagementModule.openEditRoomModal(); };
+// NOTE: window.openEditRoomModal dikelola oleh dashboard-module.js (mendukung panggilan dengan/tanpa roomId)
 window.handleEditRoom = async (e) => { await roomManagementModule.handleEditRoom(e); };
 window.handleJoinRoom = (e) => { roomEntryModule.handleJoinRoom(e); };
 window.handleDirectEntry = async (id, pin) => { 
