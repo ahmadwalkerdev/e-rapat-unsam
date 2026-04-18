@@ -63,7 +63,7 @@ export function createProfileCardHTML(data, options = {}) {
         : (nidk ? `NIDK: ${nidk}` : '-');
     const displayUnit = isGuest 
         ? (institution || '-') 
-        : (unitKerja || '-');
+        : (data.fakultas && data.jurusan ? `${data.fakultas} / ${data.jurusan}` : (unitKerja || '-'));
     const displayJabatan = isGuest 
         ? (position || '-') 
         : (jabatanFungsional || '-');
@@ -118,7 +118,7 @@ export function createProfileCardHTML(data, options = {}) {
                             <p id="${idPrefix}NidnNidk" class="font-extrabold text-white tracking-wide">${escapeHtml(displayNidnNidk)}</p>
                         </div>
                         <div class="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 sm:col-span-2">
-                            <p class="text-[10px] uppercase tracking-wider font-bold text-white/80">Unit Kerja</p>
+                            <p class="text-[10px] uppercase tracking-wider font-bold text-white/80">Unit Kerja (Fakultas / Jurusan)</p>
                             <p id="${idPrefix}UnitKerja" class="font-bold text-white/95 truncate">${escapeHtml(displayUnit)}</p>
                         </div>
                         <div class="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 sm:col-span-2">
