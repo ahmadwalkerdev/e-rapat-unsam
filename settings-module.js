@@ -85,7 +85,9 @@ if (!currentUser) return;
 const nip = document.getElementById('settingsNip')?.value || '';
 const nidn = document.getElementById('settingsNidn')?.value || '';
 const nidk = document.getElementById('settingsNidk')?.value || '';
-const unitKerja = document.getElementById('settingsUnitKerja')?.value || '';
+const fakultas = document.getElementById('settingsFakultas')?.value || '';
+const jurusan = document.getElementById('settingsJurusan')?.value || '';
+const unitKerja = fakultas && jurusan ? `${fakultas} / ${jurusan}` : (fakultas || jurusan || '');
 const jabatanFungsional = document.getElementById('settingsJabatanFungsional')?.value || '';
 const op = document.getElementById('settingsOldPassword')?.value;
 const np = document.getElementById('settingsPassword')?.value;
@@ -93,7 +95,8 @@ const cp = document.getElementById('settingsConfirmPassword')?.value;
 
 // Enforce campus profile completeness for internal users
 if (!nip.trim()) throw new Error("NIP wajib diisi.");
-if (!unitKerja.trim()) throw new Error("Unit Kerja wajib diisi.");
+if (!fakultas.trim()) throw new Error("Fakultas wajib diisi.");
+if (!jurusan.trim()) throw new Error("Jurusan wajib diisi.");
 if (!jabatanFungsional.trim()) throw new Error("Jabatan Fungsional wajib diisi.");
 if (nidn.trim() && nidk.trim()) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
@@ -105,6 +108,8 @@ name: n,
 nip: nip || '',
 nidn: nidn || '',
 nidk: nidk || '',
+fakultas: fakultas || '',
+jurusan: jurusan || '',
 unitKerja: unitKerja || '',
 jabatanFungsional: jabatanFungsional || '',
 setupComplete: true,
@@ -114,6 +119,8 @@ updatedAt: new Date().toISOString()
 );
 await updateUserNameAcrossSystem(n, {
 nip: nip || '',
+fakultas: fakultas || '',
+jurusan: jurusan || '',
 unitKerja: unitKerja || '',
 jabatanFungsional: jabatanFungsional || '',
 nidn: nidn || '',

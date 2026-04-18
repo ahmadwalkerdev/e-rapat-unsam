@@ -429,7 +429,6 @@ window.handleEditMeetingInfo = async (e) => {
         const leaderName = document.getElementById('editMeetingLeaderName').value;
         const leaderNip = document.getElementById('editMeetingLeaderNip').value;
         const leaderTitle = document.getElementById('editMeetingLeaderTitle').value;
-        const jurusan = document.getElementById('editMeetingJurusan').value;
 
         const participants = participantsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
 
@@ -442,7 +441,6 @@ window.handleEditMeetingInfo = async (e) => {
             meetingLocation: location,
             meetingParticipants: participants,
             lingkup,
-            jurusan,
             leaderName,
             leaderNip,
             leaderTitle,
@@ -471,7 +469,8 @@ window.handleEditMeetingInfo = async (e) => {
 };
 
 window.updateJurusanDropdown = (type, fakultasKey) => {
-    const jurusanSelect = document.getElementById(type === 'create' ? 'newRoomJurusan' : 'editMeetingJurusan');
+    const prefix = type === 'create' ? 'newRoom' : (type === 'setup' ? 'setup' : 'settings');
+    const jurusanSelect = document.getElementById(prefix + 'Jurusan');
     if (!jurusanSelect) return;
 
     jurusanSelect.innerHTML = '<option value="" disabled selected>Pilih Jurusan/Unit</option>';
@@ -2191,11 +2190,34 @@ Pengaturan Akun
 <label class="block text-xs font-bold text-slate-500 uppercase">NIDK <span class="text-slate-400 font-normal">(Opsional)</span></label>
 <input type="text" id="settingsNidk" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 </div>
-<!-- Field Unit Kerja untuk User UNSAM -->
-<div class="space-y-2" id="settingsUnitKerjaContainer">
-<label class="block text-xs font-bold text-slate-500 uppercase">Unit Kerja</label>
-<input type="text" id="settingsUnitKerja" placeholder="Contoh: Fakultas Teknik, Biro Akademik, dll" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
-</div>
+                <!-- Field Unit Kerja untuk User UNSAM (Chained Dropdown) -->
+                <div class="space-y-2" id="settingsFakultasContainer">
+                    <label class="block text-xs font-bold text-slate-500 uppercase">Fakultas <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <select id="settingsFakultas" onchange="window.handleFakultasChange('settings', this)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm appearance-none cursor-pointer">
+                            <option value="" disabled selected>Pilih Fakultas</option>
+                            <option value="Ekonomi dan Bisnis">Ekonomi dan Bisnis</option>
+                            <option value="Hukum">Hukum</option>
+                            <option value="Keguruan dan Ilmu Pendidikan">Keguruan dan Ilmu Pendidikan</option>
+                            <option value="Pertanian">Pertanian</option>
+                            <option value="Sains dan Teknologi">Sains dan Teknologi</option>
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-2" id="settingsJurusanContainer">
+                    <label class="block text-xs font-bold text-slate-500 uppercase">Jurusan <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <select id="settingsJurusan" disabled class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            <option value="" disabled selected>Pilih Fakultas Dahulu</option>
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                        </div>
+                    </div>
+                </div>
 <div class="space-y-2" id="settingsJabatanFungsionalContainer">
 <label class="block text-xs font-bold text-slate-500 uppercase">Jabatan Fungsional</label>
 <input type="text" id="settingsJabatanFungsional" placeholder="Contoh: Lektor, Guru Besar" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
@@ -2479,10 +2501,6 @@ Pengaturan Lanjutan
                                 <tr>
                                     <td class="py-1 text-slate-400 font-medium">Jabatan</td>
                                     <td id="meetingInfoLeaderTitle" class="py-1 text-slate-700 font-bold text-[9px]">: -</td>
-                                </tr>
-                                <tr>
-                                    <td class="py-1 text-slate-400 font-medium">Jurusan/Unit</td>
-                                    <td id="meetingInfoJurusan" class="py-1 text-slate-700 font-bold">: -</td>
                                 </tr>
                             </table>
                         </div>
@@ -3099,27 +3117,15 @@ Terbitkan Agenda
                 <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Identitas Dokumen (PDF)</span>
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Unit Kerja / Fakultas <span class="text-red-500">*</span></label>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Lingkup Rapat / Kop Surat <span class="text-red-500">*</span></label>
                 <div class="relative">
-                  <select id="editMeetingLingkup" required onchange="window.handleFakultasChange('edit', this)" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer">
-                    <option value="" disabled selected>Pilih Fakultas/Unit</option>
+                  <select id="editMeetingLingkup" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer">
                     <option value="Umum">Universitas Samudra (Umum)</option>
                     <option value="Ekonomi">Fakultas Ekonomi dan Bisnis</option>
                     <option value="Hukum">Fakultas Hukum</option>
                     <option value="FKIP">Fakultas Keguruan dan Ilmu Pendidikan</option>
                     <option value="Pertanian">Fakultas Pertanian</option>
                     <option value="Sains">Fakultas Sains dan Teknologi</option>
-                  </select>
-                  <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Jurusan / Bagian <span class="text-red-500">*</span></label>
-                <div class="relative">
-                  <select id="editMeetingJurusan" required disabled class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                    <option value="" disabled selected>Pilih Jurusan/Unit</option>
                   </select>
                   <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>

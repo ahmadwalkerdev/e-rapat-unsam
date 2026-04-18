@@ -20,39 +20,38 @@ getActiveRoom,
 getUserRole
 } = deps;
 
-async function createNewRoom(title, description, date, startTime, endTime, location, participants, leaderName, leaderNip, leaderTitle, lingkup, jurusan) {
-    const currentUser = getCurrentUser();
-    if (!currentUser) return;
+async function createNewRoom(title, description, date, startTime, endTime, location, participants, leaderName, leaderNip, leaderTitle, lingkup) {
+const currentUser = getCurrentUser();
+if (!currentUser) return;
 
-    const pin = Math.floor(100000 + Math.random() * 900000).toString();
-    showRoomInitModal('Membuat Room Rapat...', 'Menyiapkan agenda dan notulensi');
+const pin = Math.floor(100000 + Math.random() * 900000).toString();
+showRoomInitModal('Membuat Room Rapat...', 'Menyiapkan agenda dan notulensi');
 
-    let scheduledAt = null;
-    if (date && startTime) {
-        scheduledAt = new Date(`${date}T${startTime}`).toISOString();
-    }
+let scheduledAt = null;
+if (date && startTime) {
+scheduledAt = new Date(`${date}T${startTime}`).toISOString();
+}
 
-    const roomData = {
-        title,
-        description: description || '',
-        pin,
-        creatorUid: currentUser.uid,
-        creatorEmail: currentUser.email || 'Guest User',
-        creatorName: currentUser.displayName || "User",
-        status: 'active',
-        createdAt: new Date().toISOString(),
-        meetingDate: date || '',
-        meetingStartTime: startTime || '',
-        meetingEndTime: endTime || '',
-        meetingLocation: location || '',
-        meetingParticipants: participants || [],
-        leaderName: leaderName || '',
-        leaderNip: leaderNip || '',
-        leaderTitle: leaderTitle || '',
-        lingkup: lingkup || 'Umum',
-        jurusan: jurusan || '',
-        scheduledAt: scheduledAt || new Date().toISOString()
-    };
+const roomData = {
+title,
+description: description || '',
+pin,
+creatorUid: currentUser.uid,
+creatorEmail: currentUser.email || 'Guest User',
+creatorName: currentUser.displayName || "User",
+status: 'active',
+createdAt: new Date().toISOString(),
+meetingDate: date || '',
+meetingStartTime: startTime || '',
+meetingEndTime: endTime || '',
+meetingLocation: location || '',
+meetingParticipants: participants || [],
+leaderName: leaderName || '',
+leaderNip: leaderNip || '',
+leaderTitle: leaderTitle || '',
+lingkup: lingkup || 'Umum',
+scheduledAt: scheduledAt || new Date().toISOString()
+};
 
 const defaultTemplate = `<h2><strong>RINGKASAN PEMBAHASAN</strong></h2>
 <ol>
@@ -106,27 +105,27 @@ showToast("Gagal membuat agenda: " + e.message);
 }
 
 function handleCreateRoom(e) {
-    e.preventDefault();
-    const title = document.getElementById('newRoomTitle').value.trim();
-    const description = document.getElementById('newRoomDesc').value.trim();
-    const date = document.getElementById('newRoomDate').value;
-    const startTime = document.getElementById('newRoomStartTime').value;
-    const endTime = document.getElementById('newRoomEndTime').value;
-    const location = document.getElementById('newRoomLocation').value.trim();
-    const participantsText = document.getElementById('newRoomParticipants').value;
-    const lingkup = document.getElementById('newRoomLingkup').value;
-    const jurusan = document.getElementById('newRoomJurusan').value;
-    const leaderName = document.getElementById('newRoomLeaderName').value.trim();
-    const leaderNip = document.getElementById('newRoomLeaderNip').value.trim();
-    const leaderTitle = document.getElementById('newRoomLeaderTitle').value.trim();
+e.preventDefault();
+const title = document.getElementById('newRoomTitle').value.trim();
+const description = document.getElementById('newRoomDesc').value.trim();
+const date = document.getElementById('newRoomDate').value;
+const startTime = document.getElementById('newRoomStartTime').value;
+const endTime = document.getElementById('newRoomEndTime').value;
+const location = document.getElementById('newRoomLocation').value.trim();
+const participantsText = document.getElementById('newRoomParticipants').value;
+const lingkup = document.getElementById('newRoomLingkup').value;
+const leaderName = document.getElementById('newRoomLeaderName').value.trim();
+const leaderNip = document.getElementById('newRoomLeaderNip').value.trim();
+const leaderTitle = document.getElementById('newRoomLeaderTitle').value.trim();
 
-    if (!title || !date || !startTime || !endTime || !location || !leaderName || !leaderNip || !leaderTitle || !lingkup || !jurusan) {
-        showToast("Harap isi semua field yang wajib diisi!");
-        return;
-    }
+if (!title || !date || !startTime || !endTime || !location || !leaderName || !leaderNip || !leaderTitle) {
+showToast("Harap isi semua field yang wajib diisi!");
+return;
+}
 
-    const participants = participantsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
-    createNewRoom(title, description, date, startTime, endTime, location, participants, leaderName, leaderNip, leaderTitle, lingkup, jurusan);
+const participants = participantsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
+console.log('[HANDLE CREATE ROOM] Creating room with title:', title);
+createNewRoom(title, description, date, startTime, endTime, location, participants, leaderName, leaderNip, leaderTitle, lingkup);
 }
 
 function openCreateRoomModal() {
