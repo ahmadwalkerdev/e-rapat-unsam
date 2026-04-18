@@ -245,30 +245,51 @@ export function createDashboardModule(deps) {
             </div>` : '';
 
         card.innerHTML = `
-            <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-50/50 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-500 -z-10"></div>
-            <div class="relative z-10 flex justify-between items-start mb-4">
-                <div class="${badgeClass} px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border flex items-center gap-2 relative z-10">
-                    ${badgeText}
-                </div>
-                <div class="flex items-center relative z-20">
-                    ${isCreator ? '<div class="w-8 h-8 bg-indigo-600/10 text-indigo-600 rounded-lg flex items-center justify-center border border-indigo-100 relative z-30"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>' : '<div class="w-8 h-8 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center border border-slate-100 relative z-30"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>'}
-                    ${menuBtn}
-                </div>
+            <!-- LAYER 1: DEKORASI (Paling Bawah) -->
+            <div class="absolute inset-0 z-0 overflow-hidden rounded-2xl">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-50/50 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-[2.5] duration-700 ease-out"></div>
             </div>
-            <h4 class="relative z-10 font-bold text-slate-800 text-lg mb-2 leading-tight group-hover:text-indigo-600 transition-colors truncate w-full" title="${safeRoomTitle}">${safeRoomTitle}</h4>
-            ${durationText ? `<p class="relative z-10 text-[10px] text-slate-500 font-semibold mb-4">${durationText}</p>` : '<div class="mb-4"></div>'}
-            <div class="relative z-10 flex items-center gap-2 mb-6 mt-auto">
-                <div class="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500 relative z-10">${creatorInitial}</div>
-                <div class="overflow-hidden relative z-10">
-                    <p class="text-[11px] font-semibold text-slate-600 truncate leading-none mb-0.5 creator-name">${safeCreatorName}</p>
-                    <p class="text-[9px] text-slate-400 uppercase tracking-wider leading-none">Notulen</p>
+
+            <!-- LAYER 2: KONTEN (Paling Atas) -->
+            <div class="relative z-10 flex flex-col h-full pointer-events-none">
+                <div class="flex justify-between items-start mb-4 pointer-events-auto">
+                    <div class="${badgeClass} px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border flex items-center gap-2">
+                        ${badgeText}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        ${isCreator ? 
+                            `<div class="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center shadow-lg shadow-indigo-100 border border-indigo-500">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                            </div>` : 
+                            `<div class="w-8 h-8 bg-white text-slate-400 rounded-lg flex items-center justify-center border border-slate-200 shadow-sm">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            </div>`
+                        }
+                        ${menuBtn}
+                    </div>
                 </div>
-            </div>
-            <button onclick="${isArchived ? `window.enterRoomFromCalendar('${safeRoomId}', '${safeRoomTitleJs}', 'archived', '${safeCreatorUidJs}')` : (isCreator || isDeveloper ? `window.handleDirectEntry('${safeRoomId}', '${safeRoomPinJs}')` : `window.openJoinModal('${safeRoomId}', '${safeRoomTitleJs}')`)}"
-                class="relative z-10 w-full py-2.5 ${isArchived || isCreator || isDeveloper ? 'bg-slate-800 hover:bg-slate-900' : 'bg-indigo-600 hover:bg-indigo-700'} text-white rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
-                <span>${isArchived ? 'Lihat Arsip' : (isCreator || isDeveloper ? 'Lanjutkan Catatan' : 'Bergabung')}</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="group-hover:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </button>`;
+
+                <div class="pointer-events-auto flex-1 flex flex-col">
+                    <h4 class="font-bold text-slate-800 text-lg mb-1 leading-tight group-hover:text-indigo-600 transition-colors truncate w-full" title="${safeRoomTitle}">
+                        ${safeRoomTitle}
+                    </h4>
+                    ${durationText ? `<p class="text-[10px] text-slate-500 font-semibold mb-4">${durationText}</p>` : '<div class="mb-4"></div>'}
+                    
+                    <div class="flex items-center gap-2 mb-6 mt-auto">
+                        <div class="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500 border border-white shadow-sm">${creatorInitial}</div>
+                        <div class="overflow-hidden">
+                            <p class="text-[11px] font-bold text-slate-700 truncate leading-none mb-0.5 creator-name">${safeCreatorName}</p>
+                            <p class="text-[9px] text-slate-400 uppercase tracking-widest font-medium leading-none">Notulen Rapat</p>
+                        </div>
+                    </div>
+
+                    <button onclick="${isArchived ? `window.enterRoomFromCalendar('${safeRoomId}', '${safeRoomTitleJs}', 'archived', '${safeCreatorUidJs}')` : (isCreator || isDeveloper ? `window.handleDirectEntry('${safeRoomId}', '${safeRoomPinJs}')` : `window.openJoinModal('${safeRoomId}', '${safeRoomTitleJs}')`)}"
+                        class="w-full py-3 ${isArchived || isCreator || isDeveloper ? 'bg-slate-900 hover:bg-black' : 'bg-indigo-600 hover:bg-indigo-700'} text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-200 hover:shadow-indigo-100">
+                        <span>${isArchived ? 'Lihat Arsip' : (isCreator || isDeveloper ? 'Lanjutkan Catatan' : 'Bergabung')}</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="group-hover:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>`;
 
         return card;
     }
