@@ -149,39 +149,75 @@ toggleModal('createRoomModal', true);
 }
 
 function openEditRoomModal() {
-const activeRoom = getActiveRoom();
-if (!activeRoom) return;
-document.getElementById('editRoomTitle').value = activeRoom.title || '';
-document.getElementById('editRoomDesc').value = activeRoom.description || '';
-if (activeRoom.scheduledAt) {
-const d = new Date(activeRoom.scheduledAt);
-d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-document.getElementById('editRoomSchedule').value = d.toISOString().slice(0, 16);
-} else {
-document.getElementById('editRoomSchedule').value = '';
-}
-toggleModal('editRoomModal', true);
+    const activeRoom = getActiveRoom();
+    if (!activeRoom) return;
+
+    // Fill the fields (mapped to the new UI IDs)
+    document.getElementById('editMeetingTitle').value = activeRoom.title || '';
+    document.getElementById('editMeetingDesc').value = activeRoom.description || '';
+    document.getElementById('editMeetingDate').value = activeRoom.meetingDate || '';
+    document.getElementById('editMeetingStartTime').value = activeRoom.meetingStartTime || '';
+    document.getElementById('editMeetingEndTime').value = activeRoom.meetingEndTime || '';
+    document.getElementById('editMeetingLocation').value = activeRoom.meetingLocation || '';
+    document.getElementById('editMeetingParticipants').value = (activeRoom.meetingParticipants || []).join('\n');
+    document.getElementById('editMeetingLingkup').value = activeRoom.lingkup || 'Umum';
+    document.getElementById('editMeetingLeaderName').value = activeRoom.leaderName || '';
+    document.getElementById('editMeetingLeaderNip').value = activeRoom.leaderNip || '';
+    document.getElementById('editMeetingLeaderTitle').value = activeRoom.leaderTitle || '';
+
+    toggleModal('editMeetingInfoModal', true);
 }
 
-async function handleEditRoom(e) {
-e.preventDefault();
-const activeRoom = getActiveRoom();
-if (!activeRoom || getUserRole() !== 'notulen') return;
-showLoading(true, "Menyimpan...");
-try {
-const t = document.getElementById('editRoomTitle').value;
-const d = document.getElementById('editRoomDesc').value;
-const s = document.getElementById('editRoomSchedule').value;
-const data = { title: t, description: d };
-if (s) data.scheduledAt = new Date(s).toISOString();
-await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', activeRoom.id), data);
-toggleModal('editRoomModal', false);
-showToast("Berhasil diperbarui.");
-} catch (error) {
-showToast("Gagal diperbarui.");
-} finally {
-showLoading(false);
-}
+async function handleEditMeetingInfo(e) {
+    e.preventDefault();
+    const activeRoom = getActiveRoom();
+    if (!activeRoom || getUserRole() !== 'notulen') return;
+
+    showLoading(true, "Menyimpan...");
+    try {
+        const title = document.getElementById('editMeetingTitle').value;
+        const description = document.getElementById('editMeetingDesc').value;
+        const date = document.getElementById('editMeetingDate').value;
+        const startTime = document.getElementById('editMeetingStartTime').value;
+        const endTime = document.getElementById('editMeetingEndTime').value;
+        const location = document.getElementById('editMeetingLocation').value;
+        const participantsText = document.getElementById('editMeetingParticipants').value;
+        const lingkup = document.getElementById('editMeetingLingkup').value;
+        const leaderName = document.getElementById('editMeetingLeaderName').value;
+        const leaderNip = document.getElementById('editMeetingLeaderNip').value;
+        const leaderTitle = document.getElementById('editMeetingLeaderTitle').value;
+
+        const participants = participantsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
+
+        let scheduledAt = activeRoom.scheduledAt;
+        if (date && startTime) {
+            scheduledAt = new Date(`${date}T${startTime}`).toISOString();
+        }
+
+        const data = {
+            title,
+            description,
+            meetingDate: date,
+            meetingStartTime: startTime,
+            meetingEndTime: endTime,
+            meetingLocation: location,
+            meetingParticipants: participants,
+            lingkup,
+            leaderName,
+            leaderNip,
+            leaderTitle,
+            scheduledAt
+        };
+
+        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', activeRoom.id), data);
+        toggleModal('editMeetingInfoModal', false);
+        showToast("Informasi rapat diperbarui.");
+    } catch (error) {
+        console.error("Edit Error:", error);
+        showToast("Gagal memperbarui informasi.");
+    } finally {
+        showLoading(false);
+    }
 }
 
 async function confirmEndMeeting() {
@@ -201,11 +237,11 @@ showLoading(false);
 }
 
 return {
-createNewRoom,
-handleCreateRoom,
-openCreateRoomModal,
-openEditRoomModal,
-handleEditRoom,
-confirmEndMeeting
+    createNewRoom,
+    handleCreateRoom,
+    openCreateRoomModal,
+    openEditRoomModal,
+    handleEditMeetingInfo,
+    confirmEndMeeting
 };
 }
