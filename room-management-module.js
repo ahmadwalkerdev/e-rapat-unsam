@@ -165,6 +165,17 @@ function openEditRoomModal() {
     document.getElementById('editMeetingLeaderNip').value = activeRoom.leaderNip || '';
     document.getElementById('editMeetingLeaderTitle').value = activeRoom.leaderTitle || '';
 
+    // Lock identity fields to prevent changes after creation
+    const lockedFields = ['editMeetingLingkup', 'editMeetingLeaderName', 'editMeetingLeaderNip', 'editMeetingLeaderTitle'];
+    lockedFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.setAttribute('disabled', '');
+            field.setAttribute('readonly', '');
+            field.classList.add('bg-slate-100', 'cursor-not-allowed');
+        }
+    });
+
     toggleModal('editMeetingInfoModal', true);
 }
 

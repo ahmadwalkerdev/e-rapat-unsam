@@ -625,6 +625,7 @@ ${statusBadge}
     };
 
     function fillEditModal(data) {
+        // Fill editable fields
         document.getElementById('editMeetingTitle').value = data.title || '';
         document.getElementById('editMeetingDesc').value = data.description || '';
         document.getElementById('editMeetingDate').value = data.meetingDate || '';
@@ -632,10 +633,23 @@ ${statusBadge}
         document.getElementById('editMeetingEndTime').value = data.meetingEndTime || '';
         document.getElementById('editMeetingLocation').value = data.meetingLocation || '';
         document.getElementById('editMeetingParticipants').value = (data.meetingParticipants || []).join('\n');
+        
+        // Fill locked fields
         document.getElementById('editMeetingLingkup').value = data.lingkup || 'Umum';
         document.getElementById('editMeetingLeaderName').value = data.leaderName || '';
         document.getElementById('editMeetingLeaderNip').value = data.leaderNip || '';
         document.getElementById('editMeetingLeaderTitle').value = data.leaderTitle || '';
+        
+        // Lock identity fields to prevent changes after creation
+        const lockedFields = ['editMeetingLingkup', 'editMeetingLeaderName', 'editMeetingLeaderNip', 'editMeetingLeaderTitle'];
+        lockedFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.setAttribute('disabled', '');
+                field.setAttribute('readonly', '');
+                field.classList.add('bg-slate-100', 'cursor-not-allowed');
+            }
+        });
         
         // Simpan temporary ID di form untuk handleEditMeetingInfo
         document.getElementById('editMeetingInfoModal').setAttribute('data-current-room-id', data.id);
