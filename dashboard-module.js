@@ -245,7 +245,7 @@ export function createDashboardModule(deps) {
             </div>` : '';
 
         card.innerHTML = `
-            <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-50/50 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-500"></div>
+            <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-50/50 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-500 z-0"></div>
             <div class="relative z-30 flex justify-between items-start mb-4">
                 <div class="${badgeClass} px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border flex items-center gap-2">
                     ${badgeText}
