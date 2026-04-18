@@ -222,19 +222,34 @@ export function createDashboardModule(deps) {
         const creatorEmail = String(room?.creatorEmail || "U");
         const creatorInitial = escapeHtml((creatorEmail[0] || "U").toUpperCase());
 
-        const devDeleteBtn = isDeveloper ? `
-            <button onclick="event.stopPropagation(); window.deleteRoom('${safeRoomId}')" class="absolute top-4 left-4 p-1.5 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors z-20 opacity-0 group-hover:opacity-100" title="Hapus Permanen (Developer)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            </button>` : '';
+        const menuBtn = (isCreator || isDeveloper) ? `
+            <div class="relative z-20 ml-2">
+                <button onclick="event.stopPropagation(); window.toggleRoomMenu(this)" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all" title="Menu Opsi">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+                <div class="room-menu-dropdown absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-xl border border-slate-100 py-1 hidden opacity-0 translate-y-2 transition-all z-30">
+                    <button onclick="event.stopPropagation(); window.openEditRoomModal('${safeRoomId}')" class="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        Edit Agenda
+                    </button>
+                    <div class="h-px bg-slate-100 my-1"></div>
+                    <button onclick="event.stopPropagation(); window.confirmDeleteRoom('${safeRoomId}', '${safeRoomTitleJs}')" class="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        Hapus Permanen
+                    </button>
+                </div>
+            </div>` : '';
 
         card.innerHTML = `
-            ${devDeleteBtn}
             <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-50/50 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-500"></div>
             <div class="relative z-10 flex justify-between items-start mb-4">
                 <div class="${badgeClass} px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border flex items-center gap-2">
                     ${badgeText}
                 </div>
-                ${isCreator ? '<div class="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center shadow-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>' : '<div class="w-8 h-8 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center border border-slate-100"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>'}
+                <div class="flex items-center">
+                    ${isCreator ? '<div class="w-8 h-8 bg-indigo-600/10 text-indigo-600 rounded-lg flex items-center justify-center border border-indigo-100"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>' : '<div class="w-8 h-8 bg-slate-50 text-slate-400 rounded-lg flex items-center justify-center border border-slate-100"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>'}
+                    ${menuBtn}
+                </div>
             </div>
             <h4 class="relative z-10 font-bold text-slate-800 text-lg mb-2 leading-tight group-hover:text-indigo-600 transition-colors truncate w-full" title="${safeRoomTitle}">${safeRoomTitle}</h4>
             ${durationText ? `<p class="text-[10px] text-slate-500 font-semibold mb-4">${durationText}</p>` : '<div class="mb-4"></div>'}
@@ -407,13 +422,26 @@ export function createDashboardModule(deps) {
     }
 
     async function deleteRoom(roomId) {
-        if (!getIsDeveloper()) return showToast("Akses ditolak. Hanya Developer.");
-        if (!confirm("⚠️ Hapus room ini secara permanen? Tindakan ini tidak dapat dibatalkan.")) return;
         showLoading(true, "Menghapus Permanen...");
         try {
+            // 1. Hapus Room Data
             await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId));
-            showToast("Room dihapus permanen.");
+            
+            // 2. Hapus Notulensi Data
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', roomId));
+            } catch (e) { console.warn('Minutes not found or already deleted'); }
+            
+            // 3. Hapus Absensi Data
+            const attCol = collection(db, 'artifacts', appId, 'public', 'data', 'attendance');
+            const q = query(attCol, where('roomId', '==', roomId));
+            const snap = await getDocs(q);
+            const deletePromises = snap.docs.map(d => deleteDoc(d.ref));
+            await Promise.all(deletePromises);
+
+            showToast("Room dan seluruh data terkait telah dihapus.");
         } catch (e) {
+            console.error("Delete Error:", e);
             showToast("Gagal menghapus: " + e.message);
         } finally {
             showLoading(false);
