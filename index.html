@@ -2812,368 +2812,116 @@ Pengaturan Lanjutan
  <strong>Tips:</strong> Periksa folder <strong>Spam</strong> atau <strong>Promotions</strong> jika email tidak muncul di inbox.
 </div>
 <button onclick="window.requestPasswordReset()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors">Kirim Link Reset</button>
-</div>
-</div>
-</div>
-
-<!-- MODAL: GUEST JOIN -->
-<div id="guestJoinModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg transform scale-95 relative transition-all duration-300">
-<button onclick="window.closeGuestJoinModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
-</button>
-<div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-5 border border-indigo-100">
-<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-</div>
-<h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Masuk sebagai Tamu</h3>
-<p class="text-sm text-slate-500 mb-6 text-center leading-relaxed">Isi data diri Anda untuk bergabung dalam rapat ini.</p>
-<form onsubmit="window.handleGuestJoin(event)" class="space-y-4">
-<div class="space-y-1">
-<label class="text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap <span class="text-red-500">*</span></label>
-<input type="text" id="guestName" required placeholder="Contoh: Ahmad Fauzi" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
-</div>
-<div class="space-y-1">
-<label class="text-[10px] font-bold text-slate-500 uppercase">Jabatan <span class="text-red-500">*</span></label>
-<input type="text" id="guestPosition" required placeholder="Contoh: Direktur PT. ABC" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
-</div>
-<div class="space-y-1">
-<label class="text-[10px] font-bold text-slate-500 uppercase">Instansi/Perusahaan <span class="text-red-500">*</span></label>
-<input type="text" id="guestInstitution" required placeholder="Contoh: PT. Maju Jaya" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
-</div>
-<div class="space-y-1">
-<label class="text-[10px] font-bold text-slate-500 uppercase">PIN Rapat <span class="text-red-500">*</span></label>
-<input type="text" id="guestPinInput" maxlength="6" required placeholder="PIN 6 digit" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500 font-mono tracking-widest text-center">
-</div>
-<button type="submit" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors">Gabung Rapat</button>
-</form>
-<p class="text-[10px] text-slate-400 mt-4 text-center">Tamu eksternal dapat melihat notulensi namun tidak dapat mengeditnya.</p>
-</div>
-</div>
-
-<!-- MODAL: ADD RESOURCE -->
-<div id="addResourceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl transform scale-95 relative transition-all duration-300 border border-slate-100">
-<button onclick="window.toggleModal('addResourceModal', false)" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 hover:rotate-90 transition-all">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
-</button>
-<div class="mb-8">
-<h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Tambah Lampiran</h3>
-<p class="text-xs text-slate-500 font-medium mt-1">Bagikan dokumen atau tautan ke peserta rapat.</p>
-</div>
-<form onsubmit="window.submitResource(event)" class="space-y-5">
-<div class="space-y-1.5">
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Kategori File</label>
-<select id="resCategory" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer">
-<option value="Folder Dokumentasi">📁 Folder Dokumentasi</option>
-<option value="Folder Lampiran">📂 Folder Lampiran</option>
-<option value="File">📄 File (PDF/Word/dll)</option>
-<option value="Link Unduhan">⬇️ Link Unduhan</option>
-<option value="Folder Foto">🖼️ Folder Foto</option>
-<option value="Folder Video">🎬 Folder Video</option>
-<option value="Tautan Lainnya">🔗 Tautan Lainnya</option>
-</select>
-</div>
-<div class="space-y-1.5">
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nama / Label</label>
-<input type="text" id="resName" required placeholder="Contoh: SK Rektor No. 123" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
-</div>
-<div class="space-y-1.5">
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">URL / Link Tautan</label>
-<input type="url" id="resUrl" required placeholder="https://drive.google.com/..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
-</div>
-<button type="submit" class="w-full py-3.5 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm mt-2">Simpan & Bagikan</button>
-</form>
-</div>
-</div>
-
-<!-- MODAL: EDIT RESOURCE -->
-<div id="editResourceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl transform scale-95 relative transition-all duration-300 border border-slate-100">
-<button onclick="window.toggleModal('editResourceModal', false)" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 hover:rotate-90 transition-all">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
-</button>
-<div class="mb-8">
-<h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Edit Lampiran</h3>
-<p class="text-xs text-slate-500 font-medium mt-1">Perbarui informasi lampiran rapat.</p>
-</div>
-<form onsubmit="window.submitEditResource(event)" class="space-y-5">
-<div class="space-y-1.5">
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Kategori</label>
-<select id="editResCategory" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer">
-<option value="Folder Dokumentasi">📁 Folder Dokumentasi</option>
-<option value="Folder Lampiran">📂 Folder Lampiran</option>
-<option value="File">📄 File (PDF/Word/dll)</option>
-<option value="Link Unduhan">⬇️ Link Unduhan</option>
-<option value="Folder Foto">🖼️ Folder Foto</option>
-<option value="Folder Video">🎬 Folder Video</option>
-<option value="Tautan Lainnya">🔗 Tautan Lainnya</option>
-</select>
-</div>
-<div class="space-y-1.5">
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nama / Label</label>
-<input type="text" id="editResName" required placeholder="Nama Lampiran" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
-</div>
-<div class="space-y-1.5">
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">URL / Link</label>
-<input type="url" id="editResUrl" required placeholder="https://..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
-</div>
-<button type="submit" class="w-full py-3.5 bg-amber-500 text-white rounded-2xl font-bold hover:bg-amber-600 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm mt-2">Simpan Perubahan</button>
-</form>
-</div>
-</div>
-
-<!-- MODAL: CREATE ROOM -->
 <div id="createRoomModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl transform scale-95 relative transition-all duration-300 max-h-[90vh] flex flex-col border border-slate-100">
-<!-- Header -->
-<div class="p-8 pb-4 flex justify-between items-start">
-<div>
-<h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Buat Agenda Baru</h3>
-<p class="text-sm text-slate-500 font-medium mt-1">Lengkapi detail untuk menerbitkan jadwal rapat digital.</p>
-</div>
-<button onclick="window.toggleModal('createRoomModal', false)" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
-</button>
-</div>
-
-<form onsubmit="window.handleCreateRoom(event)" class="flex flex-col flex-1 min-h-0">
-<!-- Scrollable Content -->
-<div class="px-8 pb-8 overflow-y-auto space-y-8">
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-<!-- Left: Basic Info (4 cols) -->
-<div class="lg:col-span-4 space-y-6">
-<div class="flex items-center gap-2 pb-2 border-b border-slate-100">
-<div class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-</div>
-<span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Informasi Dasar</span>
-</div>
-
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Judul Agenda <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomTitle" required placeholder="Contoh: Rapat Koordinasi Fakultas" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
-</div>
-
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Deskripsi Singkat</label>
-<textarea id="newRoomDesc" rows="3" placeholder="Apa yang akan dibahas?" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none placeholder:text-slate-400"></textarea>
-</div>
-
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Undangan Peserta <span class="text-slate-400 font-normal normal-case">(Satu per baris)</span></label>
-<textarea id="newRoomParticipants" rows="4" placeholder="Contoh:&#10;Dr. Ahmad Syarif&#10;Wakil Dekan I" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none leading-relaxed placeholder:text-slate-400"></textarea>
-</div>
-</div>
-
-<!-- Center: PDF Identity (4 cols) -->
-<div class="lg:col-span-4 space-y-6 lg:border-x lg:border-slate-100 lg:px-8">
-<div class="flex items-center gap-2 pb-2 border-b border-slate-100">
-<div class="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-</div>
-<span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Identitas Dokumen (PDF)</span>
-</div>
-
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Lingkup Rapat / Kop Surat <span class="text-red-500">*</span></label>
-<div class="relative">
-<select id="newRoomLingkup" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer">
-<option value="Umum">Universitas Samudra (Umum)</option>
-<option value="Ekonomi">Fakultas Ekonomi dan Bisnis</option>
-<option value="Hukum">Fakultas Hukum</option>
-<option value="FKIP">Fakultas Keguruan dan Ilmu Pendidikan</option>
-<option value="Pertanian">Fakultas Pertanian</option>
-<option value="Sains">Fakultas Sains dan Teknologi</option>
-</select>
-<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
-</div>
-</div>
-</div>
-
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Nama Pimpinan Rapat <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomLeaderName" required placeholder="Nama Lengkap & Gelar" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
-</div>
-
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">NIP Pimpinan <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomLeaderNip" required placeholder="Nomor Induk Pegawai" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
-</div>
-
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Jabatan Pimpinan <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomLeaderTitle" required placeholder="Contoh: Dekan / Ketua Prodi" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
-</div>
-</div>
-
-<!-- Right: Schedule & Location (4 cols) -->
-<div class="lg:col-span-4 space-y-6">
-<div class="flex items-center gap-2 pb-2 border-b border-slate-100">
-<div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-</div>
-<span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Jadwal & Lokasi</span>
-</div>
-
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Tanggal Rapat <span class="text-red-500">*</span></label>
-<input type="date" id="newRoomDate" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer">
-</div>
-
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Lokasi / Tempat <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomLocation" required placeholder="Contoh: Ruang Rapat Lt. 2" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
-</div>
-
-<div class="grid grid-cols-2 gap-4">
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Waktu Mulai <span class="text-red-500">*</span></label>
-<input type="time" id="newRoomStartTime" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer">
-</div>
-<div>
-<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Waktu Selesai <span class="text-red-500">*</span></label>
-<input type="time" id="newRoomEndTime" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer">
-</div>
-</div>
-
-<div class="mt-2 p-5 bg-indigo-50/50 rounded-[2rem] border border-indigo-100/50 relative overflow-hidden group">
-<div class="absolute -right-4 -bottom-4 text-indigo-100 group-hover:scale-110 transition-transform duration-500 opacity-50">
-<svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-</div>
-<div class="relative z-10">
-<p class="text-[10px] text-indigo-700 leading-relaxed font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
-<span class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
-Catatan Otomasi
-</p>
-<p class="text-[12px] text-indigo-900/80 leading-relaxed font-medium">
-Data pimpinan dan lingkup rapat akan digunakan sebagai <b>Kop Surat</b> dan <b>Pengesahan</b> resmi di PDF.
-</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-
-<!-- Footer -->
-<div class="p-8 pt-4 flex flex-col sm:flex-row justify-end gap-3 border-t border-slate-100 bg-slate-50/50 rounded-b-[2.5rem]">
-<button type="button" onclick="window.toggleModal('createRoomModal', false)" class="px-8 py-3.5 bg-white text-slate-600 border border-slate-200 rounded-[1.25rem] font-bold hover:bg-slate-50 transition-all text-sm shadow-sm">
-Batal
-</button>
-<button type="submit" class="px-10 py-3.5 bg-indigo-600 text-white rounded-[1.25rem] font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all hover:-translate-y-0.5 text-sm">
-Terbitkan Agenda
-</button>
-</div>
-</form>
-</div>
-</div>
-
-  <!-- MODAL: EDIT MEETING INFO (DETAILED REDESIGN) -->
-  <div id="editMeetingInfoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
     <div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl transform scale-95 relative transition-all duration-300 max-h-[90vh] flex flex-col border border-slate-100">
-      <div class="p-8 pb-4 flex justify-between items-start">
-        <div>
-          <h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Edit Informasi Rapat</h3>
-          <p class="text-sm text-slate-500 font-medium mt-1">Ubah detail agenda atau identitas dokumen PDF.</p>
+        <div class="p-8 pb-4 flex justify-between items-start">
+            <div>
+                <h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Buat Agenda Baru</h3>
+                <p class="text-sm text-slate-500 font-medium mt-1">Lengkapi detail untuk menerbitkan jadwal rapat digital.</p>
+            </div>
+            <button onclick="window.toggleModal('createRoomModal', false)" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+            </button>
         </div>
-        <button onclick="window.toggleModal('editMeetingInfoModal', false)" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
-        </button>
-      </div>
-      <form onsubmit="window.handleEditMeetingInfo(event)" class="flex flex-col flex-1 min-h-0">
-        <div class="px-8 pb-8 overflow-y-auto space-y-8">
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Left: Basic Info (4 cols) -->
-            <div class="lg:col-span-4 space-y-6">
-              <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <div class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <form onsubmit="window.handleCreateRoom(event)" class="flex flex-col flex-1 min-h-0">
+            <div class="px-8 pb-8 overflow-y-auto space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    <!-- KOLOM 1: INFORMASI UMUM -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <div class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            </div>
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Informasi Umum</span>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Lingkup Rapat <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <select id="newRoomLingkup" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer">
+                                    <option value="Umum">Universitas Samudra (Umum)</option>
+                                    <option value="Ekonomi dan Bisnis">Fakultas Ekonomi dan Bisnis</option>
+                                    <option value="Hukum">Fakultas Hukum</option>
+                                    <option value="Keguruan dan Ilmu Pendidikan">Fakultas Keguruan dan Ilmu Pendidikan</option>
+                                    <option value="Pertanian">Fakultas Pertanian</option>
+                                    <option value="Sains dan Teknologi">Fakultas Sains dan Teknologi</option>
+                                </select>
+                                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Judul Agenda <span class="text-red-500">*</span></label>
+                            <input type="text" id="newRoomTitle" required placeholder="Contoh: Rapat Koordinasi Fakultas" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Deskripsi Singkat</label>
+                            <textarea id="newRoomDesc" rows="3" placeholder="Apa yang akan dibahas?" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none placeholder:text-slate-400"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Daftar Undangan <span class="text-slate-400 font-normal normal-case">(Satu per baris)</span></label>
+                            <textarea id="newRoomParticipants" rows="6" placeholder="Contoh:&#10;Dr. Ahmad Syarif&#10;Wakil Dekan I" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none leading-relaxed placeholder:text-slate-400"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- KOLOM 2: WAKTU & TEMPAT -->
+                    <div class="lg:col-span-4 space-y-6 lg:border-x lg:border-slate-100 lg:px-8">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            </div>
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Waktu & Tempat</span>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Tanggal Rapat <span class="text-red-500">*</span></label>
+                            <input type="date" id="newRoomDate" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Lokasi / Tempat <span class="text-red-500">*</span></label>
+                            <input type="text" id="newRoomLocation" required placeholder="Contoh: Ruang Rapat Lt. 2" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Waktu Mulai <span class="text-red-500">*</span></label>
+                                <input type="time" id="newRoomStartTime" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Waktu Selesai <span class="text-red-500">*</span></label>
+                                <input type="time" id="newRoomEndTime" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KOLOM 3: PIMPINAN -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <div class="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+                            </div>
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pimpinan Rapat</span>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Nama Pimpinan <span class="text-red-500">*</span></label>
+                            <input type="text" id="newRoomLeaderName" required placeholder="Nama Lengkap & Gelar" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">NIP Pimpinan <span class="text-red-500">*</span></label>
+                            <input type="text" id="newRoomLeaderNip" required placeholder="Nomor Induk Pegawai" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Jabatan Pimpinan <span class="text-red-500">*</span></label>
+                            <input type="text" id="newRoomLeaderTitle" required placeholder="Contoh: Dekan / Ketua Prodi" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+                        </div>
+                    </div>
                 </div>
-                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Informasi Dasar</span>
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Judul Agenda <span class="text-red-500">*</span></label>
-                <input type="text" id="editMeetingTitle" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Deskripsi Singkat</label>
-                <textarea id="editMeetingDesc" rows="3" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none"></textarea>
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Undangan Peserta <span class="text-slate-400 font-normal normal-case">(Satu per baris)</span></label>
-                <textarea id="editMeetingParticipants" rows="4" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none leading-relaxed"></textarea>
-              </div>
             </div>
-            <!-- Center: PDF Identity (4 cols) -->
-            <div class="lg:col-span-4 space-y-6 lg:border-x lg:border-slate-100 lg:px-8">
-              <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <div class="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                </div>
-                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Identitas Dokumen (PDF)</span>
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Lingkup Rapat / Kop Surat <span class="text-red-500">*</span></label>
-                <div class="relative">
-                  <select id="editMeetingLingkup" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all appearance-none cursor-pointer">
-                    <option value="Umum">Universitas Samudra (Umum)</option>
-                    <option value="Ekonomi">Fakultas Ekonomi dan Bisnis</option>
-                    <option value="Hukum">Fakultas Hukum</option>
-                    <option value="FKIP">Fakultas Keguruan dan Ilmu Pendidikan</option>
-                    <option value="Pertanian">Fakultas Pertanian</option>
-                    <option value="Sains">Fakultas Sains dan Teknologi</option>
-                  </select>
-                  <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Nama Pimpinan Rapat <span class="text-red-500">*</span></label>
-                <input type="text" id="editMeetingLeaderName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">NIP Pimpinan <span class="text-red-500">*</span></label>
-                <input type="text" id="editMeetingLeaderNip" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Jabatan Pimpinan <span class="text-red-500">*</span></label>
-                <input type="text" id="editMeetingLeaderTitle" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
-              </div>
+            <!-- Footer -->
+            <div class="p-8 pt-4 flex flex-col sm:flex-row justify-end gap-3 border-t border-slate-100 bg-slate-50/50 rounded-b-[2.5rem]">
+                <button type="button" onclick="window.toggleModal('createRoomModal', false)" class="px-8 py-3.5 bg-white text-slate-600 border border-slate-200 rounded-[1.25rem] font-bold hover:bg-slate-50 transition-all text-sm shadow-sm">Batal</button>
+                <button type="submit" class="px-10 py-3.5 bg-indigo-600 text-white rounded-[1.25rem] font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all hover:-translate-y-0.5 text-sm">Terbitkan Agenda</button>
             </div>
-            <!-- Right: Schedule & Location (4 cols) -->
-            <div class="lg:col-span-4 space-y-6 lg:border-x lg:border-slate-100 lg:px-8">
-              <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                </div>
-                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Jadwal & Lokasi</span>
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Tanggal Rapat <span class="text-red-500">*</span></label>
-                <input type="date" id="editMeetingDate" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer">
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Lokasi / Tempat <span class="text-red-500">*</span></label>
-                <input type="text" id="editMeetingLocation" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
-              </div>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Waktu Mulai <span class="text-red-500">*</span></label>
-                  <input type="time" id="editMeetingStartTime" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer">
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Waktu Selesai <span class="text-red-500">*</span></label>
-                  <input type="time" id="editMeetingEndTime" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all cursor-pointer">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Footer -->
-        <div class="p-8 pt-4 flex flex-col sm:flex-row justify-end gap-3 border-t border-slate-100 bg-slate-50/50 rounded-b-[2.5rem]">
-          <button type="button" onclick="window.toggleModal('editMeetingInfoModal', false)" class="px-8 py-3.5 bg-white text-slate-600 border border-slate-200 rounded-[1.25rem] font-bold hover:bg-slate-50 transition-all text-sm shadow-sm">Batal</button>
-          <button type="submit" class="px-10 py-3.5 bg-indigo-600 text-white rounded-[1.25rem] font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all hover:-translate-y-0.5 text-sm">Simpan Perubahan</button>
+        </form>
         </div>
       </form>
     </div>
