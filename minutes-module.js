@@ -207,51 +207,6 @@ export function createMinutesModule(deps) {
             newQuill.on('text-change', quillTextChangeListener);
             updateWordCount();
 
-            // Add tooltips to standard toolbar buttons
-            setTimeout(() => {
-                const toolbar = document.querySelector('.ql-toolbar');
-                if (!toolbar) return;
-
-                const tooltips = {
-                    '.ql-bold': 'Tebal (Bold)',
-                    '.ql-italic': 'Miring (Italic)',
-                    '.ql-underline': 'Garis Bawah (Underline)',
-                    '.ql-strike': 'Coret (Strikethrough)',
-                    '.ql-list[value="ordered"]': 'Daftar Bernomor',
-                    '.ql-list[value="bullet"]': 'Daftar Poin',
-                    '.ql-blockquote': 'Kutipan',
-                    '.ql-code-block': 'Blok Kode',
-                    '.ql-link': 'Sisipkan Tautan',
-                    '.ql-clean': 'Bersihkan Format',
-                    '.ql-color': 'Warna Teks',
-                    '.ql-background': 'Warna Sorotan',
-                    '.ql-header[value="1"]': 'Judul Besar',
-                    '.ql-header[value="2"]': 'Judul Sedang',
-                    '.ql-header[value="3"]': 'Judul Kecil',
-                    '.ql-header:not([value])': 'Teks Normal'
-                };
-
-                Object.entries(tooltips).forEach(([selector, text]) => {
-                    const btn = toolbar.querySelector(selector);
-                    if (btn) {
-                        btn.setAttribute('data-tooltip', text);
-                        btn.setAttribute('data-tooltip-pos', 'bottom');
-                    }
-                });
-
-                // Pickers (Selects) need special treatment
-                toolbar.querySelectorAll('.ql-picker').forEach(picker => {
-                    if (picker.classList.contains('ql-header')) {
-                        picker.setAttribute('data-tooltip', 'Ukuran Judul');
-                    } else if (picker.classList.contains('ql-color')) {
-                        picker.setAttribute('data-tooltip', 'Warna Teks');
-                    } else if (picker.classList.contains('ql-background')) {
-                        picker.setAttribute('data-tooltip', 'Warna Sorotan');
-                    }
-                    picker.setAttribute('data-tooltip-pos', 'bottom');
-                });
-            }, 500);
-
             // Add template button to toolbar
             setTimeout(() => {
                 try {
@@ -261,8 +216,7 @@ export function createMinutesModule(deps) {
                         templateBtn.className = 'ql-template';
                         templateBtn.setAttribute('type', 'button');
                         templateBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="11" y2="15"/></svg>';
-                        templateBtn.setAttribute('data-tooltip', 'Sisipkan Template Notulensi');
-                        templateBtn.setAttribute('data-tooltip-pos', 'bottom');
+                        templateBtn.title = 'Insert Template Struktur Notulensi';
                         templateBtn.onclick = (e) => {
                             e.preventDefault();
                             e.stopPropagation();
