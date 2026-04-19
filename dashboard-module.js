@@ -31,6 +31,7 @@ export function createDashboardModule(deps) {
     let currentCalendarDate = new Date();
     let calendarRenderTimeout;
     const creatorNameCache = new Map();
+    let currentFilter = 'all'; // 'all' | 'mine'
 
     function setupDashboardListener() {
         const currentUser = getCurrentUser();
@@ -83,6 +84,32 @@ export function createDashboardModule(deps) {
         getUnsubscribers().push(unsub);
     }
 
+    window.setDashboardFilter = (filter) => {
+        currentFilter = filter;
+        
+        // Update UI
+        const filterAll = document.getElementById('filterAll');
+        const filterMine = document.getElementById('filterMine');
+        
+        if (filter === 'all') {
+            filterAll?.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'border-slate-200/50');
+            filterAll?.classList.remove('text-slate-500', 'hover:text-slate-700', 'hover:bg-white/50');
+            filterMine?.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'border-slate-200/50');
+            filterMine?.classList.add('text-slate-500', 'hover:text-slate-700', 'hover:bg-white/50');
+        } else {
+            filterMine?.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'border-slate-200/50');
+            filterMine?.classList.remove('text-slate-500', 'hover:text-slate-700', 'hover:bg-white/50');
+            filterAll?.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'border-slate-200/50');
+            filterAll?.classList.add('text-slate-500', 'hover:text-slate-700', 'hover:bg-white/50');
+        }
+
+        // Re-render rooms with new filter
+        const roomsCol = deps.collection(deps.db, 'artifacts', deps.appId, 'public', 'data', 'rooms');
+        deps.getDocs(roomsCol).then(snapshot => {
+            renderDashboardRooms(snapshot);
+        });
+    };
+
     function renderDashboardRooms(snapshot) {
         const container = document.getElementById('roomListContainer');
         const archiveContainer = document.getElementById('archiveListContainer');
@@ -124,6 +151,10 @@ export function createDashboardModule(deps) {
             const room = docSnap.data();
             const roomId = docSnap.id;
             const isCreator = room.creatorUid === currentUser?.uid;
+            
+            // Apply "Agenda Saya" filter
+            if (currentFilter === 'mine' && !isCreator) return;
+
             const isArchived = room.status === 'archived';
             const isDeveloper = getIsDeveloper();
 
