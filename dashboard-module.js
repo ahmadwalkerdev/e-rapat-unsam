@@ -114,6 +114,12 @@ export function createDashboardModule(deps) {
         const activeFragment = document.createDocumentFragment();
         const archiveFragment = document.createDocumentFragment();
 
+        // Limit Counters
+        let renderedActiveCount = 0;
+        let renderedArchiveCount = 0;
+        const ACTIVE_LIMIT = 9;
+        const ARCHIVE_LIMIT = 6;
+
         sortedRooms.forEach((docSnap) => {
             const room = docSnap.data();
             const roomId = docSnap.id;
@@ -130,57 +136,63 @@ export function createDashboardModule(deps) {
 
             if (isArchived) {
                 selesaiCount++;
-                badgeText = 'Selesai';
-                badgeClass = 'bg-slate-100 text-slate-500 border-slate-200';
-            } else if (refTime > now) {
-                akanDatangCount++;
-                badgeText = 'Akan Datang';
-                badgeClass = 'bg-amber-50 text-amber-600 border-amber-100';
-                const diff = Math.floor((refTime - now) / 1000);
-                const h = Math.floor(diff / 3600);
-                const m = Math.floor((diff % 3600) / 60);
-                durationText = `⏳ ${h}j ${m}m lagi`;
-            } else {
-                berlangsungCount++;
-                badgeText = 'Berlangsung';
-                badgeClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
-                const diff = Math.floor((now - refTime) / 1000);
-                const h = Math.floor(diff / 3600);
-                const m = Math.floor((diff % 3600) / 60);
-                durationText = `⏱ ${h}j ${m}m`;
-            }
-
-            let creatorName = room.creatorEmail || "Notulen Anonim";
-            if (room.creatorUid) {
-                const cacheKey = room.creatorUid;
-                if (creatorNameCache.has(cacheKey)) {
-                    creatorName = creatorNameCache.get(cacheKey);
-                } else {
-                    getDoc(doc(db, 'artifacts', appId, 'users', room.creatorUid, 'profile', 'data')).then(userSnap => {
-                        if (userSnap.exists()) {
-                            const userData = userSnap.data();
-                            const freshName = userData.name || room.creatorEmail || "Notulen Anonim";
-                            creatorNameCache.set(cacheKey, freshName);
-                            const nameEl = container.querySelector(`[data-room="${roomId}"] .creator-name`) ||
-                                         archiveContainer.querySelector(`[data-room="${roomId}"] .creator-name`);
-                            if (nameEl && nameEl.innerText !== freshName) {
-                                nameEl.innerText = freshName;
-                            }
-                        }
-                    }).catch(() => {});
+                if (renderedArchiveCount < ARCHIVE_LIMIT) {
+                    badgeText = 'Selesai';
+                    badgeClass = 'bg-slate-100 text-slate-500 border-slate-200';
+                    const creatorName = room.creatorName || room.creatorEmail || "Notulen Anonim";
+                    const card = createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper);
+                    archiveFragment.appendChild(card);
+                    renderedArchiveCount++;
                 }
-            }
-
-            const card = createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper);
-            if (isArchived) {
-                archiveFragment.appendChild(card);
             } else {
-                activeFragment.appendChild(card);
+                if (refTime > now) {
+                    akanDatangCount++;
+                } else {
+                    berlangsungCount++;
+                }
+
+                if (renderedActiveCount < ACTIVE_LIMIT) {
+                    if (refTime > now) {
+                        badgeText = 'Akan Datang';
+                        badgeClass = 'bg-amber-50 text-amber-600 border-amber-100';
+                        const diff = Math.floor((refTime - now) / 1000);
+                        const h = Math.floor(diff / 3600);
+                        const m = Math.floor((diff % 3600) / 60);
+                        durationText = `⏳ ${h}j ${m}m lagi`;
+                    } else {
+                        badgeText = 'Berlangsung';
+                        badgeClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
+                        const diff = Math.floor((now - refTime) / 1000);
+                        const h = Math.floor(diff / 3600);
+                        const m = Math.floor((diff % 3600) / 60);
+                        durationText = `⏱ ${h}j ${m}m`;
+                    }
+
+                    const creatorName = room.creatorName || room.creatorEmail || "Notulen Anonim";
+                    const card = createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper);
+                    activeFragment.appendChild(card);
+                    renderedActiveCount++;
+                }
             }
         });
 
         container.appendChild(activeFragment);
         archiveContainer.appendChild(archiveFragment);
+
+        // Add "View More" indicators if needed
+        if (selesaiCount > ARCHIVE_LIMIT) {
+            const viewMore = document.createElement('div');
+            viewMore.className = "col-span-full py-4 text-center";
+            viewMore.innerHTML = `<button class="text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-widest">+ Lihat ${selesaiCount - ARCHIVE_LIMIT} Arsip Lainnya di Riwayat</button>`;
+            archiveContainer.appendChild(viewMore);
+        }
+
+        if ((berlangsungCount + akanDatangCount) > ACTIVE_LIMIT) {
+            const viewMore = document.createElement('div');
+            viewMore.className = "col-span-full py-4 text-center";
+            viewMore.innerHTML = `<button class="text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-widest">+ Lihat ${(berlangsungCount + akanDatangCount) - ACTIVE_LIMIT} Agenda Lainnya</button>`;
+            container.appendChild(viewMore);
+        }
 
         if (berlangsungCountEl) berlangsungCountEl.innerText = berlangsungCount;
         if (akanDatangCountEl) akanDatangCountEl.innerText = akanDatangCount;
