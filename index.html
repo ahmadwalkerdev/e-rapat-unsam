@@ -346,11 +346,15 @@ window.toggleRoomMenu = (btn) => {
 };
 
 // Close dropdown on click outside
-document.addEventListener('click', () => {
-    document.querySelectorAll('.room-menu-dropdown').forEach(m => {
-        m.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => m.classList.add('hidden'), 200);
-    });
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('profileDropdown');
+    const trigger = document.querySelector('.profile-trigger');
+    if (menu && !menu.classList.contains('hidden') && !trigger.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.add('opacity-0', 'scale-95');
+        menu.classList.remove('opacity-100', 'scale-100');
+        menu.style.pointerEvents = 'none';
+        setTimeout(() => menu.classList.add('hidden'), 200);
+    }
 });
 
 // Close dropdown on any scroll (prevents floating dropdown out of sync with card)
@@ -2120,7 +2124,7 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 </div>
 <div class="flex items-center gap-2 relative z-[9999]">
 <button onclick="window.toggleProfileMenu(event)" class="profile-trigger flex items-center gap-3 group">
-<span class="user-name-text hidden md:block text-[13px] font-bold text-slate-700 whitespace-nowrap leading-none">Dosen UNSAM</span>
+<span class="user-name-text hidden md:block text-[13px] font-bold text-slate-700 truncate max-w-[100px] lg:max-w-[180px] leading-none">Dosen UNSAM</span>
 <div class="relative">
 <img id="userAvatarDisplay" src="" class="user-avatar-img w-9 h-9 rounded-xl border border-slate-200 object-cover bg-white shadow-sm transition-transform group-hover:scale-105">
 <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
