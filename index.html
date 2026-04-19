@@ -2124,29 +2124,29 @@ Keluar Sesi
 <form onsubmit="window.handleSetupProfile(event)" class="space-y-4">
 <div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">Nama & Gelar</label>
-<input type="text" id="setupName" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<input type="text" id="setupName" required placeholder="Contoh: Dr. Ir. Ahmad Syarif, M.T." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
 <div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">NIP <span class="text-red-500">*</span></label>
-<input type="text" id="setupNip" required placeholder="Masukkan NIP" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<input type="text" id="setupNip" required placeholder="Contoh: 19850101 201012 1 001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">NIDN <span class="text-slate-400 font-normal">(Opsional)</span></label>
-<input type="text" id="setupNidn" placeholder="Untuk dosen tetap" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<input type="text" id="setupNidn" placeholder="Contoh: 0001018501" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
 <div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">NIDK <span class="text-slate-400 font-normal">(Opsional)</span></label>
-<input type="text" id="setupNidk" placeholder="Untuk dosen kontrak" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<input type="text" id="setupNidk" placeholder="Khusus Dosen Kontrak" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
 </div>
 <div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">Unit Kerja <span class="text-red-500">*</span></label>
-<input type="text" id="setupUnitKerja" required placeholder="Fakultas/Prodi/Departemen" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<input type="text" id="setupUnitKerja" required placeholder="Contoh: Biro Akademik / LPPM" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
 <div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">Jabatan Fungsional <span class="text-red-500">*</span></label>
-<input type="text" id="setupJabatanFungsional" required placeholder="Contoh: Lektor, Guru Besar" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<input type="text" id="setupJabatanFungsional" required placeholder="Contoh: Lektor Kepala / Asisten Ahli" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
 <div class="space-y-1 pt-4 border-t border-slate-50">
 <label class="text-[10px] font-bold text-slate-500 uppercase">Atur Kata Sandi Baru</label>
@@ -2895,15 +2895,15 @@ Pengaturan Lanjutan
 <form onsubmit="window.handleGuestJoin(event)" class="space-y-4">
 <div class="space-y-1">
 <label class="block text-[10px] font-bold text-slate-500 uppercase">Nama Lengkap <span class="text-red-500">*</span></label>
-<input type="text" id="guestName" required placeholder="Contoh: Ahmad Fauzi" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+<input type="text" id="guestName" required placeholder="Contoh: Dr. Ahmad Fauzi, M.Pd." class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
 </div>
 <div class="space-y-1">
 <label class="block text-[10px] font-bold text-slate-500 uppercase">Jabatan <span class="text-red-500">*</span></label>
-<input type="text" id="guestPosition" required placeholder="Contoh: Direktur PT. ABC" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+<input type="text" id="guestPosition" required placeholder="Contoh: Kepala Biro Akademik" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
 </div>
 <div class="space-y-1">
 <label class="block text-[10px] font-bold text-slate-500 uppercase">Instansi/Perusahaan <span class="text-red-500">*</span></label>
-<input type="text" id="guestInstitution" required placeholder="Contoh: PT. Maju Jaya" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+<input type="text" id="guestInstitution" required placeholder="Contoh: Universitas Samudra / Mitra Eksternal" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
 </div>
 <div class="space-y-1">
 <label class="block text-[10px] font-bold text-slate-500 uppercase">PIN Rapat <span class="text-red-500">*</span></label>
@@ -2940,11 +2940,11 @@ Pengaturan Lanjutan
 </div>
 <div class="space-y-1.5">
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Nama / Label</label>
-<input type="text" id="resName" required placeholder="Contoh: SK Rektor No. 123" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+<input type="text" id="resName" required placeholder="Contoh: SK Panitia Pelaksana Rapat" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
 </div>
 <div class="space-y-1.5">
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">URL / Link Tautan</label>
-<input type="url" id="resUrl" required placeholder="https://drive.google.com/..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+<input type="url" id="resUrl" required placeholder="Contoh: https://drive.google.com/..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
 </div>
 <button type="submit" class="w-full py-3.5 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-sm mt-2">Simpan & Bagikan</button>
 </form>
@@ -3033,12 +3033,12 @@ Pengaturan Lanjutan
 
 <div>
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Judul Agenda <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomTitle" required placeholder="Contoh: Rapat Koordinasi Fakultas" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+<input type="text" id="newRoomTitle" required placeholder="Contoh: Rapat Koordinasi Persiapan Perkuliahan Genap" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
 </div>
 
 <div>
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Deskripsi Singkat</label>
-<textarea id="newRoomDesc" rows="3" placeholder="Apa yang akan dibahas?" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none placeholder:text-slate-400"></textarea>
+<textarea id="newRoomDesc" rows="3" placeholder="Contoh: Membahas pembagian jadwal mengajar dan rencana strategis fakultas..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none placeholder:text-slate-400"></textarea>
 </div>
 </div>
 
@@ -3058,7 +3058,7 @@ Pengaturan Lanjutan
 
 <div>
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Lokasi / Tempat <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomLocation" required placeholder="Contoh: Ruang Rapat Lt. 2" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+<input type="text" id="newRoomLocation" required placeholder="Contoh: Ruang Rapat Senat Lt. 2 / Zoom Meeting" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
 </div>
 
 <div class="grid grid-cols-2 gap-4">
@@ -3084,22 +3084,22 @@ Pengaturan Lanjutan
 
 <div>
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Nama Pimpinan Rapat <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomLeaderName" required placeholder="Nama Lengkap & Gelar" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+<input type="text" id="newRoomLeaderName" required placeholder="Contoh: Prof. Dr. Ir. Hamdani, M.T." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
 </div>
 
 <div>
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">NIP Pimpinan <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomLeaderNip" required placeholder="Nomor Induk Pegawai" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+<input type="text" id="newRoomLeaderNip" required placeholder="Contoh: 19700101 199512 1 001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
 </div>
 
 <div>
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Jabatan Pimpinan <span class="text-red-500">*</span></label>
-<input type="text" id="newRoomLeaderTitle" required placeholder="Contoh: Dekan / Ketua Prodi" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
+<input type="text" id="newRoomLeaderTitle" required placeholder="Contoh: Dekan Fakultas Teknik" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-slate-400">
 </div>
 
 <div>
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Peserta Undangan <span class="text-slate-400 font-normal normal-case">(Satu per baris)</span></label>
-<textarea id="newRoomParticipants" rows="4" placeholder="Contoh:&#10;Dr. Ahmad Syarif&#10;Wakil Dekan I" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none leading-relaxed"></textarea>
+<textarea id="newRoomParticipants" rows="4" placeholder="Contoh:&#10;Wakil Dekan Bidang Akademik&#10;Ketua Jurusan Informatika&#10;Sekretaris Jurusan" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-[13px] font-medium focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all resize-none leading-relaxed"></textarea>
 </div>
 </div>
 </div>
