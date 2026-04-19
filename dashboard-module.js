@@ -601,11 +601,6 @@ export function createDashboardModule(deps) {
         }
     }
 
-    // Ekspor fungsi ke scope global agar bisa dipanggil dari HTML dinamis
-    window.enterRoomFromCalendar = async (roomId, roomTitle, roomStatus, creatorUid) => {
-        return await enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid);
-    };
-
     async function enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid) {
         try {
             const currentUser = getCurrentUser();

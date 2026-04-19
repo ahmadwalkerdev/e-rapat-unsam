@@ -1010,13 +1010,13 @@ updateDeveloperUIState(isDeveloper, currentUser, setupDashboardListener);
 
 // Dashboard module delegations
 window.setupDashboardListener = () => dashboardModule.setupDashboardListener();
-window.deleteRoom = async (roomId) => await dashboardModule.deleteRoom(roomId);
-window.enterRoomFromCalendar = async (roomId, roomTitle, roomStatus, creatorUid) => await dashboardModule.enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid);
-window.quickJoinRoom = async () => await dashboardModule.quickJoinRoom();
+window.deleteRoom = (roomId) => dashboardModule.deleteRoom(roomId);
+window.enterRoomFromCalendar = (roomId, roomTitle, roomStatus, creatorUid) => dashboardModule.enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid);
+window.quickJoinRoom = () => dashboardModule.quickJoinRoom();
 window.showCalendarAgenda = (y, m, d, agendas) => dashboardModule.showCalendarAgenda(y, m, d, agendas);
 window.changeCalendarMonth = (offset) => dashboardModule.changeCalendarMonth(offset);
 window.generateMeetingInfoTable = (roomData) => dashboardModule.generateMeetingInfoTable(roomData);
-function renderMiniCalendar() { return dashboardModule.renderMiniCalendar(); }
+window.renderMiniCalendar = () => dashboardModule.renderMiniCalendar();
 
 // Dashboard Tab Switching
 window.switchDashboardTab = (tab) => {
