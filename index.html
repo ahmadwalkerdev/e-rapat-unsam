@@ -346,15 +346,11 @@ window.toggleRoomMenu = (btn) => {
 };
 
 // Close dropdown on click outside
-document.addEventListener('click', (e) => {
-    const menu = document.getElementById('profileDropdown');
-    const trigger = document.querySelector('.profile-trigger');
-    if (menu && !menu.classList.contains('hidden') && !trigger.contains(e.target) && !menu.contains(e.target)) {
-        menu.classList.add('opacity-0', 'scale-95');
-        menu.classList.remove('opacity-100', 'scale-100');
-        menu.style.pointerEvents = 'none';
-        setTimeout(() => menu.classList.add('hidden'), 200);
-    }
+document.addEventListener('click', () => {
+    document.querySelectorAll('.room-menu-dropdown').forEach(m => {
+        m.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => m.classList.add('hidden'), 200);
+    });
 });
 
 // Close dropdown on any scroll (prevents floating dropdown out of sync with card)
@@ -590,31 +586,30 @@ if (el) el.classList.add('hidden');
 });
 const target = document.getElementById('view-' + viewId);
 if (target) target.classList.remove('hidden');
-    if (viewId === 'settings') {
-        settingsModule.initSettings();
-    }
+if (viewId === 'settings') {
+setTimeout(() => {
+updateEmailVerificationBadge();
+}, 100);
+}
 };
-
 window.toggleProfileMenu = (e) => {
-    e.stopPropagation();
-    const menu = document.getElementById('profileDropdown');
-    if (!menu) return;
-
-    const isHidden = menu.classList.contains('hidden');
-    if (isHidden) {
-        menu.classList.remove('hidden');
-        // Force reflow
-        menu.offsetHeight;
-        menu.classList.remove('opacity-0', 'scale-95');
-        menu.classList.add('opacity-100', 'scale-100');
-        menu.style.pointerEvents = 'auto';
-    } else {
-        menu.classList.add('opacity-0', 'scale-95');
-        menu.classList.remove('opacity-100', 'scale-100');
-        menu.style.pointerEvents = 'none';
-        setTimeout(() => menu.classList.add('hidden'), 200);
-    }
+if (e) e.stopPropagation();
+const menu = document.getElementById('profileDropdown');
+if (menu.classList.contains('hidden')) {
+menu.classList.remove('hidden');
+setTimeout(() => menu.classList.remove('opacity-0', 'scale-95'), 10);
+} else {
+menu.classList.add('opacity-0', 'scale-95');
+setTimeout(() => menu.classList.add('hidden'), 200);
+}
 };
+document.addEventListener('click', () => {
+const menu = document.getElementById('profileDropdown');
+if (menu && !menu.classList.contains('hidden')) {
+menu.classList.add('opacity-0', 'scale-95');
+setTimeout(() => menu.classList.add('hidden'), 200);
+}
+});
 
 // --- FIXED: Role-based Visibility ---
 window.setUIRole = (role) => {
@@ -1575,25 +1570,32 @@ await authModule.handleSetupProfile(e);
 };
 
 window.handleHeaderLogoClick = async () => {
-    // 1. PROTEKSI TAMU (Satu Pengecekan Kuat)
+    // PROTEKSI KUAT: Cek session storage jika variabel window hilang saat refresh
     const isGuest = window.isGuestUser || sessionStorage.getItem('guestSession');
-    if (isGuest && (activeRoom || appState.activeRoom)) {
+    if (isGuest && appState.activeRoom) {
+        showToast("Tamu tidak dapat mengakses dashboard. Silakan keluar dari rapat terlebih dahulu.");
+        return;
+    }
+    // If user is a guest and currently in a room, prevent going to dashboard
+    if (window.isGuestUser && activeRoom) {
         showToast("Tamu tidak dapat mengakses dashboard. Silakan keluar dari rapat terlebih dahulu.");
         return;
     }
     
-    // 2. DATA SAFETY: Jika sedang di Room, simpan dulu
-    if (typeof minutesModule !== 'undefined' && (activeRoom || appState.activeRoom)) {
+    // FLUSH: Simpan data pending sebelum keluar
+    if (typeof minutesModule !== 'undefined') {
         await minutesModule.flushPendingSave();
     }
     
-    // 3. CLEANUP & NAVIGATION
+    // Destroy Quill and clear listeners before switching
     destroyQuill();
     clearListeners();
+    
+    // Clear room session when manually going to dashboard
     clearSavedRoomSession();
     activeRoom = null;
-    appState.activeRoom = null;
     
+    // Otherwise, go to dashboard and setup listener
     setupDashboardListener();
     switchView('dashboard');
 };
@@ -1640,15 +1642,6 @@ window.confirmLogout = async () => {
     
     // Clear room session on logout
     await authModule.handleLogout();
-    
-    // FORCE CLEANUP: Pastikan dropdown profil tertutup total
-    const profileMenu = document.getElementById('profileDropdown');
-    if (profileMenu) {
-        profileMenu.classList.add('hidden', 'opacity-0', 'scale-95');
-        profileMenu.style.pointerEvents = 'none';
-        profileMenu.innerHTML = '';
-    }
-
     window.closeLogoutModal();
 };
 
@@ -2100,7 +2093,6 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 </div>
 </div>
 </div>
-</div>
 
 <!-- MAIN APP STRUCTURE -->
 <div id="mainApp" class="bg-slate-50 min-h-screen">
@@ -2117,7 +2109,7 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 </div>
 <div class="flex items-center gap-2 relative z-[9999]">
 <button onclick="window.toggleProfileMenu(event)" class="profile-trigger flex items-center gap-3 group">
-<span class="user-name-text hidden md:block text-[13px] font-bold text-slate-700 truncate max-w-[100px] lg:max-w-[180px] leading-none">Dosen UNSAM</span>
+<span class="user-name-text hidden md:block text-[13px] font-bold text-slate-700 whitespace-nowrap leading-none">Dosen UNSAM</span>
 <div class="relative">
 <img id="userAvatarDisplay" src="" class="user-avatar-img w-9 h-9 rounded-xl border border-slate-200 object-cover bg-white shadow-sm transition-transform group-hover:scale-105">
 <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
@@ -2514,23 +2506,21 @@ Pengaturan Lanjutan
                             <line x1="8" y1="2" x2="8" y2="6"/>
                             <line x1="3" y1="10" x2="21" y2="10"/>
                         </svg>
-                        <div class="flex flex-col min-w-0 flex-1">
-                            <h2 id="roomHeaderTitle" class="text-sm md:text-base font-extrabold text-slate-800 leading-tight tracking-tight truncate max-w-[150px] sm:max-w-[300px] md:max-w-[500px]">Memuat...</h2>
-                        </div>
                     </div>
-                    <div class="flex items-center gap-2 mt-0.5">
-                        <button id="editRoomInfoBtn" onclick="window.toggleEditMeetingInfo()" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-md transition-all" title="Edit Informasi Rapat">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                        </button>
-                        <button class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-md transition-all" title="Tampilkan/Sembunyikan">
-                            <svg id="meetingInfoToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
-                                <polyline points="18 15 12 9 6 15"/>
-                            </svg>
-                        </button>
-                    </div>
+                    <h3 class="text-sm font-bold text-slate-800 tracking-wide">Informasi Rapat</h3>
+                </div>
+                <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+                    <button id="editRoomInfoBtn" onclick="window.toggleEditMeetingInfo()" class="hidden p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-md transition-all" title="Edit Informasi Rapat">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                    </button>
+                    <button class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-md transition-all" title="Tampilkan/Sembunyikan">
+                        <svg id="meetingInfoToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
+                            <polyline points="18 15 12 9 6 15"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <!-- Meeting Details Content -->
@@ -2856,7 +2846,7 @@ Pengaturan Lanjutan
 </div>
 
 <!-- Modal: Logout Confirmation -->
-<div id="logoutModal" class="fixed inset-0 z-[200000] hidden flex items-center justify-center p-4">
+<div id="logoutModal" class="fixed inset-0 z-[350] hidden flex items-center justify-center p-4">
     <div id="logoutBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 opacity-0"></div>
     <div id="logoutContent" class="relative bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-slate-100 transform transition-all duration-300 scale-95 opacity-0">
         <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-100 shadow-inner">
