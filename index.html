@@ -1011,9 +1011,7 @@ updateDeveloperUIState(isDeveloper, currentUser, setupDashboardListener);
 // Dashboard module delegations
 window.setupDashboardListener = () => dashboardModule.setupDashboardListener();
 window.deleteRoom = (roomId) => dashboardModule.deleteRoom(roomId);
-window.enterRoomFromCalendar = (roomId, roomTitle, roomStatus, creatorUid) => dashboardModule.enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid);
 window.quickJoinRoom = () => dashboardModule.quickJoinRoom();
-window.showCalendarAgenda = (y, m, d, agendas) => dashboardModule.showCalendarAgenda(y, m, d, agendas);
 window.changeCalendarMonth = (offset) => dashboardModule.changeCalendarMonth(offset);
 window.generateMeetingInfoTable = (roomData) => dashboardModule.generateMeetingInfoTable(roomData);
 window.renderMiniCalendar = () => dashboardModule.renderMiniCalendar();

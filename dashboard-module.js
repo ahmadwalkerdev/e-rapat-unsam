@@ -565,13 +565,16 @@ export function createDashboardModule(deps) {
                     </div>
                 </div>`;
             
-            item.onclick = (e) => {
+            // ATTACH CLICK EVENT
+            item.onclick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('[DEBUG] Agenda item clicked (onclick):', r.id);
-                if (window.enterRoomFromCalendar) {
-                    window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
-                }
+                const id = r.id;
+                const title = r.title;
+                const status = r.status;
+                const creator = r.creatorUid;
+                console.log('[DEBUG] Item clicked, initiating entry for:', id);
+                window.enterRoomFromCalendar(id, title, status, creator);
             };
             
             container.appendChild(item);
@@ -613,6 +616,17 @@ export function createDashboardModule(deps) {
             showLoading(false);
         }
     }
+
+    // FORCE GLOBAL BINDING: Memastikan fungsi tersedia secara global tanpa perantara
+    window.enterRoomFromCalendar = async (roomId, roomTitle, roomStatus, creatorUid) => {
+        console.log('[DEBUG] Global enterRoomFromCalendar triggered for:', roomId);
+        return await enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid);
+    };
+
+    window.showCalendarAgenda = (y, m, d, agendas) => {
+        console.log('[DEBUG] Global showCalendarAgenda triggered for:', d);
+        return showCalendarAgenda(y, m, d, agendas);
+    };
 
     async function enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid) {
         try {
