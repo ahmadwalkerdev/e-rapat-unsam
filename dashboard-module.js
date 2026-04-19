@@ -535,10 +535,10 @@ export function createDashboardModule(deps) {
                                (new Date(r.scheduledAt || r.createdAt) > new Date() ? '<span class="text-[8px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-md border border-amber-100 ml-auto">Terjadwal</span>' :
                                '<span class="text-[8px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-md border border-emerald-100 ml-auto">Aktif</span>');
             
-            // GUNAKAN STRING HTML YANG SOLID DAN ONCLICK LANGSUNG KE WINDOW
+        // GUNAKAN STRING HTML YANG SOLID DAN ONCLICK LANGSUNG KE WINDOW
             html += `
-                <div onclick="window.enterRoomFromCalendar('${r.id}', '${escapeJsString(r.title)}', '${r.status}', '${r.creatorUid}')" 
-                     class="group relative flex items-center justify-between gap-3 mb-2 p-3 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all cursor-pointer active:scale-[0.98] z-[100]">
+                <div onclick="console.log('[CLICK] Box clicked'); window.enterRoomFromCalendar('${r.id}', '${escapeJsString(r.title)}', '${r.status}', '${r.creatorUid}')" 
+                     class="group relative flex items-center justify-between gap-3 mb-2 p-3 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all cursor-pointer active:scale-[0.95] z-[500] pointer-events-auto">
                     <div class="flex-1 min-w-0 pointer-events-none">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="text-[10px] font-bold text-slate-700 group-hover:text-indigo-600 transition-colors truncate">${escapeHtml(r.title)}</span>
@@ -552,8 +552,8 @@ export function createDashboardModule(deps) {
                         </div>
                     </div>
                     <div class="flex shrink-0 pointer-events-none">
-                        <div class="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </div>
                     </div>
                 </div>`;
