@@ -562,42 +562,41 @@ export function createDashboardModule(deps) {
                 showToast("Silakan login terlebih dahulu.");
                 return;
             }
+
             const isCreator = creatorUid === currentUser.uid;
-            let shouldEnterDirectly = false;
-            let isNotulenMode = false;
+            const isDeveloper = getIsDeveloper();
+
+            // 1. Jika ARSIP: Langsung masuk sebagai viewer
             if (roomStatus === 'archived') {
-                shouldEnterDirectly = true;
-                isNotulenMode = false;
-            } else if (isCreator || getIsDeveloper()) {
-                shouldEnterDirectly = true;
-                isNotulenMode = true;
+                showLoading(true, "Membuka Arsip...");
+                await enterRoom(roomId, '', false, false);
+                showToast("Membuka arsip rapat...");
+                return;
             }
-            if (shouldEnterDirectly) {
-                showLoading(true, "Membuka Rapat...");
-                try {
-                    const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId));
-                    if (snap.exists()) {
-                        const roomData = snap.data();
-                        await enterRoom(roomId, roomData.pin, isNotulenMode, isCreator);
-                        if (roomStatus === 'archived') {
-                            showToast("Membuka arsip rapat...");
-                        } else {
-                            showToast("Membuka room Anda...");
-                        }
-                    } else {
-                        showToast("Room tidak ditemukan.");
-                    }
-                } catch (e) {
-                    showToast("Gagal membuka room: " + e.message);
-                } finally {
-                    showLoading(false);
+
+            // 2. Jika PEMBUAT atau DEVELOPER: Langsung masuk sebagai admin/notulen
+            if (isCreator || isDeveloper) {
+                showLoading(true, "Membuka Room Anda...");
+                // Ambil PIN dari Firestore karena kita butuh PIN asli untuk enterRoom
+                const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId));
+                if (snap.exists()) {
+                    await enterRoom(roomId, snap.data().pin, true, isCreator);
+                    showToast("Selamat datang kembali, Notulen.");
+                } else {
+                    showToast("Data rapat tidak ditemukan.");
                 }
-            } else {
-                roomEntryModule.openJoinModal(roomId, roomTitle);
+                return;
             }
-        } catch (err) {
-            console.error("Error enterRoomFromCalendar:", err);
-            showToast("Terjadi kesalahan saat membuka room.");
+
+            // 3. Jika PESERTA BIASA: Buka Modal Join (Input PIN)
+            // Ini demi keamanan agar tidak sembarang orang masuk tanpa PIN
+            window.openJoinModal(roomId, roomTitle);
+
+        } catch (e) {
+            console.error("Calendar Entry Error:", e);
+            showToast("Gagal memasuki ruangan.");
+        } finally {
+            showLoading(false);
         }
     }
 
