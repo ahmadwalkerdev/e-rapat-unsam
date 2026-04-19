@@ -1087,6 +1087,48 @@ if (snap.exists()) {
     // Update meeting info panel in UI
     roomManagementModule.updateMeetingInfoPanel(fullRoomData);
     
+    // ISI DATA KE MODAL EDIT SECARA REAL-TIME
+    const fillModal = (data) => {
+        const titleEl = document.getElementById('editMeetingTitle');
+        const descEl = document.getElementById('editMeetingDesc');
+        const dateEl = document.getElementById('editMeetingDate');
+        const startEl = document.getElementById('editMeetingStartTime');
+        const endEl = document.getElementById('editMeetingEndTime');
+        const locEl = document.getElementById('editMeetingLocation');
+        const partEl = document.getElementById('editMeetingParticipants');
+        const lingkupEl = document.getElementById('editMeetingLingkup');
+        const leaderNameEl = document.getElementById('editMeetingLeaderName');
+        const leaderNipEl = document.getElementById('editMeetingLeaderNip');
+        const leaderTitleEl = document.getElementById('editMeetingLeaderTitle');
+
+        if (titleEl) titleEl.value = data.title || '';
+        if (descEl) descEl.value = data.description || '';
+        if (dateEl) dateEl.value = data.meetingDate || '';
+        if (startEl) startEl.value = data.meetingStartTime || '';
+        if (endEl) endEl.value = data.meetingEndTime || '';
+        if (locEl) locEl.value = data.meetingLocation || '';
+        if (partEl) partEl.value = (data.meetingParticipants || []).join('\n');
+        
+        if (lingkupEl) {
+            const mapping = {
+                'Umum': 'Umum', 'Ekonomi': 'Ekonomi', 'Hukum': 'Hukum',
+                'Sains': 'Sains', 'Pertanian': 'Pertanian', 'FKIP': 'FKIP',
+                'Universitas Samudra (Umum)': 'Umum',
+                'Fakultas Ekonomi dan Bisnis': 'Ekonomi',
+                'Fakultas Hukum': 'Hukum',
+                'Fakultas Sains dan Teknologi': 'Sains',
+                'Fakultas Pertanian': 'Pertanian',
+                'Fakultas Keguruan dan Ilmu Pendidikan': 'FKIP'
+            };
+            lingkupEl.value = mapping[data.lingkup] || data.lingkup || 'Umum';
+        }
+        
+        if (leaderNameEl) leaderNameEl.value = data.leaderName || '';
+        if (leaderNipEl) leaderNipEl.value = data.leaderNip || '';
+        if (leaderTitleEl) leaderTitleEl.value = data.leaderTitle || '';
+    };
+    fillModal(fullRoomData);
+    
     // Update header info
     const headerTitle = document.getElementById('roomHeaderTitle');
     if (headerTitle) headerTitle.innerText = data.title || '-';
