@@ -60,6 +60,7 @@ export function createDashboardModule(deps) {
             clearTimeout(loadingTimeout);
             try {
                 renderDashboardRooms(snapshot);
+                renderMiniCalendar(); // CRITICAL: Pastikan kalender render ulang setiap ada data baru dari Firestore
             } catch (error) {
                 clearTimeout(loadingTimeout);
                 console.error("Dashboard rendering error:", error);
@@ -400,6 +401,8 @@ export function createDashboardModule(deps) {
         if (!container || !monthYearEl) return;
 
         const currentUser = getCurrentUser();
+        if (!currentUser) return; // Safety check for auth state
+
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
         const firstDay = new Date(year, month, 1).getDay();
