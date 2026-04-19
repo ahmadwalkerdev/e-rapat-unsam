@@ -441,7 +441,13 @@ export function createDashboardModule(deps) {
                 return roomDateStr === dateStr;
             });
 
-            dayDiv.onclick = () => showCalendarAgenda(year, month, day, dayAgendas);
+            dayDiv.onclick = (e) => {
+                e.stopPropagation();
+                // Selalu ambil year/month langsung dari currentCalendarDate agar akurat saat ganti bulan/tahun
+                const currentYear = currentCalendarDate.getFullYear();
+                const currentMonth = currentCalendarDate.getMonth();
+                showCalendarAgenda(currentYear, currentMonth, day, dayAgendas);
+            };
 
             let bgClass = "bg-transparent text-slate-600 hover:bg-slate-100";
             if (isToday) bgClass = "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-100";
