@@ -3,7 +3,7 @@ export function createDashboardModule(deps) {
         db, appId, collection, onSnapshot, doc, getDoc, query, where, getDocs, deleteDoc,
         showToast, showLoading, toggleModal, getCurrentUser, getIsDeveloper,
         clearListeners, getUnsubscribers, formatIndonesianLongDate, formatMeetingTime,
-        escapeHtml, escapeJsString, enterRoom, roomEntryModule, buildSafePdfFileName
+        escapeHtml, escapeJsString, enterRoom
     } = deps;
 
     let allRoomsDataForCalendar = [];
@@ -12,6 +12,9 @@ export function createDashboardModule(deps) {
     let currentFilter = 'all';
 
     function setupDashboardListener() {
+        const currentUser = getCurrentUser();
+        if (!currentUser) return;
+
         const roomsCol = collection(db, 'artifacts', appId, 'public', 'data', 'rooms');
         const unsub = onSnapshot(roomsCol, (snap) => {
             const rooms = [];
@@ -44,15 +47,27 @@ export function createDashboardModule(deps) {
         const activeRooms = filteredRooms.filter(r => r.status !== 'archived');
         const archivedRooms = filteredRooms.filter(r => r.status === 'archived');
 
-        document.getElementById('berlangsungCount').innerText = activeRooms.filter(r => new Date(r.scheduledAt || r.createdAt) <= new Date()).length;
-        document.getElementById('akanDatangCount').innerText = activeRooms.filter(r => new Date(r.scheduledAt || r.createdAt) > new Date()).length;
-        document.getElementById('selesaiCount').innerText = archivedRooms.length;
+        const bc = document.getElementById('berlangsungCount');
+        const ac = document.getElementById('akanDatangCount');
+        const sc = document.getElementById('selesaiCount');
+        
+        if (bc) bc.innerText = activeRooms.filter(r => new Date(r.scheduledAt || r.createdAt) <= new Date()).length;
+        if (ac) ac.innerText = activeRooms.filter(r => new Date(r.scheduledAt || r.createdAt) > new Date()).length;
+        if (sc) sc.innerText = archivedRooms.length;
 
         activeContainer.innerHTML = '';
-        activeRooms.forEach(room => activeContainer.appendChild(createRoomCard(room)));
+        if (activeRooms.length === 0) {
+            activeContainer.innerHTML = '<p class="col-span-full text-center py-10 text-slate-400">Belum ada agenda aktif.</p>';
+        } else {
+            activeRooms.forEach(room => activeContainer.appendChild(createRoomCard(room)));
+        }
 
         archiveContainer.innerHTML = '';
-        archivedRooms.forEach(room => archiveContainer.appendChild(createRoomCard(room)));
+        if (archivedRooms.length === 0) {
+            archiveContainer.innerHTML = '<p class="col-span-full text-center py-10 text-slate-400">Belum ada arsip agenda.</p>';
+        } else {
+            archivedRooms.forEach(room => archiveContainer.appendChild(createRoomCard(room)));
+        }
     }
 
     function createRoomCard(room) {
@@ -67,7 +82,7 @@ export function createDashboardModule(deps) {
         
         const statusBadge = room.status === 'archived' ? 
             '<span class="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-[10px] font-black uppercase tracking-wider border border-slate-200">Arsip</span>' : 
-            (new Date(room.scheduledAt || room.createdAt) > new Date() ? 
+            (new Date(room.scheduledAt || r.createdAt) > new Date() ? 
             '<span class="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-amber-100">Terjadwal</span>' : 
             '<span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-emerald-100">Aktif</span>');
 
@@ -85,7 +100,7 @@ export function createDashboardModule(deps) {
                         </button>
                         <div class="room-menu-dropdown hidden fixed w-48 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl shadow-2xl z-[100] py-2 transition-all opacity-0 translate-y-2">
                             <button onclick="window.openEditRoomModal('${room.id}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-2">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 Edit Agenda
                             </button>
                             <button onclick="window.confirmDeleteRoom('${room.id}', '${escapeJsString(room.title)}')" class="w-full text-left px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 flex items-center gap-2">
@@ -144,7 +159,7 @@ export function createDashboardModule(deps) {
             const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
             
             const dayAgendas = allRoomsDataForCalendar.filter(room => {
-                let roomDateStr = (room.meetingDate) || (room.scheduledAt ? new Date(room.scheduledAt).toISOString().split('T')[0] : '');
+                let roomDateStr = room.meetingDate || (room.scheduledAt ? new Date(room.scheduledAt).toISOString().split('T')[0] : '');
                 if (currentFilter === 'mine' && room.creatorUid !== getCurrentUser()?.uid) return false;
                 return roomDateStr === dateStr;
             });
@@ -221,6 +236,8 @@ export function createDashboardModule(deps) {
         renderMiniCalendar();
     }
 
+    function getAllRoomsDataForCalendar() { return allRoomsDataForCalendar; }
+
     window.openEditRoomModal = async (roomId) => {
         if (!roomId) {
             const activeRoom = deps.getActiveRoom();
@@ -262,29 +279,14 @@ export function createDashboardModule(deps) {
                 const el = document.getElementById(id);
                 if (el) el.value = val || '';
             }
-            const lingkupEl = document.getElementById('editMeetingLingkup');
-            if (lingkupEl) {
-                const mapping = {
-                    'Universitas Samudra (Umum)': 'Umum',
-                    'Fakultas Ekonomi dan Bisnis': 'Ekonomi',
-                    'Fakultas Hukum': 'Hukum',
-                    'Fakultas Sains dan Teknologi': 'Sains',
-                    'Fakultas Pertanian': 'Pertanian',
-                    'Fakultas Keguruan dan Ilmu Pendidikan': 'FKIP'
-                };
-                lingkupEl.value = mapping[data.lingkup] || data.lingkup || 'Umum';
-            }
         }, 50);
         document.getElementById('editMeetingInfoModal').setAttribute('data-current-room-id', data.id);
     }
 
-    function generateMeetingInfoTable(roomData) {
-        const list = (roomData.meetingParticipants || []).map(p => `<li>${escapeHtml(p)}</li>`).join('');
-        return `<div style="font-family:sans-serif;color:#1e293b;"><table style="width:100%;border-collapse:collapse;margin-bottom:2rem;"><tbody><tr><td style="padding:1rem;background:#f8fafc;font-weight:600;width:30%;">Judul</td><td style="padding:1rem;">${escapeHtml(roomData.title)}</td></tr><tr><td style="padding:1rem;background:#f8fafc;font-weight:600;">Waktu</td><td style="padding:1rem;">${formatIndonesianLongDate(roomData.meetingDate)} | ${roomData.meetingStartTime} - ${roomData.meetingEndTime} WIB</td></tr><tr><td style="padding:1rem;background:#f8fafc;font-weight:600;">Lokasi</td><td style="padding:1rem;">${escapeHtml(roomData.meetingLocation || '-')}</td></tr><tr><td style="padding:1rem;background:#f8fafc;font-weight:600;">Pimpinan</td><td style="padding:1rem;">${escapeHtml(roomData.leaderName)}</td></tr><tr><td style="padding:1rem;background:#f8fafc;font-weight:600;vertical-align:top;">Peserta</td><td style="padding:1rem;"><ul style="margin:0;padding-left:1.2rem;">${list || '-'}</ul></td></tr></tbody></table></div>`;
-    }
+    window.openCreateRoomModal = () => toggleModal('createRoomModal', true);
 
     return {
-        setupDashboardListener, renderDashboardRooms, createRoomCard, generateMeetingInfoTable,
+        setupDashboardListener, renderDashboardRooms, createRoomCard,
         debouncedRenderMiniCalendar, renderMiniCalendar, deleteRoom,
         quickJoinRoom, changeCalendarMonth, getAllRoomsDataForCalendar,
         get currentCalendarDate() { return currentCalendarDate; },
