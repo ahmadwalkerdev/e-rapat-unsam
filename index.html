@@ -1013,9 +1013,9 @@ window.setupDashboardListener = () => dashboardModule.setupDashboardListener();
 window.deleteRoom = async (roomId) => await dashboardModule.deleteRoom(roomId);
 window.enterRoomFromCalendar = async (roomId, roomTitle, roomStatus, creatorUid) => await dashboardModule.enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid);
 window.quickJoinRoom = async () => await dashboardModule.quickJoinRoom();
-window.showCalendarAgenda = (y, m, d) => dashboardModule.showCalendarAgenda(y, m, d);
+window.showCalendarAgenda = (y, m, d, agendas) => dashboardModule.showCalendarAgenda(y, m, d, agendas);
 window.changeCalendarMonth = (offset) => dashboardModule.changeCalendarMonth(offset);
-function generateMeetingInfoTable(roomData) { return dashboardModule.generateMeetingInfoTable(roomData); }
+window.generateMeetingInfoTable = (roomData) => dashboardModule.generateMeetingInfoTable(roomData);
 function renderMiniCalendar() { return dashboardModule.renderMiniCalendar(); }
 
 // Dashboard Tab Switching
