@@ -586,30 +586,31 @@ if (el) el.classList.add('hidden');
 });
 const target = document.getElementById('view-' + viewId);
 if (target) target.classList.remove('hidden');
-if (viewId === 'settings') {
-setTimeout(() => {
-updateEmailVerificationBadge();
-}, 100);
-}
+    if (viewId === 'settings') {
+        settingsModule.initSettings();
+    }
 };
+
 window.toggleProfileMenu = (e) => {
-if (e) e.stopPropagation();
-const menu = document.getElementById('profileDropdown');
-if (menu.classList.contains('hidden')) {
-menu.classList.remove('hidden');
-setTimeout(() => menu.classList.remove('opacity-0', 'scale-95'), 10);
-} else {
-menu.classList.add('opacity-0', 'scale-95');
-setTimeout(() => menu.classList.add('hidden'), 200);
-}
+    e.stopPropagation();
+    const menu = document.getElementById('profileDropdown');
+    if (!menu) return;
+
+    const isHidden = menu.classList.contains('hidden');
+    if (isHidden) {
+        menu.classList.remove('hidden');
+        // Force reflow
+        menu.offsetHeight;
+        menu.classList.remove('opacity-0', 'scale-95');
+        menu.classList.add('opacity-100', 'scale-100');
+        menu.style.pointerEvents = 'auto';
+    } else {
+        menu.classList.add('opacity-0', 'scale-95');
+        menu.classList.remove('opacity-100', 'scale-100');
+        menu.style.pointerEvents = 'none';
+        setTimeout(() => menu.classList.add('hidden'), 200);
+    }
 };
-document.addEventListener('click', () => {
-const menu = document.getElementById('profileDropdown');
-if (menu && !menu.classList.contains('hidden')) {
-menu.classList.add('opacity-0', 'scale-95');
-setTimeout(() => menu.classList.add('hidden'), 200);
-}
-});
 
 // --- FIXED: Role-based Visibility ---
 window.setUIRole = (role) => {
@@ -1642,6 +1643,15 @@ window.confirmLogout = async () => {
     
     // Clear room session on logout
     await authModule.handleLogout();
+    
+    // FORCE CLEANUP: Pastikan dropdown profil tertutup total
+    const profileMenu = document.getElementById('profileDropdown');
+    if (profileMenu) {
+        profileMenu.classList.add('hidden', 'opacity-0', 'scale-95');
+        profileMenu.style.pointerEvents = 'none';
+        profileMenu.innerHTML = '';
+    }
+
     window.closeLogoutModal();
 };
 
