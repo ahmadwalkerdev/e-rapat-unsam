@@ -698,10 +698,13 @@ ${statusBadge}
     function changeCalendarMonth(offset) {
         currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
         renderMiniCalendar();
-        const d = document.getElementById('calendarAgendaDetails');
-        if (d) {
-            d.classList.add('hidden');
-            d.classList.remove('flex');
+        
+        // RESET: Bersihkan detail agenda dan sembunyikan saat ganti bulan
+        const detailsContainer = document.getElementById('calendarAgendaDetails');
+        if (detailsContainer) {
+            detailsContainer.innerHTML = '';
+            detailsContainer.classList.add('hidden');
+            detailsContainer.classList.remove('flex');
         }
     }
 
