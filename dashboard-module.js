@@ -439,19 +439,7 @@ export function createDashboardModule(deps) {
 
             dayDiv.onclick = (e) => {
                 e.stopPropagation();
-                
-                // Visual Selection: Hapus highlight dari semua tanggal lain
-                container.querySelectorAll('.cal-day-selected').forEach(el => {
-                    el.classList.remove('cal-day-selected', 'bg-indigo-100', 'ring-2', 'ring-indigo-500/20');
-                });
-                // Tambahkan highlight ke tanggal yang baru diklik
-                if (!isToday) {
-                    dayDiv.classList.add('cal-day-selected', 'bg-indigo-100', 'ring-2', 'ring-indigo-500/20');
-                }
-
-                const currentYear = currentCalendarDate.getFullYear();
-                const currentMonth = currentCalendarDate.getMonth();
-                showCalendarAgenda(currentYear, currentMonth, day, dayAgendas);
+                // Hanya fungsi visual untuk tooltip (sudah ada di indikator)
             };
 
             let bgClass = "bg-transparent text-slate-600 hover:bg-slate-100";
@@ -497,71 +485,6 @@ export function createDashboardModule(deps) {
 
         container.innerHTML = '';
         container.appendChild(fragment);
-    }
-
-    function showCalendarAgenda(y, m, d, agendas) {
-        const container = document.getElementById('calendarAgendaDetails');
-        if (!container) return;
-        
-        // 1. Highlight tanggal yang dipilih
-        const calendarWrapper = container.closest('.bg-white') || document.getElementById('miniCalendarDays').parentElement;
-        if (calendarWrapper) {
-            calendarWrapper.querySelectorAll('.cal-day-selected').forEach(el => {
-                el.classList.remove('cal-day-selected', 'bg-indigo-100', 'ring-2', 'ring-indigo-500/20');
-            });
-            const dayDiv = calendarWrapper.querySelector(`.cal-day-${d}`);
-            if (dayDiv && !dayDiv.classList.contains('is-today')) {
-                dayDiv.classList.add('cal-day-selected', 'bg-indigo-100', 'ring-2', 'ring-indigo-500/20');
-            }
-        }
-
-        // 2. Validasi Agenda
-        const activeAgendas = agendas ? agendas.filter(a => allRoomsDataForCalendar.some(room => room.id === a.id)) : [];
-
-        if (activeAgendas.length === 0) {
-            container.innerHTML = `<p class="text-[9px] text-slate-400 text-center italic py-2">Tidak ada agenda pada tanggal ini.</p>`;
-            container.classList.remove('hidden');
-            container.classList.add('flex');
-            return;
-        }
-
-        // 3. Render Daftar Agenda
-        const dateStr = `${y}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
-        let html = `<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">${formatIndonesianLongDate(dateStr)}</p>`;
-        
-        activeAgendas.forEach(r => {
-            const time = r.meetingStartTime || (r.scheduledAt ? new Date(r.scheduledAt).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) : '--:--');
-            const statusBadge = r.status === 'archived' ? '<span class="text-[8px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-md border border-slate-200 ml-auto">Selesai</span>' :
-                               (new Date(r.scheduledAt || r.createdAt) > new Date() ? '<span class="text-[8px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-md border border-amber-100 ml-auto">Terjadwal</span>' :
-                               '<span class="text-[8px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-md border border-emerald-100 ml-auto">Aktif</span>');
-            
-        // GUNAKAN STRING HTML YANG SOLID DAN ONCLICK LANGSUNG KE WINDOW
-            html += `
-                <div onclick="console.log('[CLICK] Box clicked'); window.enterRoomFromCalendar('${r.id}', '${escapeJsString(r.title)}', '${r.status}', '${r.creatorUid}')" 
-                     class="group relative flex items-center justify-between gap-3 mb-2 p-3 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all cursor-pointer active:scale-[0.95] z-[500] pointer-events-auto">
-                    <div class="flex-1 min-w-0 pointer-events-none">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-[10px] font-bold text-slate-700 group-hover:text-indigo-600 transition-colors truncate">${escapeHtml(r.title)}</span>
-                            ${statusBadge}
-                        </div>
-                        <div class="flex items-center gap-3 text-[8px] text-slate-400 font-medium">
-                            <div class="flex items-center gap-1 shrink-0">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                <span>${time}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex shrink-0 pointer-events-none">
-                        <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                        </div>
-                    </div>
-                </div>`;
-        });
-        
-        container.innerHTML = html;
-        container.classList.remove('hidden');
-        container.classList.add('flex');
     }
 
     function debouncedRenderMiniCalendar() {
@@ -718,14 +641,6 @@ ${statusBadge}
     function changeCalendarMonth(offset) {
         currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
         renderMiniCalendar();
-        
-        // RESET: Bersihkan detail agenda dan sembunyikan saat ganti bulan
-        const detailsContainer = document.getElementById('calendarAgendaDetails');
-        if (detailsContainer) {
-            detailsContainer.innerHTML = '';
-            detailsContainer.classList.add('hidden');
-            detailsContainer.classList.remove('flex');
-        }
     }
 
     function getAllRoomsDataForCalendar() {
