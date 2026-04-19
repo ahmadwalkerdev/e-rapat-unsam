@@ -566,15 +566,16 @@ export function createDashboardModule(deps) {
                 </div>`;
             
             // ATTACH CLICK EVENT
-            item.onclick = function(e) {
+            item.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const id = r.id;
-                const title = r.title;
-                const status = r.status;
-                const creator = r.creatorUid;
-                console.log('[DEBUG] Item clicked, initiating entry for:', id);
-                window.enterRoomFromCalendar(id, title, status, creator);
+                console.log('[DEBUG] Agenda item element:', item);
+                console.log('[DEBUG] Item clicked for room:', r.id);
+                if (window.enterRoomFromCalendar) {
+                    window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
+                } else {
+                    console.error('[DEBUG] window.enterRoomFromCalendar is NOT defined');
+                }
             };
             
             container.appendChild(item);
