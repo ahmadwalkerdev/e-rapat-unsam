@@ -506,7 +506,7 @@ export function createDashboardModule(deps) {
         }
 
         const dateStr = `${y}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
-        let h = `<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">${formatIndonesianLongDate(dateStr)}</p>`;
+        container.innerHTML = `<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">${formatIndonesianLongDate(dateStr)}</p>`;
         
         agendas.forEach(r => {
             const isPast = r.status === 'archived' || new Date(r.scheduledAt || r.createdAt) < new Date();
@@ -515,27 +515,31 @@ export function createDashboardModule(deps) {
                                (new Date(r.scheduledAt || r.createdAt) > new Date() ? '<span class="text-[8px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-md border border-amber-100 ml-auto">Terjadwal</span>' :
                                '<span class="text-[8px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-md border border-emerald-100 ml-auto">Aktif</span>');
             
-            h += `
-                <div onclick="window.enterRoomFromCalendar('${escapeJsString(r.id)}', '${escapeJsString(r.title)}', '${r.status}', '${escapeJsString(r.creatorUid)}')" 
-                     class="flex flex-col gap-1.5 mb-2 p-2 bg-white border border-slate-100 rounded-xl hover:border-indigo-200 hover:shadow-sm transition-all cursor-pointer group">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] font-bold text-slate-700 group-hover:text-indigo-600 transition-colors truncate flex-1">${escapeHtml(r.title)}</span>
-                        ${statusBadge}
+            const item = document.createElement('div');
+            item.className = "flex flex-col gap-1.5 mb-2 p-2 bg-white border border-slate-100 rounded-xl hover:border-indigo-200 hover:shadow-sm transition-all cursor-pointer group";
+            item.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-slate-700 group-hover:text-indigo-600 transition-colors truncate flex-1">${escapeHtml(r.title)}</span>
+                    ${statusBadge}
+                </div>
+                <div class="flex items-center gap-3 text-[8px] text-slate-400 font-medium">
+                    <div class="flex items-center gap-1">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>${time} WIB</span>
                     </div>
-                    <div class="flex items-center gap-3 text-[8px] text-slate-400 font-medium">
-                        <div class="flex items-center gap-1">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            <span>${time} WIB</span>
-                        </div>
-                        <div class="flex items-center gap-1 truncate">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                            <span class="truncate">${escapeHtml(r.meetingLocation || '-')}</span>
-                        </div>
+                    <div class="flex items-center gap-1 truncate">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span class="truncate">${escapeHtml(r.meetingLocation || '-')}</span>
                     </div>
                 </div>`;
+            
+            item.onclick = (e) => {
+                e.stopPropagation();
+                window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
+            };
+            
+            container.appendChild(item);
         });
-        
-        container.innerHTML = h;
         container.classList.remove('hidden');
         container.classList.add('flex');
     }
