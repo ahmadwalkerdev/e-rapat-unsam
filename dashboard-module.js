@@ -393,101 +393,139 @@ export function createDashboardModule(deps) {
         return html;
     }
 
-    function debouncedRenderMiniCalendar() {
-        clearTimeout(calendarRenderTimeout);
-        calendarRenderTimeout = setTimeout(() => {
-            renderMiniCalendar();
-        }, 100);
-    }
-
     function renderMiniCalendar() {
         const container = document.getElementById('miniCalendarDays');
-        const monthYearText = document.getElementById('calendarMonthYear');
-        if (!container || !monthYearText) return;
+        const monthYearEl = document.getElementById('calendarMonthYear');
+        if (!container || !monthYearEl) return;
 
+        const currentUser = getCurrentUser();
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
-        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        monthYearText.innerText = `${monthNames[month]} ${year}`;
-
-        const roomCounts = new Map();
-        const now = new Date();
-
-        allRoomsDataForCalendar.forEach(room => {
-            const roomDate = new Date(room.scheduledAt || room.createdAt);
-            const dateKey = `${roomDate.getFullYear()}-${roomDate.getMonth()}-${roomDate.getDate()}`;
-
-            if (!roomCounts.has(dateKey)) {
-                roomCounts.set(dateKey, { past: 0, upcoming: 0 });
-            }
-
-            const counts = roomCounts.get(dateKey);
-            if (room.status === 'archived' || roomDate < now) {
-                counts.past++;
-            } else {
-                counts.upcoming++;
-            }
-        });
-
-        const fragment = document.createDocumentFragment();
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const today = new Date();
 
+        monthYearEl.innerText = `${new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(currentCalendarDate)}`;
+        
+        const fragment = document.createDocumentFragment();
+        const today = new Date();
+        const isThisMonth = today.getFullYear() === year && today.getMonth() === month;
+
+        // Empty cells for first day offset
         for (let i = 0; i < firstDay; i++) {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.className = "p-2";
-            fragment.appendChild(emptyDiv);
+            const empty = document.createElement('div');
+            fragment.appendChild(empty);
         }
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const dateKey = `${year}-${month}-${day}`;
-            const counts = roomCounts.get(dateKey) || { past: 0, upcoming: 0 };
-            const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
-
             const dayDiv = document.createElement('div');
-            dayDiv.id = `cal-day-${year}-${month}-${day}`;
-            dayDiv.onclick = () => showCalendarAgenda(year, month, day);
+            const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            const isToday = isThisMonth && today.getDate() === day;
 
-            let bgClass = "cal-day-item bg-transparent text-slate-600 hover:bg-slate-100";
-            if (isToday) bgClass = "cal-day-item bg-indigo-50 text-indigo-700 font-bold border border-indigo-200 shadow-sm";
+            // Filter agendas based on active dashboard filter
+            const dayAgendas = allRoomsDataForCalendar.filter(room => {
+                const roomDate = room.meetingDate || room.scheduledAt?.split('T')[0];
+                const isCreator = room.creatorUid === currentUser?.uid;
+                if (currentFilter === 'mine' && !isCreator) return false;
+                return roomDate === dateStr;
+            });
 
-            dayDiv.className = `p-1 flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all ${bgClass}`;
+            dayDiv.onclick = () => showCalendarAgenda(year, month, day, dayAgendas);
 
+            let bgClass = "bg-transparent text-slate-600 hover:bg-slate-100";
+            if (isToday) bgClass = "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-100";
+
+            dayDiv.className = `relative h-8 flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all group ${bgClass}`;
+
+            // Poin 1 & 4: Dots & Tooltip
             let indicatorHtml = '';
-            if (counts.past > 0 || counts.upcoming > 0) {
+            if (dayAgendas.length > 0) {
                 const dots = [];
-                for (let i = 0; i < Math.min(counts.past, 3); i++) {
-                    dots.push('<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>');
-                }
-                for (let i = 0; i < Math.min(counts.upcoming, 3); i++) {
-                    dots.push('<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>');
-                }
-                if (counts.past + counts.upcoming > 3) {
-                    dots.push('<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>');
-                }
-                indicatorHtml = `<div class="flex gap-0.5 justify-center mt-0.5">${dots.join('')}</div>`;
+                const statusAdded = new Set();
+                dayAgendas.forEach(r => {
+                    const refTime = new Date(r.scheduledAt || r.createdAt).getTime();
+                    const now = new Date().getTime();
+                    let color = 'bg-amber-400'; // Upcoming
+                    if (r.status === 'archived') color = 'bg-slate-400';
+                    else if (refTime <= now) color = 'bg-emerald-400';
+                    
+                    if (!statusAdded.has(color)) {
+                        dots.push(`<span class="w-1 h-1 rounded-full ${color}"></span>`);
+                        statusAdded.add(color);
+                    }
+                });
+                indicatorHtml = `<div class="absolute bottom-1 flex gap-0.5 justify-center">${dots.slice(0,3).join('')}</div>`;
+                
+                // Tooltip
+                const tooltipHtml = dayAgendas.map(a => `<div class="truncate">• ${escapeHtml(a.title)}</div>`).join('');
+                dayDiv.innerHTML = `
+                    <span class="text-[10px]">${day}</span>
+                    ${indicatorHtml}
+                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-slate-900 text-white text-[9px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl border border-white/10">
+                        ${tooltipHtml}
+                    </div>
+                `;
             } else {
-                indicatorHtml = '<div class="h-1.5 mt-0.5"></div>';
+                dayDiv.innerHTML = `<span class="text-[10px]">${day}</span>`;
             }
-
-            const tooltip = [];
-            if (counts.past > 0) tooltip.push(`${counts.past} Selesai`);
-            if (counts.upcoming > 0) tooltip.push(`${counts.upcoming} Terjadwal`);
-            if (tooltip.length > 0) {
-                dayDiv.title = tooltip.join(', ');
-            }
-
-            dayDiv.innerHTML = `
-                <span class="text-xs ${isToday ? 'font-bold' : ''}">${day}</span>
-                ${indicatorHtml}
-            `;
 
             fragment.appendChild(dayDiv);
         }
 
         container.innerHTML = '';
         container.appendChild(fragment);
+    }
+
+    function showCalendarAgenda(y, m, d, agendas) {
+        const container = document.getElementById('calendarAgendaDetails');
+        if (!container) return;
+
+        if (!agendas || agendas.length === 0) {
+            container.innerHTML = `<p class="text-[9px] text-slate-400 text-center italic py-2">Tidak ada agenda pada tanggal ini.</p>`;
+            container.classList.remove('hidden');
+            container.classList.add('flex');
+            return;
+        }
+
+        const dateStr = `${y}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+        let h = `<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">${formatIndonesianLongDate(dateStr)}</p>`;
+        
+        agendas.forEach(r => {
+            const isPast = r.status === 'archived' || new Date(r.scheduledAt || r.createdAt) < new Date();
+            const time = r.meetingStartTime || (r.scheduledAt ? new Date(r.scheduledAt).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) : '--:--');
+            const statusBadge = r.status === 'archived' ? '<span class="text-[8px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-md border border-slate-200 ml-auto">Selesai</span>' :
+                               (new Date(r.scheduledAt || r.createdAt) > new Date() ? '<span class="text-[8px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-md border border-amber-100 ml-auto">Terjadwal</span>' :
+                               '<span class="text-[8px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-md border border-emerald-100 ml-auto">Aktif</span>');
+            
+            h += `
+                <div onclick="window.enterRoomFromCalendar('${escapeJsString(r.id)}', '${escapeJsString(r.title)}', '${r.status}', '${escapeJsString(r.creatorUid)}')" 
+                     class="flex flex-col gap-1.5 mb-2 p-2 bg-white border border-slate-100 rounded-xl hover:border-indigo-200 hover:shadow-sm transition-all cursor-pointer group">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold text-slate-700 group-hover:text-indigo-600 transition-colors truncate flex-1">${escapeHtml(r.title)}</span>
+                        ${statusBadge}
+                    </div>
+                    <div class="flex items-center gap-3 text-[8px] text-slate-400 font-medium">
+                        <div class="flex items-center gap-1">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>${time} WIB</span>
+                        </div>
+                        <div class="flex items-center gap-1 truncate">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span class="truncate">${escapeHtml(r.meetingLocation || '-')}</span>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        
+        container.innerHTML = h;
+        container.classList.remove('hidden');
+        container.classList.add('flex');
+    }
+
+    function debouncedRenderMiniCalendar() {
+        clearTimeout(calendarRenderTimeout);
+        calendarRenderTimeout = setTimeout(() => {
+            renderMiniCalendar();
+        }, 150);
     }
 
     async function deleteRoom(roomId) {
