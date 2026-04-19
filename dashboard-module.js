@@ -524,33 +524,38 @@ export function createDashboardModule(deps) {
                                '<span class="text-[8px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-md border border-emerald-100 ml-auto">Aktif</span>');
             
             const item = document.createElement('div');
-            item.className = "flex flex-col gap-1.5 mb-2 p-2 bg-white border border-slate-100 rounded-xl hover:border-indigo-200 hover:shadow-sm transition-all cursor-pointer group";
+            item.className = "group flex items-center justify-between gap-3 mb-2 p-3 bg-white border border-slate-100 rounded-xl hover:border-indigo-300 hover:shadow-md hover:shadow-indigo-500/5 transition-all cursor-pointer active:scale-[0.98]";
+            
             item.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-bold text-slate-700 group-hover:text-indigo-600 transition-colors truncate flex-1">${escapeHtml(r.title)}</span>
-                    ${statusBadge}
-                </div>
-                <div class="flex items-center gap-3 text-[8px] text-slate-400 font-medium">
-                    <div class="flex items-center gap-1">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        <span>${time} WIB</span>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-bold text-slate-700 group-hover:text-indigo-600 transition-colors truncate">${escapeHtml(r.title)}</span>
+                        ${statusBadge}
                     </div>
-                    <div class="flex items-center gap-1 truncate">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <span class="truncate">${escapeHtml(r.meetingLocation || '-')}</span>
+                    <div class="flex items-center gap-3 text-[8px] text-slate-400 font-medium">
+                        <div class="flex items-center gap-1 shrink-0">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>${time}</span>
+                        </div>
+                        <div class="flex items-center gap-1 truncate">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span class="truncate">${escapeHtml(r.meetingLocation || '-')}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex shrink-0">
+                    <div class="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </div>
                 </div>`;
             
-            item.addEventListener('click', async (e) => {
+            // Klik Seluruh Kotak
+            item.onclick = async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('[DEBUG] Agenda item clicked via listener:', r.id);
-                try {
-                    await window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
-                } catch (err) {
-                    console.error('[DEBUG] Failed to enter room via calendar detail:', err);
-                }
-            });
+                console.log('[DEBUG] Entering room from calendar detail:', r.id);
+                await window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
+            };
             
             container.appendChild(item);
         });
