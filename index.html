@@ -1575,32 +1575,25 @@ await authModule.handleSetupProfile(e);
 };
 
 window.handleHeaderLogoClick = async () => {
-    // PROTEKSI KUAT: Cek session storage jika variabel window hilang saat refresh
+    // 1. PROTEKSI TAMU (Satu Pengecekan Kuat)
     const isGuest = window.isGuestUser || sessionStorage.getItem('guestSession');
-    if (isGuest && appState.activeRoom) {
-        showToast("Tamu tidak dapat mengakses dashboard. Silakan keluar dari rapat terlebih dahulu.");
-        return;
-    }
-    // If user is a guest and currently in a room, prevent going to dashboard
-    if (window.isGuestUser && activeRoom) {
+    if (isGuest && (activeRoom || appState.activeRoom)) {
         showToast("Tamu tidak dapat mengakses dashboard. Silakan keluar dari rapat terlebih dahulu.");
         return;
     }
     
-    // FLUSH: Simpan data pending sebelum keluar
-    if (typeof minutesModule !== 'undefined') {
+    // 2. DATA SAFETY: Jika sedang di Room, simpan dulu
+    if (typeof minutesModule !== 'undefined' && (activeRoom || appState.activeRoom)) {
         await minutesModule.flushPendingSave();
     }
     
-    // Destroy Quill and clear listeners before switching
+    // 3. CLEANUP & NAVIGATION
     destroyQuill();
     clearListeners();
-    
-    // Clear room session when manually going to dashboard
     clearSavedRoomSession();
     activeRoom = null;
+    appState.activeRoom = null;
     
-    // Otherwise, go to dashboard and setup listener
     setupDashboardListener();
     switchView('dashboard');
 };
@@ -2863,7 +2856,7 @@ Pengaturan Lanjutan
 </div>
 
 <!-- Modal: Logout Confirmation -->
-<div id="logoutModal" class="fixed inset-0 z-[350] hidden flex items-center justify-center p-4">
+<div id="logoutModal" class="fixed inset-0 z-[200000] hidden flex items-center justify-center p-4">
     <div id="logoutBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 opacity-0"></div>
     <div id="logoutContent" class="relative bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-slate-100 transform transition-all duration-300 scale-95 opacity-0">
         <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-100 shadow-inner">
