@@ -427,10 +427,18 @@ export function createDashboardModule(deps) {
 
             // Filter agendas based on active dashboard filter
             const dayAgendas = allRoomsDataForCalendar.filter(room => {
-                const roomDate = room.meetingDate || room.scheduledAt?.split('T')[0];
+                let roomDateStr = room.meetingDate;
+                
+                // Jika meetingDate tidak ada, ekstrak dari scheduledAt secara aman
+                if (!roomDateStr && room.scheduledAt) {
+                    const sDate = new Date(room.scheduledAt);
+                    roomDateStr = `${sDate.getFullYear()}-${(sDate.getMonth() + 1).toString().padStart(2, '0')}-${sDate.getDate().toString().padStart(2, '0')}`;
+                }
+                
                 const isCreator = room.creatorUid === currentUser?.uid;
                 if (currentFilter === 'mine' && !isCreator) return false;
-                return roomDate === dateStr;
+                
+                return roomDateStr === dateStr;
             });
 
             dayDiv.onclick = () => showCalendarAgenda(year, month, day, dayAgendas);
