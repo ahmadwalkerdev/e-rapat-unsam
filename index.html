@@ -2077,7 +2077,7 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 <div id="mainApp" class="bg-slate-50 min-h-screen">
 <header class="glass-header z-[100] px-4 md:px-6 lg:px-8 py-2 sticky top-0 border-b border-slate-200/40">
 <div class="max-w-7xl mx-auto flex items-center justify-between h-12 md:h-14">
-<div class="header-logo-container flex items-center gap-3 cursor-pointer group" onclick="window.handleHeaderLogoClick()">
+<div class="header-logo-container flex items-center gap-3 cursor-pointer group" onclick="window.handleHeaderLogoClick()" data-tooltip="Beranda / Dashboard" data-tooltip-pos="bottom">
 <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 group-hover:shadow-md transition-all">
 <img src="assets/images/Logo-Universitas-Samudra-150px.png" alt="Logo UNSAM" class="h-7 w-7 md:h-8 md:w-8 object-contain">
 </div>
@@ -2087,7 +2087,7 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 </div>
 </div>
 <div class="flex items-center gap-2 relative z-[9999]">
-<button onclick="window.toggleProfileMenu(event)" class="profile-trigger flex items-center gap-2.5 group p-1.5 rounded-xl hover:bg-slate-100/70 transition-all border border-transparent hover:border-slate-200/50">
+<button onclick="window.toggleProfileMenu(event)" class="profile-trigger flex items-center gap-2.5 group p-1.5 rounded-xl hover:bg-slate-100/70 transition-all border border-transparent hover:border-slate-200/50" data-tooltip="Pengaturan & Akun" data-tooltip-pos="bottom">
 <span class="user-name-text hidden md:block text-[13px] font-bold text-slate-600 group-hover:text-slate-900 transition-colors">Dosen UNSAM</span>
 <div class="relative">
 <img id="userAvatarDisplay" src="" class="user-avatar-img w-8 h-8 rounded-xl border border-slate-200 object-cover bg-white shadow-sm transition-all group-hover:shadow-md group-hover:scale-105">
@@ -2228,10 +2228,10 @@ Keluar Sesi
     </div>
     
     <div id="dashboardFilterContainer" class="flex items-center gap-2 p-1 bg-slate-100/80 rounded-xl w-fit border border-slate-200/50 mb-2">
-        <button id="filterAll" onclick="window.setDashboardFilter('all')" class="px-4 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 bg-white text-indigo-600 shadow-sm border border-slate-200/50 uppercase tracking-wider">
+        <button id="filterAll" onclick="window.setDashboardFilter('all')" data-tooltip="Tampilkan semua rapat" class="px-4 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 bg-white text-indigo-600 shadow-sm border border-slate-200/50 uppercase tracking-wider">
             Semua
         </button>
-        <button id="filterMine" onclick="window.setDashboardFilter('mine')" class="px-4 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 text-slate-500 hover:text-slate-700 hover:bg-white/50 uppercase tracking-wider">
+        <button id="filterMine" onclick="window.setDashboardFilter('mine')" data-tooltip="Hanya rapat buatan saya" class="px-4 py-2 text-[10px] font-bold rounded-lg transition-all duration-300 text-slate-500 hover:text-slate-700 hover:bg-white/50 uppercase tracking-wider">
             Milik Saya
         </button>
     </div>
@@ -2493,7 +2493,7 @@ Pengaturan Lanjutan
                     <h3 class="text-sm font-bold text-slate-800 tracking-wide">Informasi Rapat</h3>
                 </div>
                 <div class="flex items-center gap-1" onclick="event.stopPropagation()">
-                    <button id="editRoomInfoBtn" onclick="window.toggleEditMeetingInfo()" class="hidden p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-md transition-all" title="Edit Informasi Rapat">
+                    <button id="editRoomInfoBtn" onclick="window.toggleEditMeetingInfo()" data-tooltip="Edit Detail Agenda" class="hidden p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-md transition-all" title="Edit Informasi Rapat">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -2601,12 +2601,14 @@ Pengaturan Lanjutan
                 <div id="editMinutes" class="hidden flex-1 flex-col relative" style="min-height: 0;">
                     <!-- Section Navigator -->
                     <div class="section-nav no-print">
-                        <button onclick="window.scrollToSection(1)" class="nav-item" title="Ringkasan Pembahasan">📘</button>
-                        <button onclick="window.scrollToSection(2)" class="nav-item" title="Keputusan Rapat">✅</button>
-                        <button onclick="window.scrollToSection(3)" class="nav-item" title="Tindak Lanjut">🚀</button>
+                        <button onclick="window.scrollToSection(1)" class="nav-item" title="Ringkasan Pembahasan" data-tooltip="Navigasi ke Ringkasan Pembahasan">📘</button>
+                        <button onclick="window.scrollToSection(2)" class="nav-item" title="Keputusan Rapat" data-tooltip="Navigasi ke Keputusan Rapat">✅</button>
+                        <button onclick="window.scrollToSection(3)" class="nav-item" title="Tindak Lanjut" data-tooltip="Navigasi ke Tindak Lanjut">🚀</button>
                     </div>
                     <div id="editorWrapper" style="flex: 1; min-height: 500px; max-height: calc(100vh - 300px); overflow: auto;">
-                        <div id="minutesInput"></div>
+                        <div id="editorWrapper" class="relative group" data-tooltip="Area Pencatatan Notulensi">
+                            <div id="minutesInput"></div>
+                        </div>
                     </div>
                     <div id="endMeetingBtn" class="hidden flex items-center justify-between" style="border-top: 1px solid #e2e8f0; background: #f8fafc; padding: 0.75rem 1rem;">
                         <div class="flex items-center gap-2 hidden sm:flex">
@@ -2614,11 +2616,11 @@ Pengaturan Lanjutan
                                 <circle cx="12" cy="12" r="10"/>
                                 <polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            <span class="text-xs text-slate-500 font-medium tracking-wide">Kontrol Notulen</span>
+                            <span class="text-xs text-slate-500 font-medium" data-tooltip="Kontrol Notulen">Kontrol Notulen</span>
                         </div>
                         <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                             <button onclick="exportRoomToPDF()"
-                                    class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 flex items-center gap-2">
+                                    class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 flex items-center gap-2" data-tooltip="Export Notulensi ke PDF">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                     <polyline points="7 10 12 15 17 10"/>
@@ -2627,7 +2629,7 @@ Pengaturan Lanjutan
                                 Export PDF
                             </button>
                             <button id="endMeetingActionBtn" onclick="window.toggleModal('endMeetingModal', true)"
-                                    class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 flex items-center gap-2">
+                                    class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 flex items-center gap-2" data-tooltip="Akhiri Rapat">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M18 6L6 18"/>
                                     <path d="M6 6l12 12"/>
@@ -2653,19 +2655,19 @@ Pengaturan Lanjutan
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-sm font-bold text-slate-800">Lampiran</h3>
+                                    <h3 class="text-sm font-bold text-slate-800" data-tooltip="Lampiran Rapat">Lampiran</h3>
                                     <p class="text-[10px] text-slate-500">Dokumen & file rapat</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <button id="addResourceBtnMobile" onclick="event.stopPropagation(); window.openResourceModal()"
-                                        class="hidden p-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-all duration-200 shadow-sm">
+                                        class="hidden p-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-all duration-200 shadow-sm" data-tooltip="Tambah Lampiran Baru">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="12" x2="12" y1="5" y2="19"/>
                                         <line x1="5" x2="19" y1="12" x2="12" y2="12"/>
                                     </svg>
                                 </button>
-                                <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all">
+                                <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all" title="Tampilkan/Sembunyikan" data-tooltip="Tampilkan/Sembunyikan Lampiran">
                                     <svg id="resourcesMobileToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
                                         <polyline points="18 15 12 9 6 15"/>
                                     </svg>
@@ -2690,16 +2692,16 @@ Pengaturan Lanjutan
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="text-sm font-bold text-slate-800">Peserta</h3>
+                                    <h3 class="text-sm font-bold text-slate-800" data-tooltip="Peserta Rapat">Peserta</h3>
                                     <p class="text-[10px] text-slate-500">Yang sedang hadir</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-lg">
                                     <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                                    <span class="text-sm font-bold text-emerald-700" id="participantCountMobile">0</span>
+                                    <span class="text-sm font-bold text-emerald-700" id="participantCountMobile" data-tooltip="Jumlah Peserta">0</span>
                                 </div>
-                                <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all" title="Tampilkan/Sembunyikan">
+                                <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all" title="Tampilkan/Sembunyikan" data-tooltip="Tampilkan/Sembunyikan Peserta">
                                     <svg id="participantsMobileToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
                                         <polyline points="18 15 12 9 6 15"/>
                                     </svg>
@@ -2729,17 +2731,19 @@ Pengaturan Lanjutan
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-sm font-bold text-slate-800">Lampiran</h3>
+                                <h3 class="text-sm font-bold text-slate-800" data-tooltip="Lampiran Rapat">Lampiran</h3>
                                 <p class="text-[10px] text-slate-500 mt-0.5">Dokumen & file rapat</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button id="addResourceBtn" onclick="event.stopPropagation(); window.openResourceModal()"
+                                <button id="addResourceBtn" onclick="event.stopPropagation(); window.openResourceModal()" data-tooltip="Tambah Lampiran Baru"
                                     class="hidden p-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-all duration-200 shadow-sm">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <line x1="12" x2="12" y1="5" y2="19"/>
                                     <line x1="5" x2="19" y1="12" x2="12" y2="12"/>
                                 </svg>
+                                </button>
+                                <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all" title="Tampilkan/Sembunyikan" data-tooltip="Tampilkan/Sembunyikan Lampiran">
                             </button>
                             <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all" title="Tampilkan/Sembunyikan">
                                 <svg id="resourcesToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-200">
