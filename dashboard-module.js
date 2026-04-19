@@ -428,29 +428,34 @@ export function createDashboardModule(deps) {
             // Filter agendas based on active dashboard filter
             const dayAgendas = allRoomsDataForCalendar.filter(room => {
                 let roomDateStr = room.meetingDate;
-                
-                // Jika meetingDate tidak ada, ekstrak dari scheduledAt secara aman
                 if (!roomDateStr && room.scheduledAt) {
                     const sDate = new Date(room.scheduledAt);
                     roomDateStr = `${sDate.getFullYear()}-${(sDate.getMonth() + 1).toString().padStart(2, '0')}-${sDate.getDate().toString().padStart(2, '0')}`;
                 }
-                
                 const isCreator = room.creatorUid === currentUser?.uid;
                 if (currentFilter === 'mine' && !isCreator) return false;
-                
                 return roomDateStr === dateStr;
             });
 
             dayDiv.onclick = (e) => {
                 e.stopPropagation();
-                // Selalu ambil year/month langsung dari currentCalendarDate agar akurat saat ganti bulan/tahun
+                
+                // Visual Selection: Hapus highlight dari semua tanggal lain
+                container.querySelectorAll('.cal-day-selected').forEach(el => {
+                    el.classList.remove('cal-day-selected', 'bg-indigo-100', 'ring-2', 'ring-indigo-500/20');
+                });
+                // Tambahkan highlight ke tanggal yang baru diklik
+                if (!isToday) {
+                    dayDiv.classList.add('cal-day-selected', 'bg-indigo-100', 'ring-2', 'ring-indigo-500/20');
+                }
+
                 const currentYear = currentCalendarDate.getFullYear();
                 const currentMonth = currentCalendarDate.getMonth();
                 showCalendarAgenda(currentYear, currentMonth, day, dayAgendas);
             };
 
             let bgClass = "bg-transparent text-slate-600 hover:bg-slate-100";
-            if (isToday) bgClass = "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-100";
+            if (isToday) bgClass = "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-100 is-today";
 
             dayDiv.className = `relative h-8 flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all group ${bgClass}`;
 
@@ -533,10 +538,16 @@ export function createDashboardModule(deps) {
                     </div>
                 </div>`;
             
-            item.onclick = (e) => {
+            item.addEventListener('click', async (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
-            };
+                console.log('[DEBUG] Agenda item clicked via listener:', r.id);
+                try {
+                    await window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
+                } catch (err) {
+                    console.error('[DEBUG] Failed to enter room via calendar detail:', err);
+                }
+            });
             
             container.appendChild(item);
         });
