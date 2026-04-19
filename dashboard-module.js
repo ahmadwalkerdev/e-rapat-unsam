@@ -103,10 +103,11 @@ export function createDashboardModule(deps) {
             filterAll?.classList.add('text-slate-500', 'hover:text-slate-700', 'hover:bg-white/50');
         }
 
-        // Re-render rooms with new filter
+        // Re-render rooms and sync calendar
         const roomsCol = deps.collection(deps.db, 'artifacts', deps.appId, 'public', 'data', 'rooms');
         deps.getDocs(roomsCol).then(snapshot => {
             renderDashboardRooms(snapshot);
+            renderMiniCalendar(); // Paksa kalender render ulang agar filter sinkron
         });
     };
 
@@ -456,11 +457,12 @@ export function createDashboardModule(deps) {
                 indicatorHtml = `<div class="absolute bottom-1 flex gap-0.5 justify-center">${dots.slice(0,3).join('')}</div>`;
                 
                 // Tooltip
-                const tooltipHtml = dayAgendas.map(a => `<div class="truncate">• ${escapeHtml(a.title)}</div>`).join('');
+                const tooltipHtml = dayAgendas.map(a => `<div class="truncate border-b border-white/5 py-1 last:border-0">• ${escapeHtml(a.title)}</div>`).join('');
                 dayDiv.innerHTML = `
-                    <span class="text-[10px]">${day}</span>
+                    <span class="text-[10px] relative z-10">${day}</span>
                     ${indicatorHtml}
-                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-slate-900 text-white text-[9px] rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-xl border border-white/10">
+                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 p-2 bg-slate-900/95 backdrop-blur-md text-white text-[9px] rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 z-[100] shadow-2xl border border-white/10 transform translate-y-1 group-hover:translate-y-0">
+                        <div class="font-bold text-indigo-400 mb-1 border-b border-indigo-500/30 pb-1">Agenda Hari Ini:</div>
                         ${tooltipHtml}
                     </div>
                 `;
