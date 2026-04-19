@@ -457,7 +457,7 @@ export function createDashboardModule(deps) {
             let bgClass = "bg-transparent text-slate-600 hover:bg-slate-100";
             if (isToday) bgClass = "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-100 is-today";
 
-            dayDiv.className = `relative h-8 flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all group ${bgClass}`;
+            dayDiv.className = `cal-day-item cal-day-${day} relative h-8 flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all group ${bgClass}`;
 
             // Poin 1 & 4: Dots & Tooltip
             let indicatorHtml = '';
@@ -502,9 +502,25 @@ export function createDashboardModule(deps) {
     function showCalendarAgenda(y, m, d, agendas) {
         const container = document.getElementById('calendarAgendaDetails');
         if (!container) return;
+        
+        container.style.pointerEvents = 'auto'; // Pastikan container bisa menerima klik
 
         // Validasi: Pastikan agenda benar-benar ada dan belum dihapus dari state utama
         const activeAgendas = agendas.filter(a => allRoomsDataForCalendar.some(room => room.id === a.id));
+
+        // Sembunyikan selection dari semua tanggal lain
+        const calendarWrapper = container.closest('.bg-white'); // Cari wrapper kalender terdekat
+        if (calendarWrapper) {
+            calendarWrapper.querySelectorAll('.cal-day-selected').forEach(el => {
+                el.classList.remove('cal-day-selected', 'bg-indigo-100', 'ring-2', 'ring-indigo-500/20');
+            });
+            
+            // Tambahkan highlight ke tanggal yang baru diklik
+            const dayDiv = calendarWrapper.querySelector(`.cal-day-${d}`);
+            if (dayDiv && !dayDiv.classList.contains('is-today')) {
+                dayDiv.classList.add('cal-day-selected', 'bg-indigo-100', 'ring-2', 'ring-indigo-500/20');
+            }
+        }
 
         if (!activeAgendas || activeAgendas.length === 0) {
             container.innerHTML = `<p class="text-[9px] text-slate-400 text-center italic py-2">Tidak ada agenda pada tanggal ini.</p>`;
@@ -524,10 +540,10 @@ export function createDashboardModule(deps) {
                                '<span class="text-[8px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-md border border-emerald-100 ml-auto">Aktif</span>');
             
             const item = document.createElement('div');
-            item.className = "group flex items-center justify-between gap-3 mb-2 p-3 bg-white border border-slate-100 rounded-xl hover:border-indigo-300 hover:shadow-md hover:shadow-indigo-500/5 transition-all cursor-pointer active:scale-[0.98]";
+            item.className = "group relative flex items-center justify-between gap-3 mb-2 p-3 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 hover:shadow-md hover:shadow-indigo-500/10 transition-all cursor-pointer active:scale-[0.98] z-10";
             
             item.innerHTML = `
-                <div class="flex-1 min-w-0">
+                <div class="flex-1 min-w-0 pointer-events-none">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-[10px] font-bold text-slate-700 group-hover:text-indigo-600 transition-colors truncate">${escapeHtml(r.title)}</span>
                         ${statusBadge}
@@ -537,27 +553,24 @@ export function createDashboardModule(deps) {
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                             <span>${time}</span>
                         </div>
-                        <div class="flex items-center gap-1 truncate">
+                        <div class="flex items-center gap-1 truncate text-slate-500">
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                             <span class="truncate">${escapeHtml(r.meetingLocation || '-')}</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex shrink-0">
-                    <div class="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <div class="flex shrink-0 pointer-events-none">
+                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </div>
                 </div>`;
             
-            // Gunakan onclick yang memanggil fungsi global secara eksplisit
             item.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('[DEBUG] Agenda item clicked:', r.id);
-                if (typeof window.enterRoomFromCalendar === 'function') {
+                console.log('[DEBUG] Agenda item clicked (onclick):', r.id);
+                if (window.enterRoomFromCalendar) {
                     window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
-                } else {
-                    console.error('[DEBUG] window.enterRoomFromCalendar is not a function');
                 }
             };
             
