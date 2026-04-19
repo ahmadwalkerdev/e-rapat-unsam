@@ -153,7 +153,18 @@ function updateMeetingInfoPanel(data) {
 
     // Column 1
     const lingkupEl = document.getElementById('meetingInfoLingkup');
-    if (lingkupEl) lingkupEl.textContent = data.lingkup || 'Umum';
+    if (lingkupEl) {
+        const mapping = {
+            'Umum': 'Universitas Samudra (Umum)',
+            'Ekonomi': 'Fakultas Ekonomi dan Bisnis',
+            'Hukum': 'Fakultas Hukum',
+            'Sains': 'Fakultas Sains dan Teknologi',
+            'Pertanian': 'Fakultas Pertanian',
+            'FKIP': 'Fakultas Keguruan dan Ilmu Pendidikan'
+        };
+        // Tampilkan nama lengkap jika ada di mapping, jika tidak tampilkan aslinya
+        lingkupEl.textContent = mapping[data.lingkup] || data.lingkup || 'Umum';
+    }
     
     const titleEl = document.getElementById('meetingInfoTitle');
     if (titleEl) titleEl.textContent = data.title || '-';
