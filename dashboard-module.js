@@ -549,12 +549,16 @@ export function createDashboardModule(deps) {
                     </div>
                 </div>`;
             
-            // Klik Seluruh Kotak
-            item.onclick = async (e) => {
+            // Gunakan onclick yang memanggil fungsi global secara eksplisit
+            item.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('[DEBUG] Entering room from calendar detail:', r.id);
-                await window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
+                console.log('[DEBUG] Agenda item clicked:', r.id);
+                if (typeof window.enterRoomFromCalendar === 'function') {
+                    window.enterRoomFromCalendar(r.id, r.title, r.status, r.creatorUid);
+                } else {
+                    console.error('[DEBUG] window.enterRoomFromCalendar is not a function');
+                }
             };
             
             container.appendChild(item);
@@ -596,6 +600,11 @@ export function createDashboardModule(deps) {
             showLoading(false);
         }
     }
+
+    // Ekspor fungsi ke scope global agar bisa dipanggil dari HTML dinamis
+    window.enterRoomFromCalendar = async (roomId, roomTitle, roomStatus, creatorUid) => {
+        return await enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid);
+    };
 
     async function enterRoomFromCalendar(roomId, roomTitle, roomStatus, creatorUid) {
         try {
