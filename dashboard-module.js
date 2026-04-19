@@ -12,6 +12,7 @@ export function createDashboardModule(deps) {
         deleteDoc,
         showToast,
         showLoading,
+        toggleModal,
         getCurrentUser,
         getIsDeveloper,
         clearListeners,
