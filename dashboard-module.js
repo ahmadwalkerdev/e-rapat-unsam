@@ -503,7 +503,10 @@ export function createDashboardModule(deps) {
         const container = document.getElementById('calendarAgendaDetails');
         if (!container) return;
 
-        if (!agendas || agendas.length === 0) {
+        // Validasi: Pastikan agenda benar-benar ada dan belum dihapus dari state utama
+        const activeAgendas = agendas.filter(a => allRoomsDataForCalendar.some(room => room.id === a.id));
+
+        if (!activeAgendas || activeAgendas.length === 0) {
             container.innerHTML = `<p class="text-[9px] text-slate-400 text-center italic py-2">Tidak ada agenda pada tanggal ini.</p>`;
             container.classList.remove('hidden');
             container.classList.add('flex');
@@ -513,7 +516,7 @@ export function createDashboardModule(deps) {
         const dateStr = `${y}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
         container.innerHTML = `<p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">${formatIndonesianLongDate(dateStr)}</p>`;
         
-        agendas.forEach(r => {
+        activeAgendas.forEach(r => {
             const isPast = r.status === 'archived' || new Date(r.scheduledAt || r.createdAt) < new Date();
             const time = r.meetingStartTime || (r.scheduledAt ? new Date(r.scheduledAt).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) : '--:--');
             const statusBadge = r.status === 'archived' ? '<span class="text-[8px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-md border border-slate-200 ml-auto">Selesai</span>' :
