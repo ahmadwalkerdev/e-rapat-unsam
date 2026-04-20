@@ -243,14 +243,37 @@ const name = readInputValue('setupName');
 const nip = readInputValue('setupNip');
 const nidn = readInputValue('setupNidn');
 const nidk = readInputValue('setupNidk');
-const unitKerja = readInputValue('setupUnitKerja');
 const jabatanFungsional = readInputValue('setupJabatanFungsional');
 const ps = readInputValue('setupPassword');
 const confirmPs = readInputValue('setupConfirmPassword');
+
+// OPSI C: Handle Kategori Pegawai
+const kategoriPegawai = readInputValue('setupKategoriPegawai');
+let fakultas = '';
+let jurusan = '';
+let unitKerja = '';
+
+if (kategoriPegawai === 'dosen') {
+fakultas = readInputValue('setupFakultas');
+jurusan = readInputValue('setupJurusan');
+unitKerja = fakultas && jurusan ? `${fakultas} / ${jurusan}` : (fakultas || '');
+if (!fakultas) throw new Error("Fakultas wajib diisi.");
+if (!jurusan) throw new Error("Jurusan wajib diisi.");
+} else if (kategoriPegawai === 'staff') {
+const unitKerjaSelect = readInputValue('setupUnitKerjaSelect');
+if (unitKerjaSelect === 'Lainnya') {
+unitKerja = readInputValue('setupUnitKerjaManual');
+} else {
+unitKerja = unitKerjaSelect;
+}
+if (!unitKerja) throw new Error("Unit Kerja wajib diisi.");
+} else {
+throw new Error("Kategori Pegawai wajib dipilih.");
+}
+
 showLoading(true, "Menyimpan Profil...");
 try {
 if (!nip) throw new Error("NIP wajib diisi.");
-if (!unitKerja) throw new Error("Unit Kerja wajib diisi.");
 if (!jabatanFungsional) throw new Error("Jabatan Fungsional wajib diisi.");
 if (nidn && nidk) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
@@ -265,6 +288,9 @@ emailInstitusi: currentUser.email,
 nip: nip || '',
 nidn: nidn || '',
 nidk: nidk || '',
+kategoriPegawai: kategoriPegawai || '',
+fakultas: fakultas || '',
+jurusan: jurusan || '',
 unitKerja: unitKerja || '',
 jabatanFungsional: jabatanFungsional || '',
 updatedAt: new Date().toISOString(),

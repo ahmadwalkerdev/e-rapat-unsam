@@ -85,18 +85,37 @@ if (!currentUser) return;
 const nip = document.getElementById('settingsNip')?.value || '';
 const nidn = document.getElementById('settingsNidn')?.value || '';
 const nidk = document.getElementById('settingsNidk')?.value || '';
-const fakultas = document.getElementById('settingsFakultas')?.value || '';
-const jurusan = document.getElementById('settingsJurusan')?.value || '';
-const unitKerja = fakultas && jurusan ? `${fakultas} / ${jurusan}` : (fakultas || jurusan || '');
 const jabatanFungsional = document.getElementById('settingsJabatanFungsional')?.value || '';
 const op = document.getElementById('settingsOldPassword')?.value;
 const np = document.getElementById('settingsPassword')?.value;
 const cp = document.getElementById('settingsConfirmPassword')?.value;
 
-// Enforce campus profile completeness for internal users
-if (!nip.trim()) throw new Error("NIP wajib diisi.");
+// OPSI C: Handle Kategori Pegawai
+const kategoriPegawai = document.getElementById('settingsKategoriPegawai')?.value || '';
+let fakultas = '';
+let jurusan = '';
+let unitKerja = '';
+
+if (kategoriPegawai === 'dosen') {
+fakultas = document.getElementById('settingsFakultas')?.value || '';
+jurusan = document.getElementById('settingsJurusan')?.value || '';
+unitKerja = fakultas && jurusan ? `${fakultas} / ${jurusan}` : (fakultas || '');
 if (!fakultas.trim()) throw new Error("Fakultas wajib diisi.");
 if (!jurusan.trim()) throw new Error("Jurusan wajib diisi.");
+} else if (kategoriPegawai === 'staff') {
+const unitKerjaSelect = document.getElementById('settingsUnitKerjaSelect')?.value || '';
+if (unitKerjaSelect === 'Lainnya') {
+unitKerja = document.getElementById('settingsUnitKerjaManual')?.value || '';
+} else {
+unitKerja = unitKerjaSelect;
+}
+if (!unitKerja.trim()) throw new Error("Unit Kerja wajib diisi.");
+} else {
+throw new Error("Kategori Pegawai wajib dipilih.");
+}
+
+// Enforce campus profile completeness for internal users
+if (!nip.trim()) throw new Error("NIP wajib diisi.");
 if (!jabatanFungsional.trim()) throw new Error("Jabatan Fungsional wajib diisi.");
 if (nidn.trim() && nidk.trim()) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
@@ -108,6 +127,7 @@ name: n,
 nip: nip || '',
 nidn: nidn || '',
 nidk: nidk || '',
+kategoriPegawai: kategoriPegawai || '',
 fakultas: fakultas || '',
 jurusan: jurusan || '',
 unitKerja: unitKerja || '',

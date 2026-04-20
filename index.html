@@ -818,6 +818,33 @@ const nidnInput = document.getElementById('settingsNidn');
 if (nidnInput) nidnInput.value = profileData.nidn || '';
 const nidkInput = document.getElementById('settingsNidk');
 if (nidkInput) nidkInput.value = profileData.nidk || '';
+
+// OPSI C: Populate Kategori Pegawai dan trigger field display
+const kategoriInput = document.getElementById('settingsKategoriPegawai');
+if (kategoriInput) {
+kategoriInput.value = profileData.kategoriPegawai || '';
+// Trigger change handler untuk menampilkan field yang sesuai
+if (profileData.kategoriPegawai) {
+window.handleSettingsKategoriChange();
+// Jika staff, populate juga unit kerja select
+if (profileData.kategoriPegawai === 'staff' && profileData.unitKerja) {
+const unitKerjaSelect = document.getElementById('settingsUnitKerjaSelect');
+const predefinedUnits = ['Biro Akademik', 'Biro Administrasi Umum', 'Biro Keuangan', 
+'Biro Perencanaan dan Sistem Informasi', 'LPPM', 'LPM'];
+if (unitKerjaSelect) {
+if (predefinedUnits.includes(profileData.unitKerja)) {
+unitKerjaSelect.value = profileData.unitKerja;
+} else {
+unitKerjaSelect.value = 'Lainnya';
+window.handleSettingsUnitKerjaChange();
+const manualInput = document.getElementById('settingsUnitKerjaManual');
+if (manualInput) manualInput.value = profileData.unitKerja;
+}
+}
+}
+}
+}
+
 const fakultasInput = document.getElementById('settingsFakultas');
 if (fakultasInput) fakultasInput.value = profileData.fakultas || '';
 const jurusanInput = document.getElementById('settingsJurusan');
@@ -1685,6 +1712,45 @@ window.handleSetupProfile = async (e) => {
 await authModule.handleSetupProfile(e);
 };
 
+// OPSI C: Handler untuk Setup Profile - Staff vs Dosen
+window.handleSetupKategoriChange = function() {
+const kategori = document.getElementById('setupKategoriPegawai').value;
+const dosenFields = document.getElementById('setupDosenFields');
+const staffFields = document.getElementById('setupStaffFields');
+
+if (kategori === 'dosen') {
+dosenFields.classList.remove('hidden');
+staffFields.classList.add('hidden');
+document.getElementById('setupFakultas').required = true;
+document.getElementById('setupJurusan').required = true;
+document.getElementById('setupUnitKerjaSelect').required = false;
+} else if (kategori === 'staff') {
+dosenFields.classList.add('hidden');
+staffFields.classList.remove('hidden');
+document.getElementById('setupFakultas').required = false;
+document.getElementById('setupJurusan').required = false;
+document.getElementById('setupUnitKerjaSelect').required = true;
+}
+};
+
+window.handleSetupUnitKerjaChange = function() {
+const select = document.getElementById('setupUnitKerjaSelect');
+const manualContainer = document.getElementById('setupUnitKerjaManualContainer');
+const manualInput = document.getElementById('setupUnitKerjaManual');
+
+if (select.value === 'Lainnya') {
+manualContainer.classList.remove('hidden');
+manualInput.required = true;
+} else {
+manualContainer.classList.add('hidden');
+manualInput.required = false;
+}
+};
+
+window.handleSetupFakultasChange = function() {
+// Placeholder untuk logika tambahan jika diperlukan
+};
+
 window.handleHeaderLogoClick = async () => {
     // BUG FIX #3: Safe check untuk activeRoom dari appState
     const currentActiveRoom = typeof activeRoom !== 'undefined' ? activeRoom : (typeof appState !== 'undefined' ? appState.activeRoom : null);
@@ -1953,6 +2019,41 @@ window.saveProfileSettings = async (e) => {
     if (success) {
         isSettingsDirty = false;
     }
+};
+
+// OPSI C: Handler untuk Settings - Staff vs Dosen
+window.handleSettingsKategoriChange = function() {
+const kategori = document.getElementById('settingsKategoriPegawai').value;
+const dosenFields = document.getElementById('settingsDosenFields');
+const staffFields = document.getElementById('settingsStaffFields');
+
+if (kategori === 'dosen') {
+dosenFields.classList.remove('hidden');
+staffFields.classList.add('hidden');
+document.getElementById('settingsFakultas').required = true;
+document.getElementById('settingsJurusan').required = true;
+document.getElementById('settingsUnitKerjaSelect').required = false;
+} else if (kategori === 'staff') {
+dosenFields.classList.add('hidden');
+staffFields.classList.remove('hidden');
+document.getElementById('settingsFakultas').required = false;
+document.getElementById('settingsJurusan').required = false;
+document.getElementById('settingsUnitKerjaSelect').required = true;
+}
+};
+
+window.handleSettingsUnitKerjaChange = function() {
+const select = document.getElementById('settingsUnitKerjaSelect');
+const manualContainer = document.getElementById('settingsUnitKerjaManualContainer');
+const manualInput = document.getElementById('settingsUnitKerjaManual');
+
+if (select.value === 'Lainnya') {
+manualContainer.classList.remove('hidden');
+manualInput.required = true;
+} else {
+manualContainer.classList.add('hidden');
+manualInput.required = false;
+}
 };
 
 window.handleGuestLogout = () => {
@@ -2247,6 +2348,19 @@ Keluar Sesi
 <label class="text-[10px] font-bold text-slate-500 uppercase">NIP <span class="text-red-500">*</span></label>
 <input type="text" id="setupNip" required placeholder="Contoh: 19850101 201012 1 001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
+
+<!-- OPSI C: Selector Staff vs Dosen -->
+<div class="space-y-1 pt-2 border-t border-slate-100">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Kategori Pegawai <span class="text-red-500">*</span></label>
+<select id="setupKategoriPegawai" required onchange="window.handleSetupKategoriChange()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm cursor-pointer">
+<option value="" disabled selected>Pilih Kategori</option>
+<option value="dosen">Dosen (Fakultas/Jurusan)</option>
+<option value="staff">Staff (Unit Kerja/Biro)</option>
+</select>
+</div>
+
+<!-- Field untuk Dosen -->
+<div id="setupDosenFields" class="hidden space-y-4">
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">NIDN <span class="text-slate-400 font-normal">(Opsional)</span></label>
@@ -2258,12 +2372,46 @@ Keluar Sesi
 </div>
 </div>
 <div class="space-y-1">
-<label class="text-[10px] font-bold text-slate-500 uppercase">Unit Kerja <span class="text-red-500">*</span></label>
-<input type="text" id="setupUnitKerja" required placeholder="Contoh: Biro Akademik / LPPM" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Fakultas <span class="text-red-500">*</span></label>
+<select id="setupFakultas" onchange="window.handleSetupFakultasChange()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm cursor-pointer">
+<option value="" disabled selected>Pilih Fakultas</option>
+<option value="Ekonomi dan Bisnis">Fakultas Ekonomi dan Bisnis</option>
+<option value="Hukum">Fakultas Hukum</option>
+<option value="Sains dan Teknologi">Fakultas Sains dan Teknologi</option>
+<option value="Pertanian">Fakultas Pertanian</option>
+<option value="Keguruan dan Ilmu Pendidikan">Fakultas Keguruan dan Ilmu Pendidikan</option>
+</select>
 </div>
 <div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Jurusan <span class="text-red-500">*</span></label>
+<input type="text" id="setupJurusan" placeholder="Ketik Nama Jurusan" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+</div>
+
+<!-- Field untuk Staff -->
+<div id="setupStaffFields" class="hidden space-y-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Unit Kerja <span class="text-red-500">*</span></label>
+<select id="setupUnitKerjaSelect" onchange="window.handleSetupUnitKerjaChange()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm cursor-pointer">
+<option value="" disabled selected>Pilih Unit Kerja</option>
+<option value="Biro Akademik">Biro Akademik</option>
+<option value="Biro Administrasi Umum">Biro Administrasi Umum</option>
+<option value="Biro Keuangan">Biro Keuangan</option>
+<option value="Biro Perencanaan dan Sistem Informasi">Biro Perencanaan dan Sistem Informasi</option>
+<option value="LPPM">LPPM (Lembaga Penelitian)</option>
+<option value="LPM">LPM (Lembaga Penjaminan Mutu)</option>
+<option value="Lainnya">Lainnya (Ketik manual)</option>
+</select>
+</div>
+<div id="setupUnitKerjaManualContainer" class="hidden space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Nama Unit Kerja <span class="text-red-500">*</span></label>
+<input type="text" id="setupUnitKerjaManual" placeholder="Ketik Nama Unit Kerja" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+</div>
+
+<div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">Jabatan Fungsional <span class="text-red-500">*</span></label>
-<input type="text" id="setupJabatanFungsional" required placeholder="Contoh: Lektor Kepala / Asisten Ahli" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<input type="text" id="setupJabatanFungsional" required placeholder="Contoh: Lektor Kepala / Asisten Ahli / Kasubag" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
 <div class="space-y-1 pt-4 border-t border-slate-50">
 <label class="text-[10px] font-bold text-slate-500 uppercase">Atur Kata Sandi Baru</label>
@@ -2382,8 +2530,8 @@ Pengaturan Akun
 <input type="text" id="settingsName" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 </div>
 <div class="space-y-2">
-<label class="block text-xs font-bold text-slate-500 uppercase">NIP</label>
-<input type="text" id="settingsNip" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+<label class="block text-xs font-bold text-slate-500 uppercase">NIP <span class="text-red-500">*</span></label>
+<input type="text" id="settingsNip" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 </div>
 <div class="space-y-2">
 <label class="block text-xs font-bold text-slate-500 uppercase">NIDN <span class="text-slate-400 font-normal">(Opsional)</span></label>
@@ -2393,30 +2541,65 @@ Pengaturan Akun
 <label class="block text-xs font-bold text-slate-500 uppercase">NIDK <span class="text-slate-400 font-normal">(Opsional)</span></label>
 <input type="text" id="settingsNidk" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 </div>
-                <!-- Field Unit Kerja untuk User UNSAM (Chained Dropdown) -->
-                <div class="space-y-2" id="settingsFakultasContainer">
-                    <label class="block text-xs font-bold text-slate-500 uppercase">Fakultas <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <select id="settingsFakultas" onchange="window.handleFakultasChange('settings', this)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm appearance-none cursor-pointer">
-                            <option value="" disabled selected>Pilih Fakultas</option>
-                            <option value="Ekonomi dan Bisnis">Ekonomi dan Bisnis</option>
-                            <option value="Hukum">Hukum</option>
-                            <option value="Keguruan dan Ilmu Pendidikan">Keguruan dan Ilmu Pendidikan</option>
-                            <option value="Pertanian">Pertanian</option>
-                            <option value="Sains dan Teknologi">Sains dan Teknologi</option>
-                        </select>
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="space-y-2" id="settingsJurusanContainer">
-                    <label class="block text-xs font-bold text-slate-500 uppercase">Jurusan <span class="text-red-500">*</span></label>
-                    <input type="text" id="settingsJurusan" placeholder="Ketik Nama Jurusan" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm transition-all">
-                </div>
-<div class="space-y-2" id="settingsJabatanFungsionalContainer">
-<label class="block text-xs font-bold text-slate-500 uppercase">Jabatan Fungsional</label>
-<input type="text" id="settingsJabatanFungsional" placeholder="Contoh: Lektor, Guru Besar" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+
+<!-- OPSI C: Selector Staff vs Dosen untuk Settings -->
+<div class="space-y-2 col-span-full border-t border-slate-100 pt-4 mt-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">Kategori Pegawai <span class="text-red-500">*</span></label>
+<select id="settingsKategoriPegawai" required onchange="window.handleSettingsKategoriChange()" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm cursor-pointer">
+<option value="" disabled selected>Pilih Kategori</option>
+<option value="dosen">Dosen (Fakultas/Jurusan)</option>
+<option value="staff">Staff (Unit Kerja/Biro)</option>
+</select>
+</div>
+
+<!-- Field untuk Dosen -->
+<div id="settingsDosenFields" class="hidden col-span-full space-y-4">
+<div class="space-y-2" id="settingsFakultasContainer">
+<label class="block text-xs font-bold text-slate-500 uppercase">Fakultas <span class="text-red-500">*</span></label>
+<div class="relative">
+<select id="settingsFakultas" onchange="window.handleFakultasChange('settings', this)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm appearance-none cursor-pointer">
+<option value="" disabled selected>Pilih Fakultas</option>
+<option value="Ekonomi dan Bisnis">Fakultas Ekonomi dan Bisnis</option>
+<option value="Hukum">Fakultas Hukum</option>
+<option value="Keguruan dan Ilmu Pendidikan">Fakultas Keguruan dan Ilmu Pendidikan</option>
+<option value="Pertanian">Fakultas Pertanian</option>
+<option value="Sains dan Teknologi">Fakultas Sains dan Teknologi</option>
+</select>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+</div>
+</div>
+</div>
+<div class="space-y-2" id="settingsJurusanContainer">
+<label class="block text-xs font-bold text-slate-500 uppercase">Jurusan <span class="text-red-500">*</span></label>
+<input type="text" id="settingsJurusan" placeholder="Ketik Nama Jurusan" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm transition-all">
+</div>
+</div>
+
+<!-- Field untuk Staff -->
+<div id="settingsStaffFields" class="hidden col-span-full space-y-4">
+<div class="space-y-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">Unit Kerja <span class="text-red-500">*</span></label>
+<select id="settingsUnitKerjaSelect" onchange="window.handleSettingsUnitKerjaChange()" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm cursor-pointer">
+<option value="" disabled selected>Pilih Unit Kerja</option>
+<option value="Biro Akademik">Biro Akademik</option>
+<option value="Biro Administrasi Umum">Biro Administrasi Umum</option>
+<option value="Biro Keuangan">Biro Keuangan</option>
+<option value="Biro Perencanaan dan Sistem Informasi">Biro Perencanaan dan Sistem Informasi</option>
+<option value="LPPM">LPPM (Lembaga Penelitian)</option>
+<option value="LPM">LPM (Lembaga Penjaminan Mutu)</option>
+<option value="Lainnya">Lainnya (Ketik manual)</option>
+</select>
+</div>
+<div id="settingsUnitKerjaManualContainer" class="hidden space-y-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">Nama Unit Kerja <span class="text-red-500">*</span></label>
+<input type="text" id="settingsUnitKerjaManual" placeholder="Ketik Nama Unit Kerja" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+</div>
+
+<div class="space-y-2 col-span-full" id="settingsJabatanFungsionalContainer">
+<label class="block text-xs font-bold text-slate-500 uppercase">Jabatan Fungsional <span class="text-red-500">*</span></label>
+<input type="text" id="settingsJabatanFungsional" required placeholder="Contoh: Lektor, Guru Besar, Kasubag" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 </div>
 <!-- Guest-only fields: Jabatan & Instansi -->
 <div class="space-y-2 hidden" id="settingsPositionContainer">
