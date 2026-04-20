@@ -315,34 +315,47 @@ const settingsModule = createSettingsModule({
     updateEmailVerificationBadge,
     getCurrentUser: () => currentUser
 });
+window.openSettings = settingsModule.openSettings;
+window.saveProfileSettings = settingsModule.saveProfileSettings;
+window.sendVerificationEmailAction = settingsModule.sendVerificationEmailAction;
+window.enableEmailEdit = settingsModule.enableEmailEdit;
+window.cancelEmailChange = settingsModule.cancelEmailChange;
+window.submitEmailChange = settingsModule.submitEmailChange;
+window.requestPasswordReset = settingsModule.requestPasswordReset;
 
-window.toggleRoomMenu = (btn) => {
-    const dropdown = btn.nextElementSibling;
-    const allMenus = document.querySelectorAll('.room-menu-dropdown');
+// Global Function untuk toggle menu profile
+window.toggleProfileMenu = (e) => {
+    e.stopPropagation();
+    const dropdown = document.getElementById('profileDropdown');
+    const isHidden = dropdown.classList.contains('hidden');
     
-    // Close other menus
-    allMenus.forEach(m => {
-        if (m !== dropdown) {
-            m.classList.add('hidden', 'opacity-0', 'translate-y-2');
+    // Tutup dropdown lain jika ada
+    document.querySelectorAll('.dropdown-premium').forEach(d => {
+        if (d !== dropdown) {
+            d.classList.add('hidden');
+            d.classList.add('opacity-0', 'scale-95');
         }
     });
 
-    if (dropdown.classList.contains('hidden')) {
-        // Calculate position since it's now 'fixed' to avoid overflow-hidden clipping
-        const rect = btn.getBoundingClientRect();
-        dropdown.style.top = `${rect.bottom + 8}px`;
-        dropdown.style.left = `${rect.right - 192}px`; // 192px is w-48
-
+    if (isHidden) {
         dropdown.classList.remove('hidden');
         setTimeout(() => {
-            dropdown.classList.remove('opacity-0', 'translate-y-2');
+            dropdown.classList.remove('opacity-0', 'scale-95');
+            dropdown.classList.add('opacity-100', 'scale-100');
         }, 10);
     } else {
-        dropdown.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => {
-            dropdown.classList.add('hidden');
-        }, 200);
+        dropdown.classList.add('opacity-0', 'scale-95');
+        dropdown.classList.remove('opacity-100', 'scale-100');
+        setTimeout(() => dropdown.classList.add('hidden'), 300);
     }
+};
+
+// Global Function untuk toggle menu ruangan (room menu)
+window.toggleRoomMenu = (btn) => {
+    document.querySelectorAll('.room-menu-dropdown').forEach(m => {
+        m.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => m.classList.add('hidden'), 200);
+    });
 };
 
 // Close dropdown on click outside
