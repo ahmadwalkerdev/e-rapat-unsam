@@ -1284,6 +1284,82 @@ window.toggleEditMeetingInfo = function() {
     const participants = currentMeetingData.meetingParticipants || [];
     document.getElementById('editMeetingParticipants').value = participants.join('\n');
 
+    // Populate field-field terkunci (Lingkup & Identitas Pimpinan)
+    const lingkupEl = document.getElementById('editMeetingLingkup');
+    const leaderNameEl = document.getElementById('editMeetingLeaderName');
+    const leaderNipEl = document.getElementById('editMeetingLeaderNip');
+    const leaderTitleEl = document.getElementById('editMeetingLeaderTitle');
+
+    // Mapping untuk lingkup
+    const mapping = {
+        'Universitas Samudra (Umum)': 'Umum',
+        'Fakultas Ekonomi dan Bisnis': 'Ekonomi',
+        'Fakultas Hukum': 'Hukum',
+        'Fakultas Sains dan Teknologi': 'Sains',
+        'Fakultas Pertanian': 'Pertanian',
+        'Fakultas Keguruan dan Ilmu Pendidikan': 'FKIP'
+    };
+
+    if (lingkupEl) {
+        const finalValue = mapping[currentMeetingData.lingkup] || currentMeetingData.lingkup || 'Umum';
+        lingkupEl.value = finalValue;
+    }
+    if (leaderNameEl) leaderNameEl.value = currentMeetingData.leaderName || '';
+    if (leaderNipEl) leaderNipEl.value = currentMeetingData.leaderNip || '';
+    if (leaderTitleEl) leaderTitleEl.value = currentMeetingData.leaderTitle || '';
+
+    // Handle Developer Mode - Unlock fields jika isDeveloper = true
+    const isDev = isDeveloper;
+    
+    if (leaderNameEl) {
+        leaderNameEl.readOnly = !isDev;
+        leaderNameEl.classList.toggle('bg-slate-100', !isDev);
+        leaderNameEl.classList.toggle('bg-slate-50', isDev);
+        leaderNameEl.classList.toggle('cursor-not-allowed', !isDev);
+        leaderNameEl.classList.toggle('text-slate-500', !isDev);
+        leaderNameEl.classList.toggle('font-bold', !isDev);
+    }
+    if (leaderNipEl) {
+        leaderNipEl.readOnly = !isDev;
+        leaderNipEl.classList.toggle('bg-slate-100', !isDev);
+        leaderNipEl.classList.toggle('bg-slate-50', isDev);
+        leaderNipEl.classList.toggle('cursor-not-allowed', !isDev);
+        leaderNipEl.classList.toggle('text-slate-500', !isDev);
+        leaderNipEl.classList.toggle('font-bold', !isDev);
+    }
+    if (leaderTitleEl) {
+        leaderTitleEl.readOnly = !isDev;
+        leaderTitleEl.classList.toggle('bg-slate-100', !isDev);
+        leaderTitleEl.classList.toggle('bg-slate-50', isDev);
+        leaderTitleEl.classList.toggle('cursor-not-allowed', !isDev);
+        leaderTitleEl.classList.toggle('text-slate-500', !isDev);
+        leaderTitleEl.classList.toggle('font-bold', !isDev);
+    }
+    if (lingkupEl) {
+        lingkupEl.disabled = !isDev;
+        lingkupEl.classList.toggle('bg-slate-100', !isDev);
+        lingkupEl.classList.toggle('bg-slate-50', isDev);
+        lingkupEl.classList.toggle('cursor-not-allowed', !isDev);
+        lingkupEl.classList.toggle('text-slate-500', !isDev);
+        lingkupEl.classList.toggle('font-bold', !isDev);
+    }
+
+    // Update Label status terkunci (UI Feedback)
+    const lockedLabels = document.querySelectorAll('#editMeetingInfoModal label span.normal-case');
+    lockedLabels.forEach(span => {
+        if (span.textContent.includes('Terkunci') || span.textContent.includes('Terbuka')) {
+            if (isDev) {
+                span.textContent = '(Terbuka Mode Developer)';
+                span.className = 'text-[9px] font-bold text-indigo-600 normal-case ml-1';
+            } else {
+                span.textContent = '(Terkunci)';
+                span.className = 'text-[9px] font-medium text-slate-400 normal-case';
+            }
+        }
+    });
+
+    console.log('[DEBUG] toggleEditMeetingInfo - Developer Mode:', isDev);
+
     // Open modal
     window.toggleModal('editMeetingInfoModal', true);
 }
@@ -1312,6 +1388,23 @@ window.handleEditMeetingInfo = async function(e) {
         .map(p => p.trim())
         .filter(p => p.length > 0);
 
+    // Collect field-field terkunci (Lingkup & Identitas Pimpinan)
+    const lingkup = document.getElementById('editMeetingLingkup').value;
+    const leaderName = document.getElementById('editMeetingLeaderName').value.trim();
+    const leaderNip = document.getElementById('editMeetingLeaderNip').value.trim();
+    const leaderTitle = document.getElementById('editMeetingLeaderTitle').value.trim();
+
+    // Mapping untuk lingkup (convert ke format panjang)
+    const lingkupMapping = {
+        'Umum': 'Universitas Samudra (Umum)',
+        'Ekonomi': 'Fakultas Ekonomi dan Bisnis',
+        'Hukum': 'Fakultas Hukum',
+        'Sains': 'Fakultas Sains dan Teknologi',
+        'Pertanian': 'Fakultas Pertanian',
+        'FKIP': 'Fakultas Keguruan dan Ilmu Pendidikan'
+    };
+    const lingkupFull = lingkupMapping[lingkup] || lingkup;
+
     // Validate required fields
     if (!title || !meetingDate || !meetingLocation || !meetingStartTime || !meetingEndTime) {
         showToast('Error: Semua field wajib harus diisi');
@@ -1322,7 +1415,9 @@ window.handleEditMeetingInfo = async function(e) {
 
     try {
         const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', activeRoom.id);
-        await updateDoc(roomRef, {
+        
+        // Build update data - selalu sertakan field-field terkunci
+        const updateData = {
             title,
             description,
             meetingDate,
@@ -1330,8 +1425,14 @@ window.handleEditMeetingInfo = async function(e) {
             meetingStartTime,
             meetingEndTime,
             meetingParticipants: participants,
+            lingkup: lingkupFull,
+            leaderName,
+            leaderNip,
+            leaderTitle,
             updatedAt: new Date().toISOString()
-        });
+        };
+
+        await updateDoc(roomRef, updateData);
 
         // Update local data
         currentMeetingData = {
@@ -1342,8 +1443,20 @@ window.handleEditMeetingInfo = async function(e) {
             meetingLocation,
             meetingStartTime,
             meetingEndTime,
-            meetingParticipants: participants
+            meetingParticipants: participants,
+            lingkup: lingkupFull,
+            leaderName,
+            leaderNip,
+            leaderTitle
         };
+
+        // Update tampilan meeting info panel jika ada
+        if (typeof roomManagementModule !== 'undefined' && roomManagementModule.updateMeetingInfoPanel) {
+            roomManagementModule.updateMeetingInfoPanel({
+                ...currentMeetingData,
+                id: activeRoom.id
+            });
+        }
 
         // Close modal
         window.toggleModal('editMeetingInfoModal', false);
