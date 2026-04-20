@@ -83,7 +83,7 @@ import { createSettingsModule } from "./settings-module.js";
 import { createMinutesModule } from "./minutes-module.js";
 import { createMinutesToolsModule } from "./minutes-tools-module.js";
 import { createDashboardModule } from "./dashboard-module.js";
-import { createProfileCardHTML } from "./profile-card-utils.js";
+import { createProfileCardHTML, getDefaultAvatar, getAvatarByIndex, getAvatarOptions } from "./profile-card-utils.js";
 
 // --- KONFIGURASI FIREBASE ---
 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -2176,9 +2176,7 @@ manualInput.required = false;
 };
 
 // Handler untuk perubahan jenis kelamin - regenerate avatar grid
-window.handleJenisKelaminChange = async function() {
-    const jenisKelamin = document.getElementById('settingsJenisKelamin').value;
-    
+window.handleJenisKelaminChange = function() {
     // Regenerate avatar grid based on gender
     window.generateAvatarGrid();
     
@@ -2187,12 +2185,11 @@ window.handleJenisKelaminChange = async function() {
 };
 
 // Generate avatar selection grid
-window.generateAvatarGrid = async function() {
+window.generateAvatarGrid = function() {
     const jenisKelamin = document.getElementById('settingsJenisKelamin').value || 'neutral';
     const grid = document.getElementById('settingsAvatarGrid');
     const avatarPreview = document.getElementById('settingsAvatarPreview');
     const avatarLabel = document.getElementById('settingsAvatarLabel');
-    const { getAvatarOptions, getAvatarByIndex } = await import('./profile-card-utils.js');
     
     if (!grid) return;
     
@@ -2227,12 +2224,11 @@ window.generateAvatarGrid = async function() {
 };
 
 // Select avatar from grid
-window.selectAvatar = async function(index) {
+window.selectAvatar = function(index) {
     const jenisKelamin = document.getElementById('settingsJenisKelamin').value || 'neutral';
     const avatarIndexInput = document.getElementById('settingsAvatarIndex');
     const avatarPreview = document.getElementById('settingsAvatarPreview');
     const avatarLabel = document.getElementById('settingsAvatarLabel');
-    const { getAvatarByIndex, getAvatarOptions } = await import('./profile-card-utils.js');
     
     // Update hidden input
     if (avatarIndexInput) avatarIndexInput.value = index;
@@ -2258,8 +2254,7 @@ window.selectAvatar = async function(index) {
 };
 
 // Helper untuk update preview kartu profil
-window.updateSettingsProfileCardPreview = async function() {
-    const { createProfileCardHTML } = await import('./profile-card-utils.js');
+window.updateSettingsProfileCardPreview = function() {
     const container = document.getElementById('settingsProfileCardContainer');
     if (!container) return;
     
