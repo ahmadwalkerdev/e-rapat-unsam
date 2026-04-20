@@ -18,8 +18,12 @@ getUserRole,
 getIsDeveloper,
 getActiveRoom,
 getCurrentUser,
-getUnsubscribers
+getUnsubscribers,
+playPingSound
 } = deps;
+
+// Track last ping timestamp to avoid playing sound multiple times
+let lastPingTimestamp = null;
 
 function openParticipantProfileCard(data) {
     console.log('[ATTENDANCE] openParticipantProfileCard called with data:', data?.name);
@@ -151,11 +155,28 @@ function setupRealtimeAttendance(roomId) {
         let notulens = [];
         let pesertas = [];
 
+        const currentUser = getCurrentUser();
+        
         snap.forEach(d => {
             const data = d.data();
             count++;
             if (data.role === 'notulen') notulens.push({id: d.id, ...data});
             else pesertas.push({id: d.id, ...data});
+            
+            // FIX: Check if current user was pinged and play sound
+            if (currentUser && data.uid === currentUser.uid && data.pingTimestamp) {
+                const pingTime = new Date(data.pingTimestamp).getTime();
+                const lastPing = lastPingTimestamp ? new Date(lastPingTimestamp).getTime() : 0;
+                
+                // If this is a new ping (within last 10 seconds to avoid old pings)
+                if (pingTime > lastPing && Date.now() - pingTime < 10000) {
+                    lastPingTimestamp = data.pingTimestamp;
+                    if (playPingSound) {
+                        playPingSound();
+                        showToast("🔔 Anda dipanggil oleh Notulen!");
+                    }
+                }
+            }
         });
 
         const renderUserItem = (data, docId) => {
