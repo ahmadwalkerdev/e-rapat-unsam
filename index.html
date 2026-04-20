@@ -2729,6 +2729,15 @@ Keluar Sesi
 <label class="text-[10px] font-bold text-slate-500 uppercase">NIP <span class="text-red-500">*</span></label>
 <input type="text" id="setupNip" required placeholder="Contoh: 19850101 201012 1 001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Jenis Kelamin <span class="text-red-500">*</span></label>
+<select id="setupJenisKelamin" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm cursor-pointer">
+<option value="" disabled selected>Pilih Jenis Kelamin</option>
+<option value="male">Laki-laki</option>
+<option value="female">Perempuan</option>
+</select>
+<p class="text-[9px] text-slate-400 mt-0.5">Wajib diisi untuk menentukan avatar profil</p>
+</div>
 
 <!-- OPSI C: Selector Staff vs Dosen -->
 <div class="space-y-1 pt-2 border-t border-slate-100">
@@ -2899,12 +2908,13 @@ Pengaturan Akun
 <input type="text" id="settingsName" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 </div>
 <div class="space-y-2">
-<label class="block text-xs font-bold text-slate-500 uppercase">Jenis Kelamin <span class="text-slate-400 font-normal">(Untuk Avatar Default)</span></label>
-<select id="settingsJenisKelamin" onchange="window.handleJenisKelaminChange()" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm cursor-pointer">
-<option value="">Pilih / Random</option>
+<label class="block text-xs font-bold text-slate-500 uppercase">Jenis Kelamin <span class="text-red-500">*</span></label>
+<select id="settingsJenisKelamin" required onchange="window.handleJenisKelaminChange()" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm cursor-pointer">
+<option value="" disabled selected>Pilih Jenis Kelamin</option>
 <option value="male">Laki-laki</option>
 <option value="female">Perempuan</option>
 </select>
+<p class="text-[10px] text-slate-400 mt-1">Wajib diisi untuk menentukan avatar</p>
 </div>
 <div class="space-y-2 col-span-full">
 <label class="block text-xs font-bold text-slate-500 uppercase">Pilih Avatar</label>

@@ -241,6 +241,7 @@ const currentUser = getCurrentUser();
 if (!currentUser) return;
 const name = readInputValue('setupName');
 const nip = readInputValue('setupNip');
+const jenisKelamin = readInputValue('setupJenisKelamin');
 const nidn = readInputValue('setupNidn');
 const nidk = readInputValue('setupNidk');
 const jabatanFungsional = readInputValue('setupJabatanFungsional');
@@ -272,14 +273,21 @@ throw new Error("Kategori Pegawai wajib dipilih.");
 showLoading(true, "Menyimpan Profil...");
 try {
 if (!nip) throw new Error("NIP wajib diisi.");
+if (!jenisKelamin) throw new Error("Jenis Kelamin wajib dipilih.");
 if (!jabatanFungsional) throw new Error("Jabatan Fungsional wajib diisi.");
 if (nidn && nidk) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
-await updateProfile(currentUser, { displayName: name });
+// Build photoURL from avatar selection
+const avatarIndex = '0';
+const photoURL = `./assets/avatars/default-${jenisKelamin}.png`;
+
+await updateProfile(currentUser, { displayName: name, photoURL: photoURL });
 await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), {
 name: name,
 emailInstitusi: currentUser.email,
 nip: nip || '',
+jenisKelamin: jenisKelamin || '',
+avatarIndex: avatarIndex,
 nidn: nidn || '',
 nidk: nidk || '',
 kategoriPegawai: kategoriPegawai || '',
@@ -287,6 +295,7 @@ fakultas: fakultas || '',
 jurusan: jurusan || '',
 unitKerja: unitKerja || '',
 jabatanFungsional: jabatanFungsional || '',
+photoURL: photoURL,
 updatedAt: new Date().toISOString(),
 setupComplete: true
 }, { merge: true });
