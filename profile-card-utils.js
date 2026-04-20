@@ -43,8 +43,16 @@ export function createProfileCardHTML(data, options = {}) {
         institution,
         position,
         isGuest,
-        role
+        role,
+        kategoriPegawai
     } = data || {};
+    
+    // Determine user category (dosen/staff) for dynamic display
+    const isDosen = kategoriPegawai === 'dosen' || data.fakultas;
+    const isStaff = kategoriPegawai === 'staff' || (!data.fakultas && unitKerja);
+    const categoryBadge = isDosen 
+        ? '<span class="bg-amber-400/90 text-white px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase ml-2">DOSEN</span>'
+        : (isStaff ? '<span class="bg-slate-400/90 text-white px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase ml-2">STAFF</span>' : '');
 
     const {
         isModal = false,
@@ -58,9 +66,12 @@ export function createProfileCardHTML(data, options = {}) {
     const displayName = name || 'Nama Akun';
     const displayEmail = email || emailInstitusi || 'email@unsam.ac.id';
     const displayNip = nip || '-';
-    const displayNidnNidk = nidn 
-        ? `NIDN: ${nidn}` 
-        : (nidk ? `NIDK: ${nidk}` : '-');
+    // Only show NIDN/NIDK for dosen
+    const displayNidnNidk = isDosen 
+        ? (nidn ? `NIDN: ${nidn}` : (nidk ? `NIDK: ${nidk}` : '-'))
+        : null; // null means don't show this field
+    // Dynamic label for unit: Fakultas/Jurusan for dosen, Unit Kerja for staff
+    const unitLabel = isDosen ? 'Fakultas / Jurusan' : 'Unit Kerja';
     const displayUnit = isGuest 
         ? (institution || '-') 
         : (data.fakultas && data.jurusan ? `${data.fakultas} / ${data.jurusan}` : (unitKerja || '-'));
@@ -106,23 +117,28 @@ export function createProfileCardHTML(data, options = {}) {
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h4 class="text-2xl md:text-3xl font-extrabold tracking-tight truncate">${safeName}</h4>
+                    <div class="flex items-center flex-wrap">
+                        <h4 class="text-2xl md:text-3xl font-extrabold tracking-tight truncate">${safeName}</h4>
+                        ${categoryBadge}
+                    </div>
                     <p class="text-xs md:text-sm text-white/85 font-medium mt-1 truncate">${safeEmail}</p>
                     <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <div class="bg-white/10 border border-white/20 rounded-2xl px-4 py-3">
                             <p class="text-[10px] uppercase tracking-wider font-bold text-white/80">NIP</p>
                             <p id="${idPrefix}Nip" class="font-extrabold text-white tracking-wide">${escapeHtml(displayNip)}</p>
                         </div>
+                        ${displayNidnNidk !== null ? `
                         <div class="bg-white/10 border border-white/20 rounded-2xl px-4 py-3">
                             <p class="text-[10px] uppercase tracking-wider font-bold text-white/80">NIDN / NIDK</p>
                             <p id="${idPrefix}NidnNidk" class="font-extrabold text-white tracking-wide">${escapeHtml(displayNidnNidk)}</p>
                         </div>
+                        ` : ''}
                         <div class="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 sm:col-span-2">
-                            <p class="text-[10px] uppercase tracking-wider font-bold text-white/80">Unit Kerja (Fakultas / Jurusan)</p>
+                            <p class="text-[10px] uppercase tracking-wider font-bold text-white/80">${unitLabel}</p>
                             <p id="${idPrefix}UnitKerja" class="font-bold text-white/95 truncate">${escapeHtml(displayUnit)}</p>
                         </div>
                         <div class="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 sm:col-span-2">
-                            <p class="text-[10px] uppercase tracking-wider font-bold text-white/80">Jabatan Fungsional</p>
+                            <p class="text-[10px] uppercase tracking-wider font-bold text-white/80">Jabatan</p>
                             <p id="${idPrefix}JabatanFungsional" class="font-bold text-white/95 truncate">${escapeHtml(displayJabatan)}</p>
                         </div>
                     </div>
