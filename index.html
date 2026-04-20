@@ -725,34 +725,57 @@ savedRoomPin,
 savedRoomRole,
 });
 
-onAuthStateChanged(auth, async (user) => {
-if (isRegistering) return;
-if (user) {
-currentUser = user;
-const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
-const profileData = userDoc.data() || {};
-isDeveloper = profileData.isDeveloper || false;
-const inputPanel = document.getElementById('devPinInputPanel');
-const successPanel = document.getElementById('devActivePanel');
-if(inputPanel && successPanel) {
-if (isDeveloper) {
-inputPanel.classList.add('hidden');
-successPanel.classList.remove('hidden');
-} else {
-inputPanel.classList.remove('hidden');
-successPanel.classList.add('hidden');
-}
-}
-if (!userDoc.exists() || !profileData?.setupComplete) {
-showApp();
-switchView('setup-profile');
-const setupNameInput = document.getElementById('setupName');
-if (setupNameInput) setupNameInput.value = user.displayName || "";
-} else {
-updateUserDisplay();
-showApp();
+// FUNGSI TAMPILKAN FIELD BERDASARKAN ROLE
+window.showFieldsByRole = (role) => {
+    console.log('[SETUP] Showing fields for role:', role);
+    const groups = {
+        mahasiswa: document.getElementById('group-mahasiswa'),
+        nip: document.getElementById('group-nip'),
+        dosen: document.getElementById('group-dosen'),
+        staf: document.getElementById('group-staf'),
+        akademik: document.getElementById('group-akademik')
+    };
 
-// Cek URL room access terlebih dahulu
+    // Reset semua
+    Object.values(groups).forEach(g => g?.classList.add('hidden'));
+
+    if (role === 'Mahasiswa') {
+        groups.mahasiswa?.classList.remove('hidden');
+        groups.akademik?.classList.remove('hidden');
+        groups.akademik?.classList.remove('grid'); // Gunakan format standar untuk mahasiswa
+    } else if (role === 'Dosen') {
+        groups.nip?.classList.remove('hidden');
+        groups.dosen?.classList.remove('hidden');
+        groups.akademik?.classList.remove('hidden');
+        groups.akademik?.classList.add('grid');
+    } else if (role === 'Staf') {
+        groups.nip?.classList.remove('hidden');
+        groups.staf?.classList.remove('hidden');
+    }
+};
+
+onAuthStateChanged(auth, async (user) => {
+    if (isRegistering) return;
+    if (user) {
+        currentUser = user;
+        const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
+        const profileData = userDoc.data() || {};
+        isDeveloper = profileData.isDeveloper || false;
+        
+        if (!userDoc.exists() || !profileData?.setupComplete) {
+            showApp();
+            switchView('setup-profile');
+            const setupNameInput = document.getElementById('setupName');
+            if (setupNameInput) setupNameInput.value = user.displayName || "";
+            
+            // Ambil role dari data awal jika ada (hasil registrasi)
+            const role = profileData.role || sessionStorage.getItem('pendingRole') || 'Dosen';
+            document.getElementById('setupRole').value = role;
+            window.showFieldsByRole(role);
+        } else {
+            updateUserDisplay();
+            showApp();
+            // ... sisa kode URL access ...
 const urlAccess = sessionStorage.getItem('urlRoomAccess') || window.handleUrlRoomAccess();
 if (urlAccess) {
 console.log('[AUTH] Processing URL room access before session restore');
@@ -2010,6 +2033,14 @@ Lanjutkan dengan Google
 <input type="email" required placeholder="dosen@unsam.ac.id" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
 </div>
 <div>
+<label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">Role Pengguna <span class="text-red-500">*</span></label>
+<select id="registerRole" required class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium appearance-none cursor-pointer">
+<option value="Dosen">Dosen</option>
+<option value="Mahasiswa">Mahasiswa</option>
+<option value="Staf">Staf Biro / Admin</option>
+</select>
+</div>
+<div>
 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 ml-1">Kata Sandi</label>
 <input type="password" required placeholder="••••••••" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-medium">
 </div>
@@ -2122,31 +2153,81 @@ Keluar Sesi
 <p class="text-xs text-slate-500 mt-1">Harap atur identitas dan kata sandi pertama Anda.</p>
 </div>
 <form onsubmit="window.handleSetupProfile(event)" class="space-y-4">
+<input type="hidden" id="setupRole">
+            
 <div class="space-y-1">
-<label class="text-[10px] font-bold text-slate-500 uppercase">Nama & Gelar</label>
-<input type="text" id="setupName" required placeholder="Contoh: Dr. Ir. Ahmad Syarif, M.T." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Nama & Gelar <span class="text-red-500">*</span></label>
+<input type="text" id="setupName" required placeholder="Contoh: Dr. Hendri Saputra, S.Pd., M.Pd." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
+
+<!-- MAHASISWA ONLY -->
+<div id="group-mahasiswa" class="hidden space-y-4">
 <div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">NIM <span class="text-red-500">*</span></label>
+<input type="text" id="setupNim" placeholder="Masukkan NIM Anda" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+</div>
+
+<!-- DOSEN & STAF (NIP) -->
+<div id="group-nip" class="hidden space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">NIP <span class="text-red-500">*</span></label>
-<input type="text" id="setupNip" required placeholder="Contoh: 19850101 201012 1 001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<input type="text" id="setupNip" placeholder="Contoh: 19850101 201012 1 001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+<!-- DOSEN ONLY -->
+<div id="group-dosen" class="hidden space-y-4">
+<div class="grid grid-cols-2 gap-4">
 <div class="space-y-1">
-<label class="text-[10px] font-bold text-slate-500 uppercase">NIDN <span class="text-slate-400 font-normal">(Opsional)</span></label>
+<label class="text-[10px] font-bold text-slate-500 uppercase">NIDN/NIDK <span class="text-red-500">*</span></label>
 <input type="text" id="setupNidn" placeholder="Contoh: 0001018501" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
 <div class="space-y-1">
-<label class="text-[10px] font-bold text-slate-500 uppercase">NIDK <span class="text-slate-400 font-normal">(Opsional)</span></label>
-<input type="text" id="setupNidk" placeholder="Khusus Dosen Kontrak" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Jabatan Fungsional <span class="text-red-500">*</span></label>
+<input type="text" id="setupJabatanFungsional" placeholder="Lektor / Asisten Ahli" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
 </div>
 </div>
+</div>
+
+<!-- STAF ONLY -->
+<div id="group-staf" class="hidden space-y-4">
 <div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">Unit Kerja <span class="text-red-500">*</span></label>
-<input type="text" id="setupUnitKerja" required placeholder="Contoh: Biro Akademik / LPPM" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<input type="text" id="setupUnitKerja" placeholder="Biro Akademik / LPPM" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+</div>
+
+<!-- GLOBAL (Fakultas, Jurusan, Jabatan Struktural) -->
+<div id="group-akademik" class="hidden grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Fakultas <span class="text-red-500">*</span></label>
+<select id="setupFakultas" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<option value="FKIP">FKIP</option>
+<option value="Teknik">Teknik</option>
+<option value="Ekonomi">Ekonomi</option>
+<option value="Hukum">Hukum</option>
+<option value="Pertanian">Pertanian</option>
+</select>
 </div>
 <div class="space-y-1">
-<label class="text-[10px] font-bold text-slate-500 uppercase">Jabatan Fungsional <span class="text-red-500">*</span></label>
-<input type="text" id="setupJabatanFungsional" required placeholder="Contoh: Lektor Kepala / Asisten Ahli" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Jurusan/Prodi <span class="text-red-500">*</span></label>
+<input type="text" id="setupJurusan" placeholder="Contoh: Informatika" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+</div>
+
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Jabatan Struktural <span class="text-slate-400 font-normal">(Opsional)</span></label>
+<input type="text" id="setupJabatanStruktural" placeholder="Contoh: Dekan / Ketua Jurusan" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Nomor HP <span class="text-slate-400 font-normal">(Opsional)</span></label>
+<input type="tel" id="setupPhone" placeholder="08..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Email Cadangan <span class="text-slate-400 font-normal">(Opsional)</span></label>
+<input type="email" id="setupEmailAlternat" placeholder="email@gmail.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm">
+</div>
 </div>
 <div class="space-y-1 pt-4 border-t border-slate-50">
 <label class="text-[10px] font-bold text-slate-500 uppercase">Atur Kata Sandi Baru</label>
