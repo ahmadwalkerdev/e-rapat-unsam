@@ -706,10 +706,38 @@ ${statusBadge}
             if (locEl) locEl.value = data.meetingLocation || '';
             if (partEl) partEl.value = (data.meetingParticipants || []).join('\n');
             
-            // Handle Lingkup Rapat
+            // Handle Identitas Pimpinan Rapat (Field Terkunci untuk Notulen Biasa)
+            const isDev = getIsDeveloper();
+            if (leaderNameEl) {
+                leaderNameEl.value = data.leaderName || '';
+                leaderNameEl.readOnly = !isDev;
+                leaderNameEl.classList.toggle('bg-slate-100', !isDev);
+                leaderNameEl.classList.toggle('bg-slate-50', isDev);
+                leaderNameEl.classList.toggle('cursor-not-allowed', !isDev);
+                leaderNameEl.classList.toggle('text-slate-500', !isDev);
+                leaderNameEl.classList.toggle('font-bold', !isDev);
+            }
+            if (leaderNipEl) {
+                leaderNipEl.value = data.leaderNip || '';
+                leaderNipEl.readOnly = !isDev;
+                leaderNipEl.classList.toggle('bg-slate-100', !isDev);
+                leaderNipEl.classList.toggle('bg-slate-50', isDev);
+                leaderNipEl.classList.toggle('cursor-not-allowed', !isDev);
+                leaderNipEl.classList.toggle('text-slate-500', !isDev);
+                leaderNipEl.classList.toggle('font-bold', !isDev);
+            }
+            if (leaderTitleEl) {
+                leaderTitleEl.value = data.leaderTitle || '';
+                leaderTitleEl.readOnly = !isDev;
+                leaderTitleEl.classList.toggle('bg-slate-100', !isDev);
+                leaderTitleEl.classList.toggle('bg-slate-50', isDev);
+                leaderTitleEl.classList.toggle('cursor-not-allowed', !isDev);
+                leaderTitleEl.classList.toggle('text-slate-500', !isDev);
+                leaderTitleEl.classList.toggle('font-bold', !isDev);
+            }
+            
+            // Handle Lingkup Rapat (Terkunci untuk Notulen Biasa)
             if (lingkupEl) {
-                // Mapping untuk mendukung data lama (Umum/Sains/Ekonomi) 
-                // maupun data baru (nama lengkap) agar tetap sinkron dengan value di HTML
                 const mapping = {
                     'Universitas Samudra (Umum)': 'Umum',
                     'Fakultas Ekonomi dan Bisnis': 'Ekonomi',
@@ -718,16 +746,31 @@ ${statusBadge}
                     'Fakultas Pertanian': 'Pertanian',
                     'Fakultas Keguruan dan Ilmu Pendidikan': 'FKIP'
                 };
-                // Jika data di Firestore adalah format panjang, konversi ke format pendek agar match dengan value <option>
                 const finalValue = mapping[data.lingkup] || data.lingkup || 'Umum';
                 lingkupEl.value = finalValue;
-                console.log('[DEBUG] Setting Lingkup element value to:', finalValue);
+                lingkupEl.disabled = !isDev;
+                lingkupEl.classList.toggle('bg-slate-100', !isDev);
+                lingkupEl.classList.toggle('bg-slate-50', isDev);
+                lingkupEl.classList.toggle('cursor-not-allowed', !isDev);
+                lingkupEl.classList.toggle('text-slate-500', !isDev);
+                lingkupEl.classList.toggle('font-bold', !isDev);
             }
-            
-            // Handle Identitas Pimpinan Rapat (Field Terkunci)
-            if (leaderNameEl) leaderNameEl.value = data.leaderName || '';
-            if (leaderNipEl) leaderNipEl.value = data.leaderNip || '';
-            if (leaderTitleEl) leaderTitleEl.value = data.leaderTitle || '';
+
+            // Update Label status terkunci (UI Feedback)
+            const lockedLabels = document.querySelectorAll('#editMeetingInfoModal label span.normal-case');
+            lockedLabels.forEach(span => {
+                if (span.textContent.includes('Terkunci')) {
+                    if (isDev) {
+                        span.textContent = '(Terbuka Mode Developer)';
+                        span.className = 'text-[9px] font-bold text-indigo-600 normal-case ml-1';
+                    } else {
+                        span.textContent = '(Terkunci)';
+                        span.className = 'text-[9px] font-medium text-slate-400 normal-case';
+                    }
+                }
+            });
+
+            console.log('[DEBUG] Modal fields populated. Developer Mode:', isDev);
 
             console.log('[DEBUG] Modal fields populated');
         }, 50);

@@ -221,7 +221,8 @@ async function handleEditMeetingInfo(e) {
     const dashboardRoomId = modalEl?.getAttribute('data-current-room-id') || '';
     const roomId = activeRoom?.id || dashboardRoomId;
 
-    if (!roomId || getUserRole() !== 'notulen') return;
+    const isDeveloper = (typeof deps.getIsDeveloper === 'function') ? deps.getIsDeveloper() : false;
+    if (!roomId || (getUserRole() !== 'notulen' && !isDeveloper)) return;
 
     showLoading(true, "Menyimpan...");
     try {
