@@ -244,8 +244,6 @@ const nip = readInputValue('setupNip');
 const nidn = readInputValue('setupNidn');
 const nidk = readInputValue('setupNidk');
 const jabatanFungsional = readInputValue('setupJabatanFungsional');
-const ps = readInputValue('setupPassword');
-const confirmPs = readInputValue('setupConfirmPassword');
 
 // OPSI C: Handle Kategori Pegawai
 const kategoriPegawai = readInputValue('setupKategoriPegawai');
@@ -277,10 +275,6 @@ if (!nip) throw new Error("NIP wajib diisi.");
 if (!jabatanFungsional) throw new Error("Jabatan Fungsional wajib diisi.");
 if (nidn && nidk) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
-if (ps && ps.trim() !== "") {
-if (ps !== confirmPs) throw new Error("Konfirmasi kata sandi tidak cocok!");
-await updatePassword(currentUser, ps);
-}
 await updateProfile(currentUser, { displayName: name });
 await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), {
 name: name,
