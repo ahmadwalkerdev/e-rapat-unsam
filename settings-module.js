@@ -180,16 +180,43 @@ if (!email) {
 showToast("Harap masukkan email Anda.");
 return;
 }
+
+// BUG FIX #3: Validasi format email
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailRegex.test(email)) {
+showToast("Format email tidak valid.");
+return;
+}
+
 showLoading(true, "Mengirim Link Reset...");
 try {
 await sendPasswordResetEmail(auth, email);
 toggleModal('forgotPasswordModal', false);
+// BUG FIX #1: Reset input setelah sukses
+document.getElementById('resetPasswordEmail').value = '';
 showToast("✅ Link reset kata sandi telah dikirim. Periksa inbox dan folder spam email Anda.");
 } catch (err) {
-if (err.code === 'auth/user-not-found') {
-showToast("Email tidak ditemukan. Silakan daftar terlebih dahulu.");
-showToast("Gagal: " + err.message);
+// BUG FIX #2: Error handling yang lengkap
+let errorMsg = "Gagal mengirim link reset.";
+switch(err.code) {
+case 'auth/user-not-found':
+errorMsg = "Email tidak ditemukan. Silakan daftar terlebih dahulu.";
+break;
+case 'auth/invalid-email':
+errorMsg = "Format email tidak valid.";
+break;
+case 'auth/network-request-failed':
+// BUG FIX #4: Network error handling
+errorMsg = "Koneksi internet bermasalah. Periksa koneksi Anda.";
+break;
+case 'auth/too-many-requests':
+errorMsg = "Terlalu banyak percobaan. Silakan tunggu beberapa saat.";
+break;
+default:
+console.error('[PASSWORD RESET ERROR]', err.code, err.message);
+errorMsg = "Terjadi kesalahan. Silakan coba lagi nanti.";
 }
+showToast(errorMsg);
 } finally {
 showLoading(false);
 }
@@ -231,6 +258,14 @@ if (!newEmail || newEmail === originalEmail) {
 showToast("Email belum berubah atau kosong.");
 return;
 }
+
+// BUG FIX #3: Validasi format email
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailRegex.test(newEmail)) {
+showToast("Format email tidak valid.");
+return;
+}
+
 const currentUser = getCurrentUser();
 if (!currentUser) {
 showToast("Silakan login terlebih dahulu.");
@@ -243,15 +278,29 @@ showToast(`✅ Link verifikasi telah dikirim ke ${newEmail}. Silakan cek inbox d
 cancelEmailChange();
 updateEmailVerificationBadge();
 } catch (err) {
-if (err.code === 'auth/email-already-in-use') {
-showToast("Email sudah digunakan oleh akun lain.");
-} else if (err.code === 'auth/invalid-email') {
-showToast("Format email tidak valid.");
-} else if (err.code === 'auth/requires-recent-login') {
-showToast("Sesi telah kadaluarsa. Silakan logout dan login kembali.");
-} else {
-showToast("Gagal: " + err.message);
+let errorMsg = "Gagal mengubah email.";
+switch(err.code) {
+case 'auth/email-already-in-use':
+errorMsg = "Email sudah digunakan oleh akun lain.";
+break;
+case 'auth/invalid-email':
+errorMsg = "Format email tidak valid.";
+break;
+case 'auth/requires-recent-login':
+errorMsg = "Sesi telah kadaluarsa. Silakan logout dan login kembali.";
+break;
+case 'auth/network-request-failed':
+// BUG FIX #4: Network error handling
+errorMsg = "Koneksi internet bermasalah. Periksa koneksi Anda.";
+break;
+case 'auth/too-many-requests':
+errorMsg = "Terlalu banyak percobaan. Silakan tunggu beberapa saat.";
+break;
+default:
+console.error('[EMAIL CHANGE ERROR]', err.code, err.message);
+errorMsg = "Terjadi kesalahan. Silakan coba lagi nanti.";
 }
+showToast(errorMsg);
 } finally {
 showLoading(false);
 }
