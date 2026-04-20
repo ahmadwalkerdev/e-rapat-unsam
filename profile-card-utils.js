@@ -11,6 +11,19 @@ export function getInitials(name) {
     return cleaned.slice(0, 2).toUpperCase();
 }
 
+/**
+ * Get default avatar URL based on gender
+ * @param {string} gender - 'male', 'female', or null
+ * @returns {string} Path to default avatar
+ */
+export function getDefaultAvatar(gender) {
+    // Random if gender not specified
+    if (!gender || gender === '') {
+        gender = Math.random() > 0.5 ? 'male' : 'female';
+    }
+    return `./assets/avatars/default-${gender}.png`;
+}
+
 export function escapeHtml(value) {
     if (value === null || value === undefined) return '';
     const str = String(value);
@@ -44,7 +57,8 @@ export function createProfileCardHTML(data, options = {}) {
         position,
         isGuest,
         role,
-        kategoriPegawai
+        kategoriPegawai,
+        jenisKelamin
     } = data || {};
     
     // Determine user category (dosen/staff) for dynamic display
@@ -78,7 +92,9 @@ export function createProfileCardHTML(data, options = {}) {
     const displayJabatan = isGuest 
         ? (position || '-') 
         : (jabatanFungsional || '-');
-    const avatarUrl = photoURL || photoUrl || '';
+    // Avatar URL logic: user photo > default avatar based on gender > initials fallback
+    const defaultAvatarUrl = getDefaultAvatar(jenisKelamin);
+    const avatarUrl = photoURL || photoUrl || defaultAvatarUrl;
 
     // Safe HTML values
     const safeName = escapeHtml(displayName);
@@ -89,9 +105,9 @@ export function createProfileCardHTML(data, options = {}) {
         ? 'w-full max-w-4xl rounded-[2rem] shadow-2xl relative'
         : 'relative overflow-hidden rounded-3xl border border-slate-200 shadow-sm';
 
-    // Avatar HTML - show image if available, otherwise show initials
+    // Avatar HTML - show image if available (user photo or default avatar)
     const avatarHtml = avatarUrl
-        ? `<img src="${escapeHtml(avatarUrl)}" class="w-full h-full object-cover" alt="Avatar">`
+        ? `<img src="${escapeHtml(avatarUrl)}" class="w-full h-full object-cover" alt="Avatar" onerror="this.parentElement.innerHTML='<div class=\'text-2xl font-extrabold text-white/95\'>${getInitials(displayName)}</div>'">`
         : `<div class="text-2xl font-extrabold text-white/95">${getInitials(displayName)}</div>`;
 
     // Close button for modal mode

@@ -119,7 +119,18 @@ if (!nip.trim()) throw new Error("NIP wajib diisi.");
 if (!jabatanFungsional.trim()) throw new Error("Jabatan Fungsional wajib diisi.");
 if (nidn.trim() && nidk.trim()) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
-await updateProfile(currentUser, { displayName: n });
+// Get jenis kelamin and photo URL
+const jenisKelamin = document.getElementById('settingsJenisKelamin')?.value || '';
+let photoURL = currentUser.photoURL || '';
+
+// Handle photo upload if new photo selected
+if (window.tempUploadedPhotoURL && window.tempUploadedPhotoURL.startsWith('data:')) {
+    // Upload to Firebase Storage (simplified - store base64 for now or implement storage upload)
+    // For now, we'll update the profile with the new photo URL
+    photoURL = window.tempUploadedPhotoURL;
+}
+
+await updateProfile(currentUser, { displayName: n, photoURL: photoURL });
 await setDoc(
 doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'),
 {
@@ -132,6 +143,8 @@ fakultas: fakultas || '',
 jurusan: jurusan || '',
 unitKerja: unitKerja || '',
 jabatanFungsional: jabatanFungsional || '',
+jenisKelamin: jenisKelamin || '',
+photoURL: photoURL || '',
 setupComplete: true,
 updatedAt: new Date().toISOString()
 },

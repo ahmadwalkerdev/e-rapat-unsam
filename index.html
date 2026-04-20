@@ -863,6 +863,16 @@ const jabatanFungsionalInput = document.getElementById('settingsJabatanFungsiona
 if (jabatanFungsionalInput) jabatanFungsionalInput.value = profileData.jabatanFungsional || '';
 const nameInput = document.getElementById('settingsName');
 if (nameInput) nameInput.value = displayName;
+// Populate Jenis Kelamin
+const jenisKelaminInput = document.getElementById('settingsJenisKelamin');
+if (jenisKelaminInput) jenisKelaminInput.value = profileData.jenisKelamin || '';
+// Populate Avatar Preview
+const avatarPreview = document.getElementById('settingsAvatarPreview');
+if (avatarPreview) {
+    const { getDefaultAvatar } = await import('./profile-card-utils.js');
+    const defaultAvatar = getDefaultAvatar(profileData.jenisKelamin);
+    avatarPreview.src = profileData.photoURL || currentUser.photoURL || defaultAvatar;
+}
 const settingsEmailInput = document.getElementById('settingsEmail');
 if (settingsEmailInput) {
 settingsEmailInput.value = currentUser.email || "";
@@ -2164,6 +2174,92 @@ manualInput.required = false;
 }
 };
 
+// Handler untuk perubahan jenis kelamin - update avatar preview
+window.handleJenisKelaminChange = async function() {
+    const jenisKelamin = document.getElementById('settingsJenisKelamin').value;
+    const avatarPreview = document.getElementById('settingsAvatarPreview');
+    const { getDefaultAvatar } = await import('./profile-card-utils.js');
+    
+    // Only update if no custom photo is uploaded
+    if (!window.tempUploadedPhotoURL && avatarPreview) {
+        avatarPreview.src = getDefaultAvatar(jenisKelamin);
+    }
+    
+    // Update profile card preview
+    window.updateSettingsProfileCardPreview();
+};
+
+// Handler untuk upload foto
+window.handlePhotoUpload = function(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Store temporary URL (will be uploaded to storage on save)
+            window.tempUploadedPhotoURL = e.target.result;
+            
+            // Update preview
+            const avatarPreview = document.getElementById('settingsAvatarPreview');
+            if (avatarPreview) {
+                avatarPreview.src = e.target.result;
+            }
+            
+            // Update profile card preview
+            window.updateSettingsProfileCardPreview();
+            
+            showToast("📷 Foto berhasil dipilih. Simpan untuk menerapkan.");
+        };
+        
+        reader.readAsDataURL(file);
+    }
+};
+
+// Reset ke avatar default
+window.resetToDefaultAvatar = async function() {
+    window.tempUploadedPhotoURL = null;
+    const jenisKelamin = document.getElementById('settingsJenisKelamin').value;
+    const avatarPreview = document.getElementById('settingsAvatarPreview');
+    const { getDefaultAvatar } = await import('./profile-card-utils.js');
+    
+    if (avatarPreview) {
+        avatarPreview.src = getDefaultAvatar(jenisKelamin);
+    }
+    
+    // Clear file input
+    const fileInput = document.getElementById('settingsPhotoUpload');
+    if (fileInput) fileInput.value = '';
+    
+    window.updateSettingsProfileCardPreview();
+    showToast("🔄 Avatar direset ke default");
+};
+
+// Helper untuk update preview kartu profil
+window.updateSettingsProfileCardPreview = async function() {
+    const { createProfileCardHTML } = await import('./profile-card-utils.js');
+    const container = document.getElementById('settingsProfileCardContainer');
+    if (!container) return;
+    
+    const profileData = {
+        name: document.getElementById('settingsName')?.value || '',
+        nip: document.getElementById('settingsNip')?.value || '',
+        nidn: document.getElementById('settingsNidn')?.value || '',
+        nidk: document.getElementById('settingsNidk')?.value || '',
+        fakultas: document.getElementById('settingsFakultas')?.value || '',
+        jurusan: document.getElementById('settingsJurusan')?.value || '',
+        unitKerja: document.getElementById('settingsUnitKerjaSelect')?.value || document.getElementById('settingsUnitKerjaManual')?.value || '',
+        jabatanFungsional: document.getElementById('settingsJabatanFungsional')?.value || '',
+        kategoriPegawai: document.getElementById('settingsKategoriPegawai')?.value || '',
+        jenisKelamin: document.getElementById('settingsJenisKelamin')?.value || '',
+        photoURL: window.tempUploadedPhotoURL || ''
+    };
+    
+    container.innerHTML = createProfileCardHTML(profileData, {
+        isModal: false,
+        idPrefix: 'settingsCard'
+    });
+};
+
 window.handleGuestLogout = () => {
 if(confirm("Yakin ingin keluar dari rapat?")) {
 // Clear guest session
@@ -2651,6 +2747,30 @@ Pengaturan Akun
 <div class="space-y-2">
 <label class="block text-xs font-bold text-slate-500 uppercase">Nama & Gelar</label>
 <input type="text" id="settingsName" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<div class="space-y-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">Jenis Kelamin <span class="text-slate-400 font-normal">(Untuk Avatar Default)</span></label>
+<select id="settingsJenisKelamin" onchange="window.handleJenisKelaminChange()" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm cursor-pointer">
+<option value="">Pilih / Random</option>
+<option value="male">Laki-laki</option>
+<option value="female">Perempuan</option>
+</select>
+</div>
+<div class="space-y-2 col-span-full md:col-span-1">
+<label class="block text-xs font-bold text-slate-500 uppercase">Foto Profil</label>
+<div class="flex items-center gap-3">
+<img id="settingsAvatarPreview" src="" class="w-12 h-12 rounded-xl border border-slate-200 object-cover bg-slate-100">
+<div class="flex-1">
+<input type="file" id="settingsPhotoUpload" accept="image/*" class="hidden" onchange="window.handlePhotoUpload(this)">
+<button type="button" onclick="document.getElementById('settingsPhotoUpload').click()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+Upload Foto
+</button>
+</div>
+<button type="button" onclick="window.resetToDefaultAvatar()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-100 transition-colors" title="Gunakan Avatar Default">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+</button>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">Kosongkan untuk menggunakan avatar default berdasarkan jenis kelamin</p>
 </div>
 <div class="space-y-2">
 <label class="block text-xs font-bold text-slate-500 uppercase">NIP <span class="text-red-500">*</span></label>
