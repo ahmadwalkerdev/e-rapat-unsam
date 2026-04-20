@@ -80,98 +80,84 @@ showLoading(false);
 return;
 }
 
-    const currentUser = getCurrentUser();
-    if (!currentUser) return;
+const currentUser = getCurrentUser();
+if (!currentUser) return;
+const nip = document.getElementById('settingsNip')?.value || '';
+const nidn = document.getElementById('settingsNidn')?.value || '';
+const nidk = document.getElementById('settingsNidk')?.value || '';
+const fakultas = document.getElementById('settingsFakultas')?.value || '';
+const jurusan = document.getElementById('settingsJurusan')?.value || '';
+const unitKerja = fakultas && jurusan ? `${fakultas} / ${jurusan}` : (fakultas || jurusan || '');
+const jabatanFungsional = document.getElementById('settingsJabatanFungsional')?.value || '';
+const op = document.getElementById('settingsOldPassword')?.value;
+const np = document.getElementById('settingsPassword')?.value;
+const cp = document.getElementById('settingsConfirmPassword')?.value;
 
-    const role = document.getElementById('settingsRole')?.value || 'Dosen';
-    const nip = document.getElementById('settingsNip')?.value || '';
-    const nim = document.getElementById('settingsNim')?.value || '';
-    const nidn = document.getElementById('settingsNidn')?.value || '';
-    const fakultas = document.getElementById('settingsFakultas')?.value || '';
-    const jurusan = document.getElementById('settingsJurusan')?.value || '';
-    const unitKerja = document.getElementById('settingsUnitKerja')?.value || '';
-    const jabatanFungsional = document.getElementById('settingsJabatanFungsional')?.value || '';
-    const jabatanStruktural = document.getElementById('settingsJabatanStruktural')?.value || '';
-    const phone = document.getElementById('settingsPhone')?.value || '';
-    const emailAlternat = document.getElementById('settingsEmailAlternat')?.value || '';
-    
-    const op = document.getElementById('settingsOldPassword')?.value;
-    const np = document.getElementById('settingsPassword')?.value;
-    const cp = document.getElementById('settingsConfirmPassword')?.value;
+// Enforce campus profile completeness for internal users
+if (!nip.trim()) throw new Error("NIP wajib diisi.");
+if (!fakultas.trim()) throw new Error("Fakultas wajib diisi.");
+if (!jurusan.trim()) throw new Error("Jurusan wajib diisi.");
+if (!jabatanFungsional.trim()) throw new Error("Jabatan Fungsional wajib diisi.");
+if (nidn.trim() && nidk.trim()) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
-    showLoading(true, "Menyimpan...");
-    try {
-        const profileData = {
-            name: n,
-            emailInstitusi: currentUser.email,
-            role: role,
-            phone: phone || '',
-            emailAlternat: emailAlternat || '',
-            jabatanStruktural: jabatanStruktural || '',
-            updatedAt: new Date().toISOString(),
-            setupComplete: true
-        };
+await updateProfile(currentUser, { displayName: n });
+await setDoc(
+doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'),
+{
+name: n,
+nip: nip || '',
+nidn: nidn || '',
+nidk: nidk || '',
+fakultas: fakultas || '',
+jurusan: jurusan || '',
+unitKerja: unitKerja || '',
+jabatanFungsional: jabatanFungsional || '',
+setupComplete: true,
+updatedAt: new Date().toISOString()
+},
+{ merge: true }
+);
+await updateUserNameAcrossSystem(n, {
+nip: nip || '',
+fakultas: fakultas || '',
+jurusan: jurusan || '',
+unitKerja: unitKerja || '',
+jabatanFungsional: jabatanFungsional || '',
+nidn: nidn || '',
+nidk: nidk || '',
+isGuest: false
+});
 
-        // Role-specific validation and data
-        if (role === 'Mahasiswa') {
-            if (!nim.trim()) throw new Error("NIM wajib diisi.");
-            profileData.nim = nim;
-            profileData.fakultas = fakultas;
-            profileData.jurusan = jurusan;
-        } else if (role === 'Dosen') {
-            if (!nip.trim()) throw new Error("NIP wajib diisi.");
-            if (!nidn.trim()) throw new Error("NIDN wajib diisi.");
-            profileData.nip = nip;
-            profileData.nidn = nidn;
-            profileData.jabatanFungsional = jabatanFungsional;
-            profileData.fakultas = fakultas;
-            profileData.jurusan = jurusan;
-        } else if (role === 'Staf') {
-            if (!nip.trim()) throw new Error("NIP wajib diisi.");
-            if (!unitKerja.trim()) throw new Error("Unit Kerja wajib diisi.");
-            profileData.nip = nip;
-            profileData.unitKerja = unitKerja;
-        }
+if (np && np.trim() !== "") {
+if (!op) throw new Error("Kata Sandi Lama diperlukan!");
+if (np !== cp) throw new Error("Konfirmasi tidak cocok!");
+try {
+const cred = EmailAuthProvider.credential(currentUser.email, op);
+await reauthenticateWithCredential(currentUser, cred);
+await updatePassword(currentUser, np);
+} catch (authError) {
+if (authError.code === 'auth/invalid-credential' || authError.code === 'auth/wrong-password') {
+throw new Error("Kata Sandi Lama yang Anda masukkan salah.");
+}
+throw authError;
+}
+}
 
-        await updateProfile(currentUser, { displayName: n });
-        await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), profileData, { merge: true });
-        
-        // Sync attendance records
-        await updateUserNameAcrossSystem(n, {
-            ...profileData,
-            isGuest: false
-        });
+document.getElementById('settingsOldPassword').value = "";
+document.getElementById('settingsPassword').value = "";
+document.getElementById('settingsConfirmPassword').value = "";
+const strengthCont = document.getElementById('passwordStrengthContainer');
+if (strengthCont) strengthCont.classList.add('hidden');
 
-        if (np && np.trim() !== "") {
-            if (!op) throw new Error("Kata Sandi Lama diperlukan!");
-            if (np !== cp) throw new Error("Konfirmasi tidak cocok!");
-            try {
-                const cred = EmailAuthProvider.credential(currentUser.email, op);
-                await reauthenticateWithCredential(currentUser, cred);
-                await updatePassword(currentUser, np);
-            } catch (authError) {
-                if (authError.code === 'auth/invalid-credential' || authError.code === 'auth/wrong-password') {
-                    throw new Error("Kata Sandi Lama yang Anda masukkan salah.");
-                }
-                throw authError;
-            }
-        }
-
-        document.getElementById('settingsOldPassword').value = "";
-        document.getElementById('settingsPassword').value = "";
-        document.getElementById('settingsConfirmPassword').value = "";
-        const strengthCont = document.getElementById('passwordStrengthContainer');
-        if (strengthCont) strengthCont.classList.add('hidden');
-
-        showToast("Profil berhasil diperbarui.");
-        updateUserDisplay();
-        return true;
-    } catch(error) {
-        showToast(error.message || "Gagal menyimpan perubahan.");
-        return false;
-    } finally {
-        showLoading(false);
-    }
+showToast("Profil berhasil diperbarui.");
+updateUserDisplay();
+return true;
+} catch(error) {
+showToast(error.message || "Gagal menyimpan perubahan.");
+return false;
+} finally {
+showLoading(false);
+}
 }
 
 async function sendVerificationEmailAction() {

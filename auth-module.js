@@ -69,7 +69,6 @@ if (type === 'login') {
 await signInWithEmailAndPassword(auth, em, ps);
 } else {
 const name = readInputValue('regName');
-const role = readInputValue('registerRole') || 'Dosen';
 const nip = readInputValue('regNip');
 const nidn = readInputValue('regNidn');
 const nidk = readInputValue('regNidk');
@@ -77,18 +76,13 @@ const unitKerja = readInputValue('regUnitKerja');
 const jabatanFungsional = readInputValue('regJabatanFungsional');
 const confirmPs = readInputValue('regConfirmPassword');
 if (ps !== confirmPs) throw new Error("Konfirmasi kata sandi tidak cocok!");
-        
 setIsRegistering(true);
-// Simpan role ke sessionStorage untuk digunakan saat setup-profile
-sessionStorage.setItem('pendingRole', role);
-
 try {
 const userCredential = await createUserWithEmailAndPassword(auth, em, ps);
 await updateProfile(userCredential.user, { displayName: name });
 await setDoc(doc(db, 'artifacts', appId, 'users', userCredential.user.uid, 'profile', 'data'), {
 name: name,
 emailInstitusi: em,
-role: role,
 nip: nip || '',
 nidn: nidn || '',
 nidk: nidk || '',
@@ -141,81 +135,49 @@ showLoading(false);
 }
 
 async function handleSetupProfile(e) {
-    e.preventDefault();
-    const currentUser = getCurrentUser();
-    if (!currentUser) return;
+e.preventDefault();
+const currentUser = getCurrentUser();
+if (!currentUser) return;
+const name = readInputValue('setupName');
+const nip = readInputValue('setupNip');
+const nidn = readInputValue('setupNidn');
+const nidk = readInputValue('setupNidk');
+const unitKerja = readInputValue('setupUnitKerja');
+const jabatanFungsional = readInputValue('setupJabatanFungsional');
+const ps = readInputValue('setupPassword');
+const confirmPs = readInputValue('setupConfirmPassword');
+showLoading(true, "Menyimpan Profil...");
+try {
+if (!nip) throw new Error("NIP wajib diisi.");
+if (!unitKerja) throw new Error("Unit Kerja wajib diisi.");
+if (!jabatanFungsional) throw new Error("Jabatan Fungsional wajib diisi.");
+if (nidn && nidk) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
-    const role = readInputValue('setupRole') || 'Dosen';
-    const name = readInputValue('setupName');
-    const ps = readInputValue('setupPassword');
-    const confirmPs = readInputValue('setupConfirmPassword');
-    
-    // Common optional fields
-    const phone = readInputValue('setupPhone');
-    const emailAlternat = readInputValue('setupEmailAlternat');
-    const jabatanStruktural = readInputValue('setupJabatanStruktural');
-
-    showLoading(true, "Menyimpan Profil...");
-    try {
-        const profileData = {
-            name: name,
-            emailInstitusi: currentUser.email,
-            role: role,
-            phone: phone || '',
-            emailAlternat: emailAlternat || '',
-            jabatanStruktural: jabatanStruktural || '',
-            updatedAt: new Date().toISOString(),
-            setupComplete: true
-        };
-
-        // Role-specific validation and data
-        if (role === 'Mahasiswa') {
-            const nim = readInputValue('setupNim');
-            if (!nim) throw new Error("NIM wajib diisi.");
-            profileData.nim = nim;
-            profileData.fakultas = readInputValue('setupFakultas');
-            profileData.jurusan = readInputValue('setupJurusan');
-        } else if (role === 'Dosen') {
-            const nip = readInputValue('setupNip');
-            const nidn = readInputValue('setupNidn');
-            const jabatanFungsional = readInputValue('setupJabatanFungsional');
-            if (!nip) throw new Error("NIP wajib diisi.");
-            if (!nidn) throw new Error("NIDN/NIDK wajib diisi.");
-            if (!jabatanFungsional) throw new Error("Jabatan Fungsional wajib diisi.");
-            
-            profileData.nip = nip;
-            profileData.nidn = nidn;
-            profileData.jabatanFungsional = jabatanFungsional;
-            profileData.fakultas = readInputValue('setupFakultas');
-            profileData.jurusan = readInputValue('setupJurusan');
-        } else if (role === 'Staf') {
-            const nip = readInputValue('setupNip');
-            const unitKerja = readInputValue('setupUnitKerja');
-            if (!nip) throw new Error("NIP wajib diisi.");
-            if (!unitKerja) throw new Error("Unit Kerja wajib diisi.");
-            
-            profileData.nip = nip;
-            profileData.unitKerja = unitKerja;
-        }
-
-        if (ps && ps.trim() !== "") {
-            if (ps !== confirmPs) throw new Error("Konfirmasi kata sandi tidak cocok!");
-            await updatePassword(currentUser, ps);
-        }
-
-        await updateProfile(currentUser, { displayName: name });
-        await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), profileData, { merge: true });
-        
-        sessionStorage.removeItem('pendingRole');
-        showToast("Profil berhasil dikonfigurasi.");
-        updateUserDisplay();
-        switchView('dashboard');
-        setupDashboardListener();
-    } catch (error) {
-        showToast(error.message || "Gagal menyimpan.");
-    } finally {
-        showLoading(false);
-    }
+if (ps && ps.trim() !== "") {
+if (ps !== confirmPs) throw new Error("Konfirmasi kata sandi tidak cocok!");
+await updatePassword(currentUser, ps);
+}
+await updateProfile(currentUser, { displayName: name });
+await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), {
+name: name,
+emailInstitusi: currentUser.email,
+nip: nip || '',
+nidn: nidn || '',
+nidk: nidk || '',
+unitKerja: unitKerja || '',
+jabatanFungsional: jabatanFungsional || '',
+updatedAt: new Date().toISOString(),
+setupComplete: true
+}, { merge: true });
+showToast("Profil berhasil dikonfigurasi.");
+updateUserDisplay();
+switchView('dashboard');
+setupDashboardListener();
+} catch (error) {
+showToast(error.message || "Gagal menyimpan.");
+} finally {
+showLoading(false);
+}
 }
 
 async function handleLogout() {
