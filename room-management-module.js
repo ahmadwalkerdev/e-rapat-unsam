@@ -150,6 +150,7 @@ toggleModal('createRoomModal', true);
 
 function updateMeetingInfoPanel(data) {
     if (!data) return;
+    console.log('[UI SYNC] Updating panel with data:', data.title, 'Lingkup:', data.lingkup);
 
     // Column 1
     const lingkupEl = document.getElementById('meetingInfoLingkup');
@@ -162,8 +163,10 @@ function updateMeetingInfoPanel(data) {
             'Pertanian': 'Fakultas Pertanian',
             'FKIP': 'Fakultas Keguruan dan Ilmu Pendidikan'
         };
-        // Tampilkan nama lengkap jika ada di mapping, jika tidak tampilkan aslinya
-        lingkupEl.textContent = mapping[data.lingkup] || data.lingkup || 'Umum';
+        // Prioritaskan mapping, jika tidak ada gunakan data asli
+        const fullLingkup = mapping[data.lingkup] || data.lingkup || 'Umum';
+        lingkupEl.textContent = fullLingkup;
+        console.log('[UI SYNC] Lingkup updated to:', fullLingkup);
     }
     
     const titleEl = document.getElementById('meetingInfoTitle');

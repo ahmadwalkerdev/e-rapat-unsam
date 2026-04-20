@@ -74,7 +74,10 @@ function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15, current
     // DINAMIS: Cek apakah lingkup fakultas
     let websiteUrl = 'unsam.ac.id';
     let facultyLine = '';
+    
+    // Pastikan kita mengambil lingkup terbaru dari data yang dikirim, bukan cache lama
     const lingkup = currentMeetingData?.lingkup || 'Umum';
+    console.log('[PDF SYNC] Drawing Letterhead for lingkup:', lingkup);
 
     if (lingkup !== 'Umum') {
         pdf.setFont('times', 'bold');
