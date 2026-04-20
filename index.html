@@ -2126,6 +2126,8 @@ window.handleSettingsKategoriChange = function() {
 const kategori = document.getElementById('settingsKategoriPegawai').value;
 const dosenFields = document.getElementById('settingsDosenFields');
 const staffFields = document.getElementById('settingsStaffFields');
+const nidnField = document.getElementById('settingsNidn')?.parentElement;
+const nidkField = document.getElementById('settingsNidk')?.parentElement;
 
 if (kategori === 'dosen') {
 dosenFields.classList.remove('hidden');
@@ -2133,12 +2135,18 @@ staffFields.classList.add('hidden');
 document.getElementById('settingsFakultas').required = true;
 document.getElementById('settingsJurusan').required = true;
 document.getElementById('settingsUnitKerjaSelect').required = false;
+// Tampilkan NIDN/NIDK untuk dosen
+if (nidnField) nidnField.classList.remove('hidden');
+if (nidkField) nidkField.classList.remove('hidden');
 } else if (kategori === 'staff') {
 dosenFields.classList.add('hidden');
 staffFields.classList.remove('hidden');
 document.getElementById('settingsFakultas').required = false;
 document.getElementById('settingsJurusan').required = false;
 document.getElementById('settingsUnitKerjaSelect').required = true;
+// Sembunyikan NIDN/NIDK untuk staff
+if (nidnField) nidnField.classList.add('hidden');
+if (nidkField) nidkField.classList.add('hidden');
 }
 };
 
