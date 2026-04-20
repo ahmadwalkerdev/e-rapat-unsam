@@ -1274,6 +1274,22 @@ function updateMeetingInfoSection(data) {
         content.classList.remove('hidden');
         icon.style.transform = 'rotate(180deg)';
     }
+    
+    // Default expand for sidebar panels - Resources
+    const resourcesContent = document.getElementById('resourcesPanelContent');
+    const resourcesIcon = document.getElementById('resourcesToggleIcon');
+    if (resourcesContent && resourcesIcon) {
+        resourcesContent.classList.remove('hidden');
+        resourcesIcon.style.transform = 'rotate(180deg)';
+    }
+    
+    // Default expand for sidebar panels - Participants
+    const participantsContent = document.getElementById('participantsPanelContent');
+    const participantsIcon = document.getElementById('participantsToggleIcon');
+    if (participantsContent && participantsIcon) {
+        participantsContent.classList.remove('hidden');
+        participantsIcon.style.transform = 'rotate(180deg)';
+    }
 }
 
 // Toggle Meeting Info Section
