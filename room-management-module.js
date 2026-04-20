@@ -270,13 +270,17 @@ async function handleEditMeetingInfo(e) {
 
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId), data);
         
-        // KRITIKAL: Sinkronisasi data ke State Utama aplikasi
+        // KRITIKAL: Sinkronisasi data ke State Utama aplikasi secara mendalam
         if (typeof window.updateActiveRoomData === 'function') {
             window.updateActiveRoomData(data);
         }
         
-        // Update tampilan panel informasi rapat secara real-time
-        updateMeetingInfoPanel({ ...data, id: roomId });
+        // PAKSA UPDATE UI: Memastikan elemen HTML langsung menerima data terbaru
+        if (typeof updateMeetingInfoPanel === 'function') {
+            updateMeetingInfoPanel({ ...data, id: roomId });
+        } else if (typeof window.updateMeetingInfoPanel === 'function') {
+            window.updateMeetingInfoPanel({ ...data, id: roomId });
+        }
 
         toggleModal('editMeetingInfoModal', false);
         // Bersihkan attribute agar tidak membocor ke edit selanjutnya

@@ -1491,28 +1491,11 @@ showToast("Gagal mengakses clipboard. Gunakan Ctrl+V.");
 }
 };
 
-window.confirmEndMeeting = async () => {
-await roomManagementModule.confirmEndMeeting();
-};
+window.confirmEndMeeting = roomManagementModule.confirmEndMeeting;
+window.updateMeetingInfoPanel = roomManagementModule.updateMeetingInfoPanel;
 
-window.copyToClipboard = async function(text) {
-try {
-await navigator.clipboard.writeText(text);
-showToast('PIN Disalin!');
-} catch (err) {
-const textArea = document.createElement("textarea"); 
-textArea.value = text; 
-textArea.style.position = "fixed"; 
-textArea.style.left = "-999999px"; 
-textArea.style.top = "-999999px";
-document.body.appendChild(textArea); 
-textArea.focus(); 
-textArea.select();
-try { document.execCommand('copy'); showToast('PIN Disalin!'); } catch (fallbackErr) { showToast('Gagal menyalin PIN'); }
-document.body.removeChild(textArea);
-}
-};
-
+// Guest Join Functions
+window.addGuestToAttendance = addGuestToAttendance;
 
 // Developer Mode: Handle attendance choice
 window.handleDevAttendanceChoice = function(choice) {
