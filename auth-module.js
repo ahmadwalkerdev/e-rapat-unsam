@@ -95,8 +95,22 @@ showLoading(false);
 
 async function handleAuthSubmit(e, type) {
 e.preventDefault();
-const em = e.target.querySelector('input[type="email"]').value;
-const ps = e.target.querySelector('input[type="password"]').value;
+const em = e.target.querySelector('input[type="email"]')?.value?.trim();
+const ps = e.target.querySelector('input[type="password"]')?.value;
+
+// BUG FIX #1: Validasi input kosong
+if (!em || !ps) {
+showToast("Email dan kata sandi wajib diisi.");
+return;
+}
+
+// Validasi format email dasar
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailRegex.test(em)) {
+showToast("Format email tidak valid.");
+return;
+}
+
 showLoading(true, type === 'login' ? "Otentikasi..." : "Mendaftarkan...");
 try {
 if (type === 'login') {
@@ -109,6 +123,12 @@ const nidk = readInputValue('regNidk');
 const unitKerja = readInputValue('regUnitKerja');
 const jabatanFungsional = readInputValue('regJabatanFungsional');
 const confirmPs = readInputValue('regConfirmPassword');
+
+// BUG FIX #3: Validasi kekuatan password
+if (ps.length < 6) {
+throw new Error("Kata sandi minimal 6 karakter.");
+}
+
 if (ps !== confirmPs) throw new Error("Konfirmasi kata sandi tidak cocok!");
 setIsRegistering(true);
 try {
@@ -122,6 +142,7 @@ nidn: nidn || '',
 nidk: nidk || '',
 unitKerja: unitKerja || '',
 jabatanFungsional: jabatanFungsional || '',
+provider: 'email',
 updatedAt: new Date().toISOString(),
 setupComplete: false
 });
@@ -145,6 +166,9 @@ showToast("Email sudah terdaftar. Silakan login atau gunakan email lain.");
 switchAuthMode('login');
 const loginEmailInput = document.querySelector('#loginFormContainer input[type="email"]');
 if(loginEmailInput) loginEmailInput.value = em;
+} else if (error.code === 'auth/weak-password') {
+setIsRegistering(false);
+showToast("Kata sandi terlalu lemah. Gunakan minimal 6 karakter.");
 } else {
 throw error;
 }
@@ -152,15 +176,45 @@ throw error;
 }
 } catch (err) {
 setIsRegistering(false);
+
+// BUG FIX #2 & #4: Error handling yang lebih komprehensif
 let msg = "Gagal masuk. Periksa email dan kata sandi Anda.";
-if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+switch(err.code) {
+case 'auth/wrong-password':
+case 'auth/invalid-credential':
 msg = "Kata sandi salah. Silakan coba lagi.";
-} else if (err.code === 'auth/user-not-found') {
-msg = "Akun tidak ditemukan.";
-} else if (err.code === 'auth/invalid-email') {
-msg = "Format email salah.";
-} else {
+// BUG FIX #4: Auto-reset password field saat login gagal
+const passInput = e.target.querySelector('input[type="password"]');
+if (passInput) {
+passInput.value = '';
+passInput.focus();
+}
+break;
+case 'auth/user-not-found':
+msg = "Akun tidak ditemukan. Silakan daftar terlebih dahulu.";
+break;
+case 'auth/invalid-email':
+msg = "Format email tidak valid.";
+break;
+case 'auth/user-disabled':
+msg = "Akun Anda telah dinonaktifkan. Hubungi administrator.";
+break;
+case 'auth/network-request-failed':
+msg = "Koneksi internet bermasalah. Periksa koneksi Anda.";
+break;
+case 'auth/too-many-requests':
+msg = "Terlalu banyak percobaan. Silakan tunggu beberapa saat.";
+break;
+case 'auth/weak-password':
+msg = "Kata sandi terlalu lemah. Gunakan minimal 6 karakter.";
+break;
+default:
+// BUG FIX #6: Sanitasi error message untuk security - jangan tampilkan error internal
+console.error('[LOGIN ERROR]', err.code, err.message);
+if (err.message && err.message.includes('password')) {
 msg = err.message;
+}
+break;
 }
 showToast(msg);
 } finally {
