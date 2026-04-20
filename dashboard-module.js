@@ -757,18 +757,23 @@ ${statusBadge}
             }
 
             // Update Label status terkunci (UI Feedback)
-            const lockedLabels = document.querySelectorAll('#editMeetingInfoModal label span.normal-case');
-            lockedLabels.forEach(span => {
-                if (span.textContent.includes('Terkunci')) {
+            const updateLabelStatus = (id, isDev) => {
+                const el = document.getElementById(id);
+                if (el) {
                     if (isDev) {
-                        span.textContent = '(Terbuka Mode Developer)';
-                        span.className = 'text-[9px] font-bold text-indigo-600 normal-case ml-1';
+                        el.textContent = '(Terbuka Mode Developer)';
+                        el.className = 'text-[9px] font-bold text-indigo-600 normal-case ml-1';
                     } else {
-                        span.textContent = '(Terkunci)';
-                        span.className = 'text-[9px] font-medium text-slate-400 normal-case';
+                        el.textContent = '(Terkunci)';
+                        el.className = 'text-[9px] font-medium text-slate-400 normal-case';
                     }
                 }
-            });
+            };
+
+            updateLabelStatus('labelLingkupStatus', isDev);
+            updateLabelStatus('labelLeaderNameStatus', isDev);
+            updateLabelStatus('labelLeaderNipStatus', isDev);
+            updateLabelStatus('labelLeaderTitleStatus', isDev);
 
             console.log('[DEBUG] Modal fields populated. Developer Mode:', isDev);
 
