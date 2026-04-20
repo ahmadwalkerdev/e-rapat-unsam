@@ -269,15 +269,17 @@ function exportMinutes() {
 }
 
 async function exportRoomToPDF() {
-    // SELALU ambil dari State Utama (getActiveRoom) agar data paling mutakhir hasil editan Developer masuk ke PDF
+    // KRITIKAL: Selalu ambil data terbaru langsung dari State Utama aplikasi yang diupdate oleh Listener
     const activeRoom = (typeof deps.getActiveRoom === 'function') ? deps.getActiveRoom() : null;
-    const currentMeetingData = activeRoom || ((typeof deps.getCurrentMeetingData === 'function') ? deps.getCurrentMeetingData() : null);
     
-    const quill = getQuill();
-    if (!activeRoom || !currentMeetingData) {
+    if (!activeRoom) {
         showToast('Tidak ada room aktif untuk diexport');
         return;
     }
+    
+    // Gunakan activeRoom sebagai sumber data utama untuk PDF
+    const currentMeetingData = activeRoom;
+    const quill = getQuill();
 
     showLoading(true, 'Menyiapkan export PDF...');
     try {
