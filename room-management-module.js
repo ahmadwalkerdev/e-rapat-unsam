@@ -270,14 +270,13 @@ async function handleEditMeetingInfo(e) {
 
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId), data);
         
-        // KRITIKAL: Update tampilan panel informasi rapat secara real-time
-        updateMeetingInfoPanel({ ...data, id: roomId });
-        
-        // Jika kita sedang berada di dalam room, update activeRoom state di app-state
-        const activeRoom = getActiveRoom();
-        if (activeRoom && activeRoom.id === roomId) {
-            Object.assign(activeRoom, data);
+        // KRITIKAL: Sinkronisasi data ke State Utama aplikasi
+        if (typeof window.updateActiveRoomData === 'function') {
+            window.updateActiveRoomData(data);
         }
+        
+        // Update tampilan panel informasi rapat secara real-time
+        updateMeetingInfoPanel({ ...data, id: roomId });
 
         toggleModal('editMeetingInfoModal', false);
         // Bersihkan attribute agar tidak membocor ke edit selanjutnya

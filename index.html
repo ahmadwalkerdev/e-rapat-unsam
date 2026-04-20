@@ -1068,6 +1068,14 @@ async function enterRoom(roomId, pin, isNotulen, isCreator = false) {
 await roomEntryModule.enterRoom(roomId, pin, isNotulen, isCreator);
 }
 
+function getActiveRoom() {
+    return roomEntryModule.getActiveRoom();
+}
+
+function updateActiveRoomData(newData) {
+    return roomEntryModule.updateActiveRoomData(newData);
+}
+
 async function continueEnterRoom(roomId, pin, isNotulen) {
 await roomEntryModule.continueEnterRoom(roomId, pin, isNotulen);
 }
