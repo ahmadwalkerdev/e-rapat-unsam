@@ -992,6 +992,7 @@ button:hover {
     /* Resources Panel */
     #resourcesPanelContent {
         max-height: 300px !important;
+        overflow-y: auto !important;
     }
 
     /* Sidebar Resizer Layout */
