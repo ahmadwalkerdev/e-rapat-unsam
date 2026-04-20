@@ -213,10 +213,16 @@ function updateMeetingInfoPanel(data) {
     }
 }
 
+function sanitizeInput(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 async function handleEditMeetingInfo(e) {
     e.preventDefault();
     const activeRoom = getActiveRoom();
-    // Fallback: jika dipanggil dari dashboard, gunakan data-current-room-id dari modal
     const modalEl = document.getElementById('editMeetingInfoModal');
     const dashboardRoomId = modalEl?.getAttribute('data-current-room-id') || '';
     const roomId = activeRoom?.id || dashboardRoomId;
@@ -226,19 +232,21 @@ async function handleEditMeetingInfo(e) {
 
     showLoading(true, "Menyimpan...");
     try {
-        const title = document.getElementById('editMeetingTitle').value;
-        const description = document.getElementById('editMeetingDesc').value;
+        const title = sanitizeInput(document.getElementById('editMeetingTitle').value);
+        const description = sanitizeInput(document.getElementById('editMeetingDesc').value);
         const date = document.getElementById('editMeetingDate').value;
         const startTime = document.getElementById('editMeetingStartTime').value;
         const endTime = document.getElementById('editMeetingEndTime').value;
-        const location = document.getElementById('editMeetingLocation').value;
+        const location = sanitizeInput(document.getElementById('editMeetingLocation').value);
         const participantsText = document.getElementById('editMeetingParticipants').value;
         const lingkup = document.getElementById('editMeetingLingkup').value;
-        const leaderName = document.getElementById('editMeetingLeaderName').value;
-        const leaderNip = document.getElementById('editMeetingLeaderNip').value;
-        const leaderTitle = document.getElementById('editMeetingLeaderTitle').value;
+        const leaderName = sanitizeInput(document.getElementById('editMeetingLeaderName').value);
+        const leaderNip = sanitizeInput(document.getElementById('editMeetingLeaderNip').value);
+        const leaderTitle = sanitizeInput(document.getElementById('editMeetingLeaderTitle').value);
 
-        const participants = participantsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
+        const participants = participantsText.split('\n')
+            .map(p => sanitizeInput(p.trim()))
+            .filter(p => p.length > 0);
 
         let scheduledAt = activeRoom?.scheduledAt;
         if (date && startTime) {
