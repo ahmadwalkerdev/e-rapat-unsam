@@ -150,7 +150,6 @@ toggleModal('createRoomModal', true);
 
 function updateMeetingInfoPanel(data) {
     if (!data) return;
-    console.log('[UI SYNC] Updating panel with data:', data.title, 'Lingkup:', data.lingkup);
 
     // Column 1
     const lingkupEl = document.getElementById('meetingInfoLingkup');
@@ -163,10 +162,8 @@ function updateMeetingInfoPanel(data) {
             'Pertanian': 'Fakultas Pertanian',
             'FKIP': 'Fakultas Keguruan dan Ilmu Pendidikan'
         };
-        // Prioritaskan mapping, jika tidak ada gunakan data asli
-        const fullLingkup = mapping[data.lingkup] || data.lingkup || 'Umum';
-        lingkupEl.textContent = fullLingkup;
-        console.log('[UI SYNC] Lingkup updated to:', fullLingkup);
+        // Tampilkan nama lengkap jika ada di mapping, jika tidak tampilkan aslinya
+        lingkupEl.textContent = mapping[data.lingkup] || data.lingkup || 'Umum';
     }
     
     const titleEl = document.getElementById('meetingInfoTitle');
@@ -216,16 +213,10 @@ function updateMeetingInfoPanel(data) {
     }
 }
 
-function sanitizeInput(str) {
-    if (!str) return '';
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
 async function handleEditMeetingInfo(e) {
     e.preventDefault();
     const activeRoom = getActiveRoom();
+    // Fallback: jika dipanggil dari dashboard, gunakan data-current-room-id dari modal
     const modalEl = document.getElementById('editMeetingInfoModal');
     const dashboardRoomId = modalEl?.getAttribute('data-current-room-id') || '';
     const roomId = activeRoom?.id || dashboardRoomId;
@@ -235,21 +226,19 @@ async function handleEditMeetingInfo(e) {
 
     showLoading(true, "Menyimpan...");
     try {
-        const title = sanitizeInput(document.getElementById('editMeetingTitle').value);
-        const description = sanitizeInput(document.getElementById('editMeetingDesc').value);
+        const title = document.getElementById('editMeetingTitle').value;
+        const description = document.getElementById('editMeetingDesc').value;
         const date = document.getElementById('editMeetingDate').value;
         const startTime = document.getElementById('editMeetingStartTime').value;
         const endTime = document.getElementById('editMeetingEndTime').value;
-        const location = sanitizeInput(document.getElementById('editMeetingLocation').value);
+        const location = document.getElementById('editMeetingLocation').value;
         const participantsText = document.getElementById('editMeetingParticipants').value;
         const lingkup = document.getElementById('editMeetingLingkup').value;
-        const leaderName = sanitizeInput(document.getElementById('editMeetingLeaderName').value);
-        const leaderNip = sanitizeInput(document.getElementById('editMeetingLeaderNip').value);
-        const leaderTitle = sanitizeInput(document.getElementById('editMeetingLeaderTitle').value);
+        const leaderName = document.getElementById('editMeetingLeaderName').value;
+        const leaderNip = document.getElementById('editMeetingLeaderNip').value;
+        const leaderTitle = document.getElementById('editMeetingLeaderTitle').value;
 
-        const participants = participantsText.split('\n')
-            .map(p => sanitizeInput(p.trim()))
-            .filter(p => p.length > 0);
+        const participants = participantsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
 
         let scheduledAt = activeRoom?.scheduledAt;
         if (date && startTime) {
@@ -272,19 +261,6 @@ async function handleEditMeetingInfo(e) {
         };
 
         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId), data);
-        
-        // KRITIKAL: Sinkronisasi data ke State Utama aplikasi secara mendalam
-        if (typeof window.updateActiveRoomData === 'function') {
-            window.updateActiveRoomData(data);
-        }
-        
-        // PAKSA UPDATE UI: Memastikan elemen HTML langsung menerima data terbaru
-        if (typeof updateMeetingInfoPanel === 'function') {
-            updateMeetingInfoPanel({ ...data, id: roomId });
-        } else if (typeof window.updateMeetingInfoPanel === 'function') {
-            window.updateMeetingInfoPanel({ ...data, id: roomId });
-        }
-
         toggleModal('editMeetingInfoModal', false);
         // Bersihkan attribute agar tidak membocor ke edit selanjutnya
         if (modalEl) modalEl.removeAttribute('data-current-room-id');

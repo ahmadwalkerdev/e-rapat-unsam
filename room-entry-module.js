@@ -52,37 +52,11 @@ showLoading(false);
 }
 
 async function enterRoom(roomId, pin, isNotulen, isCreator = false) {
-    const currentUser = getCurrentUser();
-    const isDeveloper = getIsDeveloper();
-    
-    // VALIDASI KEAMANAN TINGKAT TINGGI: 
-    // Mencegah bypass status notulen jika yang masuk bukan pemilik asli atau developer.
-    let finalIsNotulen = isNotulen;
-    
-    if (finalIsNotulen && !isDeveloper) {
-        try {
-            const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId));
-            if (snap.exists()) {
-                const roomData = snap.data();
-                const actualCreatorUid = roomData.creatorUid;
-                
-                // Jika UID pengguna saat ini tidak sama dengan pembuat asli, paksa jadi peserta
-                if (currentUser?.uid !== actualCreatorUid) {
-                    console.warn('[SECURITY] Unauthorized Notulen access attempt. Forcing role to: Peserta.');
-                    finalIsNotulen = false;
-                }
-            }
-        } catch (e) {
-            console.error('[SECURITY] Creator verification failed. Defaulting to: Peserta.');
-            finalIsNotulen = false;
-        }
-    }
-
-    if (isDeveloper) {
-        await continueEnterRoom(roomId, pin, true);
-        return;
-    }
-    await continueEnterRoom(roomId, pin, finalIsNotulen);
+if (getIsDeveloper()) {
+await continueEnterRoom(roomId, pin, true);
+return;
+}
+await continueEnterRoom(roomId, pin, isNotulen);
 }
 
 async function continueEnterRoom(roomId, pin, isNotulen) {

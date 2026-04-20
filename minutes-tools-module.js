@@ -74,10 +74,7 @@ function drawLetterhead(pdf, { roomId, margin, pageWidth, yStartMm = 15, current
     // DINAMIS: Cek apakah lingkup fakultas
     let websiteUrl = 'unsam.ac.id';
     let facultyLine = '';
-    
-    // Pastikan kita mengambil lingkup terbaru dari data yang dikirim, bukan cache lama
     const lingkup = currentMeetingData?.lingkup || 'Umum';
-    console.log('[PDF SYNC] Drawing Letterhead for lingkup:', lingkup);
 
     if (lingkup !== 'Umum') {
         pdf.setFont('times', 'bold');
@@ -272,17 +269,13 @@ function exportMinutes() {
 }
 
 async function exportRoomToPDF() {
-    // KRITIKAL: Selalu ambil data terbaru langsung dari State Utama aplikasi yang diupdate oleh Listener
-    const activeRoom = (typeof deps.getActiveRoom === 'function') ? deps.getActiveRoom() : null;
-    
-    if (!activeRoom) {
+    const activeRoom = getActiveRoom();
+    const currentMeetingData = getCurrentMeetingData();
+    const quill = getQuill();
+    if (!activeRoom || !currentMeetingData) {
         showToast('Tidak ada room aktif untuk diexport');
         return;
     }
-    
-    // Gunakan activeRoom sebagai sumber data utama untuk PDF
-    const currentMeetingData = activeRoom;
-    const quill = getQuill();
 
     showLoading(true, 'Menyiapkan export PDF...');
     try {

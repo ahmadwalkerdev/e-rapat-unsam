@@ -315,47 +315,34 @@ const settingsModule = createSettingsModule({
     updateEmailVerificationBadge,
     getCurrentUser: () => currentUser
 });
-window.openSettings = settingsModule.openSettings;
-window.saveProfileSettings = settingsModule.saveProfileSettings;
-window.sendVerificationEmailAction = settingsModule.sendVerificationEmailAction;
-window.enableEmailEdit = settingsModule.enableEmailEdit;
-window.cancelEmailChange = settingsModule.cancelEmailChange;
-window.submitEmailChange = settingsModule.submitEmailChange;
-window.requestPasswordReset = settingsModule.requestPasswordReset;
 
-// Global Function untuk toggle menu profile
-window.toggleProfileMenu = (e) => {
-    e.stopPropagation();
-    const dropdown = document.getElementById('profileDropdown');
-    const isHidden = dropdown.classList.contains('hidden');
+window.toggleRoomMenu = (btn) => {
+    const dropdown = btn.nextElementSibling;
+    const allMenus = document.querySelectorAll('.room-menu-dropdown');
     
-    // Tutup dropdown lain jika ada
-    document.querySelectorAll('.dropdown-premium').forEach(d => {
-        if (d !== dropdown) {
-            d.classList.add('hidden');
-            d.classList.add('opacity-0', 'scale-95');
+    // Close other menus
+    allMenus.forEach(m => {
+        if (m !== dropdown) {
+            m.classList.add('hidden', 'opacity-0', 'translate-y-2');
         }
     });
 
-    if (isHidden) {
+    if (dropdown.classList.contains('hidden')) {
+        // Calculate position since it's now 'fixed' to avoid overflow-hidden clipping
+        const rect = btn.getBoundingClientRect();
+        dropdown.style.top = `${rect.bottom + 8}px`;
+        dropdown.style.left = `${rect.right - 192}px`; // 192px is w-48
+
         dropdown.classList.remove('hidden');
         setTimeout(() => {
-            dropdown.classList.remove('opacity-0', 'scale-95');
-            dropdown.classList.add('opacity-100', 'scale-100');
+            dropdown.classList.remove('opacity-0', 'translate-y-2');
         }, 10);
     } else {
-        dropdown.classList.add('opacity-0', 'scale-95');
-        dropdown.classList.remove('opacity-100', 'scale-100');
-        setTimeout(() => dropdown.classList.add('hidden'), 300);
+        dropdown.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => {
+            dropdown.classList.add('hidden');
+        }, 200);
     }
-};
-
-// Global Function untuk toggle menu ruangan (room menu)
-window.toggleRoomMenu = (btn) => {
-    document.querySelectorAll('.room-menu-dropdown').forEach(m => {
-        m.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => m.classList.add('hidden'), 200);
-    });
 };
 
 // Close dropdown on click outside
@@ -1068,14 +1055,6 @@ async function enterRoom(roomId, pin, isNotulen, isCreator = false) {
 await roomEntryModule.enterRoom(roomId, pin, isNotulen, isCreator);
 }
 
-function getActiveRoom() {
-    return roomEntryModule.getActiveRoom();
-}
-
-function updateActiveRoomData(newData) {
-    return roomEntryModule.updateActiveRoomData(newData);
-}
-
 async function continueEnterRoom(roomId, pin, isNotulen) {
 await roomEntryModule.continueEnterRoom(roomId, pin, isNotulen);
 }
@@ -1491,11 +1470,28 @@ showToast("Gagal mengakses clipboard. Gunakan Ctrl+V.");
 }
 };
 
-window.confirmEndMeeting = roomManagementModule.confirmEndMeeting;
-window.updateMeetingInfoPanel = roomManagementModule.updateMeetingInfoPanel;
+window.confirmEndMeeting = async () => {
+await roomManagementModule.confirmEndMeeting();
+};
 
-// Guest Join Functions
-window.addGuestToAttendance = addGuestToAttendance;
+window.copyToClipboard = async function(text) {
+try {
+await navigator.clipboard.writeText(text);
+showToast('PIN Disalin!');
+} catch (err) {
+const textArea = document.createElement("textarea"); 
+textArea.value = text; 
+textArea.style.position = "fixed"; 
+textArea.style.left = "-999999px"; 
+textArea.style.top = "-999999px";
+document.body.appendChild(textArea); 
+textArea.focus(); 
+textArea.select();
+try { document.execCommand('copy'); showToast('PIN Disalin!'); } catch (fallbackErr) { showToast('Gagal menyalin PIN'); }
+document.body.removeChild(textArea);
+}
+};
+
 
 // Developer Mode: Handle attendance choice
 window.handleDevAttendanceChoice = function(choice) {
@@ -2099,7 +2095,7 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 </div>
 </button>
 <div id="profileDropdown" class="dropdown-premium hidden absolute right-0 top-14 w-56 rounded-2xl z-[99999] transform origin-top-right transition-all duration-300 opacity-0 scale-95 py-2 shadow-2xl border border-slate-200/60 bg-white/95 backdrop-blur-md">
-<button onclick="window.toggleProfileMenu(event); window.openSettings(); window.switchView('settings');" class="w-full text-left px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-3 transition-colors">
+<button onclick="window.switchView('settings');" class="w-full text-left px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-3 transition-colors">
 <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
 </div>
@@ -2258,24 +2254,10 @@ Keluar Sesi
     <!-- Content will be injected by JavaScript -->
 </div>
 <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-50">
-    <h5 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-slate-600"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-        Profil & Identitas
-    </h5>
-    <div class="flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-2xl border border-slate-100 min-w-0 max-w-full md:max-w-md">
-        <div class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center shrink-0">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </div>
-        <div class="min-w-0 flex-1">
-            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">User ID (UID) Anda</p>
-            <p id="settingsUidDisplay" class="text-[10px] font-mono font-bold text-slate-600 truncate leading-none">Loading...</p>
-        </div>
-        <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('settingsUidDisplay').innerText); window.showToast('UID disalin ke clipboard');" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-100">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        </button>
-    </div>
-</div>
+<h5 class="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-600"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+Pengaturan Akun
+</h5>
 <form onsubmit="window.saveProfileSettings(event)" class="space-y-6">
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div class="space-y-2">
@@ -3164,8 +3146,8 @@ Terbitkan Agenda
                 <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Lingkup & Informasi Dasar</span>
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1 text-slate-400">Lingkup Agenda <span id="labelLingkupStatus" class="text-[9px] font-medium normal-case">(Terkunci)</span></label>
-                <select id="editMeetingLingkup" class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 outline-none appearance-none transition-all">
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1 text-slate-400">Lingkup Agenda <span class="text-[9px] font-medium normal-case">(Terkunci)</span></label>
+                <select id="editMeetingLingkup" disabled class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 cursor-not-allowed outline-none appearance-none disabled:opacity-100">
                   <option value="Umum">Universitas Samudra (Umum)</option>
                   <option value="Ekonomi">Fakultas Ekonomi dan Bisnis</option>
                   <option value="Hukum">Fakultas Hukum</option>
@@ -3219,16 +3201,16 @@ Terbitkan Agenda
                 <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Identitas Pimpinan Rapat</span>
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 text-slate-400">Nama Pimpinan Agenda <span id="labelLeaderNameStatus" class="text-[9px] font-medium normal-case">(Terkunci)</span></label>
-                <input type="text" id="editMeetingLeaderName" class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 outline-none transition-all">
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 text-slate-400">Nama Pimpinan Agenda <span class="text-[9px] font-medium normal-case">(Terkunci)</span></label>
+                <input type="text" id="editMeetingLeaderName" readonly class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 cursor-not-allowed outline-none">
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 text-slate-400">NIP Pimpinan <span id="labelLeaderNipStatus" class="text-[9px] font-medium normal-case">(Terkunci)</span></label>
-                <input type="text" id="editMeetingLeaderNip" class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 outline-none transition-all">
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 text-slate-400">NIP Pimpinan <span class="text-[9px] font-medium normal-case">(Terkunci)</span></label>
+                <input type="text" id="editMeetingLeaderNip" readonly class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 cursor-not-allowed outline-none">
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 text-slate-400">Jabatan Pimpinan <span id="labelLeaderTitleStatus" class="text-[9px] font-medium normal-case">(Terkunci)</span></label>
-                <input type="text" id="editMeetingLeaderTitle" class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 outline-none transition-all">
+                <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 text-slate-400">Jabatan Pimpinan <span class="text-[9px] font-medium normal-case">(Terkunci)</span></label>
+                <input type="text" id="editMeetingLeaderTitle" readonly class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 cursor-not-allowed outline-none">
               </div>
               <div>
                 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1">Peserta Undangan <span class="text-slate-400 font-normal normal-case">(Satu per baris)</span></label>

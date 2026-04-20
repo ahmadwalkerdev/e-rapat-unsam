@@ -257,47 +257,6 @@ showLoading(false);
 }
 }
 
-async function openSettings() {
-const user = getCurrentUser();
-if (!user) return;
-
-// Tampilkan UID di UI
-const uidEl = document.getElementById('settingsUidDisplay');
-if (uidEl) uidEl.innerText = user.uid;
-
-showLoading(true, "Memuat profil...");
-try {
-const snap = await getDocs(query(collection(db, 'artifacts', appId, 'users', user.uid, 'profile')));
-const data = snap.docs.length > 0 ? snap.docs[0].data() : {};
-
-const n = document.getElementById('settingsName');
-const nip = document.getElementById('settingsNip');
-const nidn = document.getElementById('settingsNidn');
-const nidk = document.getElementById('settingsNidk');
-const fak = document.getElementById('settingsFakultas');
-const jur = document.getElementById('settingsJurusan');
-const jab = document.getElementById('settingsJabatanFungsional');
-const emailInput = document.getElementById('settingsEmail');
-
-if (n) n.value = data.name || user.displayName || "";
-if (nip) nip.value = data.nip || "";
-if (nidn) nidn.value = data.nidn || "";
-if (nidk) nidk.value = data.nidk || "";
-if (fak) fak.value = data.fakultas || "";
-if (jur) jur.value = data.jurusan || "";
-if (jab) jab.value = data.jabatanFungsional || "";
-if (emailInput) emailInput.value = user.email || ""
-
-originalEmail = user.email || "";
-updateEmailVerificationBadge();
-} catch(e) {
-console.error("Error loading profile settings:", e);
-showToast("Gagal memuat profil.");
-} finally {
-showLoading(false);
-}
-}
-
 return {
 updateUserNameAcrossSystem,
 saveProfileSettings,
@@ -305,7 +264,6 @@ sendVerificationEmailAction,
 requestPasswordReset,
 enableEmailEdit,
 cancelEmailChange,
-submitEmailChange,
-openSettings
+submitEmailChange
 };
 }
