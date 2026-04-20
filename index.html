@@ -2991,7 +2991,7 @@ Pengaturan Lanjutan
     </div>
 
     <!-- Main Content Area - Normal Flow Layout -->
-    <div id="desktopRoomLayout" class="px-4 md:px-6 lg:px-8 pt-3 space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[1fr_6px_var(--sidebar-width,400px)] lg:gap-0 max-w-[1600px] w-full mx-auto" style="--sidebar-width: 400px;">
+    <div id="desktopRoomLayout" class="px-4 md:px-6 lg:px-8 pt-3 space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[1fr_6px_var(--sidebar-width,400px)] lg:items-stretch lg:gap-0 max-w-[1600px] w-full mx-auto" style="--sidebar-width: 400px;">
         <!-- Main Content Panel -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden min-w-0">
             <!-- Notulensi Section -->
@@ -3115,7 +3115,7 @@ Pengaturan Lanjutan
         <div id="resizerHandle" class="hidden lg:flex resizer-handle" title="Tarik untuk mengubah ukuran sidebar"></div>
 
         <!-- Enhanced Sidebar for Desktop -->
-        <div class="hidden lg:block space-y-4 min-w-0 self-start">
+        <div class="hidden lg:flex flex-col min-w-0 h-full gap-4">
             <!-- Resources Panel -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
                 <div class="p-4 border-b border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors" onclick="window.toggleSidebarPanel('resources')">
@@ -3152,7 +3152,7 @@ Pengaturan Lanjutan
             </div>
 
             <!-- Participants Panel -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden flex-1 flex flex-col min-h-0">
                 <div class="p-4 border-b border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors" onclick="window.toggleSidebarPanel('participants')">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-3">
@@ -3182,7 +3182,7 @@ Pengaturan Lanjutan
                         </div>
                     </div>
                 </div>
-                <div id="participantsPanelContent" class="p-4 overflow-y-auto custom-scrollbar" style="max-height: 300px;"></div>
+                <div id="participantsPanelContent" class="p-4 overflow-y-auto custom-scrollbar flex-1" style="min-height: 0;"></div>
             </div>
         </div>
     </div>

@@ -977,16 +977,16 @@ button:hover {
         height: calc(100vh - 64px);
     }
     
-    /* Sidebar container */
-    .hidden.lg\:flex.flex-col.w-80 {
-        max-height: calc(100vh - 200px) !important;
-        overflow-y: auto !important;
+    /* Sidebar container - stretch to fill grid height */
+    .hidden.lg\:flex.flex-col.min-w-0 {
+        height: 100% !important;
     }
     
-    /* Participants Panel */
+    /* Participants Panel - Flex grow to fill available space */
     #participantsPanelContent {
-        max-height: 300px !important;
         min-height: 100px;
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
     }
     
     /* Resources Panel */
@@ -1113,10 +1113,11 @@ button:hover {
     }
 }
 
-/* Panel Peserta - Ensure scrollable on all screen sizes */
+/* Panel Peserta - Flex grow to fill sidebar space */
 #participantsPanelContent {
-    max-height: 300px !important;
+    flex: 1 1 auto !important;
     overflow-y: auto !important;
+    min-height: 100px;
 }
 
 #participantsPanelContentMobile {
