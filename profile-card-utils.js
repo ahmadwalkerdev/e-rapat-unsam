@@ -60,14 +60,14 @@ export function getAvatarByIndex(gender, index = 0) {
  */
 export function getAvatarOptions(gender) {
     const g = gender || 'neutral';
-    const options = [{ path: `./assets/avatars/default-${g}.png`, index: 0, label: 'Default' }];
+    const options = [{ path: `./assets/avatars/default-${g}.png`, index: 0, label: 'Avatar 1' }];
     
-    // Add numbered variants
-    for (let i = 1; i <= 5; i++) {
+    // Add numbered variants (1-10)
+    for (let i = 1; i <= 10; i++) {
         options.push({ 
             path: `./assets/avatars/default-${g}-${i}.png`, 
             index: i,
-            label: `Varian ${i}` 
+            label: `Avatar ${i + 1}` 
         });
     }
     
