@@ -2197,6 +2197,7 @@ function initSidebarResizer() {
         layout.style.setProperty('--sidebar-width', savedWidth);
     }
 
+    // Mouse events
     handle.addEventListener('mousedown', (e) => {
         isResizing = true;
         document.body.style.cursor = 'col-resize';
@@ -2205,15 +2206,23 @@ function initSidebarResizer() {
         e.preventDefault();
     });
 
-    document.addEventListener('mousemove', (e) => {
+    // Touch events for mobile/tablet support
+    handle.addEventListener('touchstart', (e) => {
+        isResizing = true;
+        document.body.style.cursor = 'col-resize';
+        handle.classList.add('is-resizing');
+        document.body.classList.add('select-none');
+        e.preventDefault(); // Prevent scrolling while resizing
+    }, { passive: false });
+
+    function handleMove(clientX) {
         if (!isResizing) return;
         
         const containerRect = layout.getBoundingClientRect();
         const containerWidth = layout.offsetWidth;
-        const mouseX = e.clientX;
         
         // Calculate sidebar width based on distance from right edge
-        let newSidebarWidth = containerRect.right - mouseX;
+        let newSidebarWidth = containerRect.right - clientX;
         
         // Limits
         const minWidth = 300;
@@ -2223,9 +2232,19 @@ function initSidebarResizer() {
         if (newSidebarWidth > maxWidth) newSidebarWidth = maxWidth;
 
         layout.style.setProperty('--sidebar-width', `${newSidebarWidth}px`);
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        handleMove(e.clientX);
     });
 
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('touchmove', (e) => {
+        if (isResizing) {
+            handleMove(e.touches[0].clientX);
+        }
+    }, { passive: false });
+
+    function stopResize() {
         if (isResizing) {
             isResizing = false;
             document.body.style.cursor = '';
@@ -2233,7 +2252,11 @@ function initSidebarResizer() {
             document.body.classList.remove('select-none');
             localStorage.setItem('era-sidebar-width', layout.style.getPropertyValue('--sidebar-width'));
         }
-    });
+    }
+
+    document.addEventListener('mouseup', stopResize);
+    document.addEventListener('touchend', stopResize);
+    document.addEventListener('touchcancel', stopResize);
 
     // Double click to reset
     handle.addEventListener('dblclick', () => {
