@@ -123,16 +123,12 @@ try {
 if (type === 'login') {
 await signInWithEmailAndPassword(auth, em, ps);
 } else {
-// BUG FIX #2 & #5: Validasi nama dan sanitasi input
+// Form registrasi minimalis - hanya field wajib
+// Field detail (NIP, NIDN, Unit Kerja, Jabatan) diisi di halaman setup-profile
 const name = readInputValue('regName')?.trim();
-const nip = readInputValue('regNip')?.trim();
-const nidn = readInputValue('regNidn')?.trim();
-const nidk = readInputValue('regNidk')?.trim();
-const unitKerja = readInputValue('regUnitKerja')?.trim();
-const jabatanFungsional = readInputValue('regJabatanFungsional')?.trim();
 const confirmPs = readInputValue('regConfirmPassword');
 
-// BUG FIX #2: Validasi nama wajib
+// Validasi nama wajib
 if (!name) {
 throw new Error("Nama lengkap wajib diisi.");
 }
@@ -153,11 +149,7 @@ await updateProfile(userCredential.user, { displayName: name });
 await setDoc(doc(db, 'artifacts', appId, 'users', userCredential.user.uid, 'profile', 'data'), {
 name: name,
 emailInstitusi: em,
-nip: nip || '',
-nidn: nidn || '',
-nidk: nidk || '',
-unitKerja: unitKerja || '',
-jabatanFungsional: jabatanFungsional || '',
+// Field detail akan diisi di halaman setup-profile
 provider: 'email',
 updatedAt: new Date().toISOString(),
 setupComplete: false
@@ -167,10 +159,6 @@ await signOut(auth);
 showToast("✅ Akun berhasil didaftarkan! Silakan login dengan email dan password Anda.");
 // Reset semua field form registrasi
 document.getElementById('regName').value = '';
-document.getElementById('regNip').value = '';
-document.getElementById('regNidn').value = '';
-document.getElementById('regUnitKerja').value = '';
-document.getElementById('regJabatanFungsional').value = '';
 document.getElementById('regConfirmPassword').value = '';
 const emailInput = document.getElementById('regEmail');
 const passInput = document.getElementById('regPassword');
