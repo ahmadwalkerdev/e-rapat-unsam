@@ -95,8 +95,15 @@ showLoading(false);
 
 async function handleAuthSubmit(e, type) {
 e.preventDefault();
-const em = e.target.querySelector('input[type="email"]')?.value?.trim();
-const ps = e.target.querySelector('input[type="password"]')?.value;
+
+// BUG FIX #3: Gunakan ID spesifik untuk membaca input
+const emInput = type === 'login' 
+? e.target.querySelector('input[type="email"]')
+: document.getElementById('regEmail');
+const psInput = e.target.querySelector('input[type="password"]');
+
+const em = emInput?.value?.trim();
+const ps = psInput?.value;
 
 // BUG FIX #1: Validasi input kosong
 if (!em || !ps) {
@@ -116,20 +123,29 @@ try {
 if (type === 'login') {
 await signInWithEmailAndPassword(auth, em, ps);
 } else {
-const name = readInputValue('regName');
-const nip = readInputValue('regNip');
-const nidn = readInputValue('regNidn');
-const nidk = readInputValue('regNidk');
-const unitKerja = readInputValue('regUnitKerja');
-const jabatanFungsional = readInputValue('regJabatanFungsional');
+// BUG FIX #2 & #5: Validasi nama dan sanitasi input
+const name = readInputValue('regName')?.trim();
+const nip = readInputValue('regNip')?.trim();
+const nidn = readInputValue('regNidn')?.trim();
+const nidk = readInputValue('regNidk')?.trim();
+const unitKerja = readInputValue('regUnitKerja')?.trim();
+const jabatanFungsional = readInputValue('regJabatanFungsional')?.trim();
 const confirmPs = readInputValue('regConfirmPassword');
 
-// BUG FIX #3: Validasi kekuatan password
+// BUG FIX #2: Validasi nama wajib
+if (!name) {
+throw new Error("Nama lengkap wajib diisi.");
+}
+
+// BUG FIX #4: Perbaiki urutan validasi - cek password match dulu, baru panjang
+if (ps !== confirmPs) {
+throw new Error("Konfirmasi kata sandi tidak cocok!");
+}
+
+// BUG FIX #3: Validasi kekuatan password setelah cek match
 if (ps.length < 6) {
 throw new Error("Kata sandi minimal 6 karakter.");
 }
-
-if (ps !== confirmPs) throw new Error("Konfirmasi kata sandi tidak cocok!");
 setIsRegistering(true);
 try {
 const userCredential = await createUserWithEmailAndPassword(auth, em, ps);
@@ -149,13 +165,22 @@ setupComplete: false
 setIsRegistering(false);
 await signOut(auth);
 showToast("✅ Akun berhasil didaftarkan! Silakan login dengan email dan password Anda.");
+// Reset semua field form registrasi
 document.getElementById('regName').value = '';
 document.getElementById('regNip').value = '';
+document.getElementById('regNidn').value = '';
+document.getElementById('regUnitKerja').value = '';
+document.getElementById('regJabatanFungsional').value = '';
 document.getElementById('regConfirmPassword').value = '';
-const emailInput = document.querySelector('#registerFormContainer input[type="email"]');
-const passInput = document.querySelector('#registerFormContainer input[type="password"]');
+const emailInput = document.getElementById('regEmail');
+const passInput = document.getElementById('regPassword');
 if(emailInput) emailInput.value = '';
 if(passInput) passInput.value = '';
+// Reset password strength indicator
+const strengthContainer = document.getElementById('regStrengthContainer');
+const strengthBar = document.getElementById('regStrengthBar');
+if(strengthContainer) strengthContainer.classList.add('hidden');
+if(strengthBar) { strengthBar.style.width = '0'; strengthBar.className = 'h-full w-0 transition-all duration-300'; }
 switchAuthMode('login');
 const loginEmailInput = document.querySelector('#loginFormContainer input[type="email"]');
 if(loginEmailInput) loginEmailInput.value = em;
