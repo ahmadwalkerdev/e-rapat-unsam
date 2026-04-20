@@ -873,6 +873,7 @@ if (avatarIndexInput) avatarIndexInput.value = profileData.avatarIndex || '0';
 // Generate avatar grid after a short delay to ensure DOM is ready
 setTimeout(() => {
     window.generateAvatarGrid();
+    window.updateHeaderAvatar();
 }, 100);
 const settingsEmailInput = document.getElementById('settingsEmail');
 if (settingsEmailInput) {
@@ -2223,7 +2224,130 @@ window.generateAvatarGrid = function() {
     }
 };
 
-// Select avatar from grid
+// Avatar Modal Functions
+window.openAvatarModal = function() {
+    const modal = document.getElementById('avatarSelectionModal');
+    const backdrop = document.getElementById('avatarBackdrop');
+    const content = document.getElementById('avatarModalContent');
+    const jenisKelamin = document.getElementById('settingsJenisKelamin').value || 'neutral';
+    
+    if (modal) {
+        modal.classList.remove('hidden');
+        // Generate grid based on current gender
+        window.generateAvatarModalGrid(jenisKelamin);
+        // Animate in
+        setTimeout(() => {
+            if (backdrop) backdrop.classList.remove('opacity-0');
+            if (content) {
+                content.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
+                content.classList.add('scale-100', 'opacity-100', 'translate-y-0');
+            }
+        }, 10);
+    }
+};
+
+window.closeAvatarModal = function() {
+    const modal = document.getElementById('avatarSelectionModal');
+    const backdrop = document.getElementById('avatarBackdrop');
+    const content = document.getElementById('avatarModalContent');
+    
+    if (backdrop) backdrop.classList.add('opacity-0');
+    if (content) {
+        content.classList.remove('scale-100', 'opacity-100', 'translate-y-0');
+        content.classList.add('scale-95', 'opacity-0', 'translate-y-4');
+    }
+    
+    setTimeout(() => {
+        if (modal) modal.classList.add('hidden');
+    }, 300);
+};
+
+window.filterAvatarByGender = function(gender) {
+    const maleBtn = document.getElementById('avatarFilterMale');
+    const femaleBtn = document.getElementById('avatarFilterFemale');
+    const jenisKelaminSelect = document.getElementById('settingsJenisKelamin');
+    
+    // Update button styles
+    if (gender === 'male') {
+        maleBtn?.classList.add('bg-indigo-100', 'text-indigo-700', 'border-indigo-200');
+        maleBtn?.classList.remove('bg-slate-100', 'text-slate-600', 'border-slate-200');
+        femaleBtn?.classList.remove('bg-indigo-100', 'text-indigo-700', 'border-indigo-200');
+        femaleBtn?.classList.add('bg-slate-100', 'text-slate-600', 'border-slate-200');
+    } else {
+        femaleBtn?.classList.add('bg-indigo-100', 'text-indigo-700', 'border-indigo-200');
+        femaleBtn?.classList.remove('bg-slate-100', 'text-slate-600', 'border-slate-200');
+        maleBtn?.classList.remove('bg-indigo-100', 'text-indigo-700', 'border-indigo-200');
+        maleBtn?.classList.add('bg-slate-100', 'text-slate-600', 'border-slate-200');
+    }
+    
+    // Update select dropdown
+    if (jenisKelaminSelect) jenisKelaminSelect.value = gender;
+    
+    // Regenerate grid
+    window.generateAvatarModalGrid(gender);
+};
+
+window.generateAvatarModalGrid = function(gender) {
+    const grid = document.getElementById('avatarModalGrid');
+    const currentIndex = parseInt(document.getElementById('settingsAvatarIndex')?.value || '0');
+    
+    if (!grid) return;
+    
+    const options = getAvatarOptions(gender);
+    
+    let html = '';
+    options.forEach((opt, idx) => {
+        const isSelected = idx === currentIndex;
+        html += `
+            <button type="button" 
+                    onclick="window.selectAvatarFromModal(${idx}, '${gender}')" 
+                    class="relative aspect-square rounded-xl overflow-hidden border-2 transition-all hover:scale-105 ${isSelected ? 'border-indigo-500 ring-2 ring-indigo-500/30' : 'border-slate-200 hover:border-indigo-300'}">
+                <img src="${opt.path}" class="w-full h-full object-cover" alt="${opt.label}" loading="lazy">
+                ${isSelected ? '<div class="absolute inset-0 bg-indigo-500/20 flex items-center justify-center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
+            </button>
+        `;
+    });
+    
+    grid.innerHTML = html;
+};
+
+window.selectAvatarFromModal = function(index, gender) {
+    const avatarIndexInput = document.getElementById('settingsAvatarIndex');
+    const jenisKelaminSelect = document.getElementById('settingsJenisKelamin');
+    
+    // Update values
+    if (avatarIndexInput) avatarIndexInput.value = index;
+    if (jenisKelaminSelect && gender) jenisKelaminSelect.value = gender;
+    
+    // Update settings form grid
+    window.generateAvatarGrid();
+    
+    // Update profile card preview
+    window.updateSettingsProfileCardPreview();
+    
+    // Update header avatar
+    window.updateHeaderAvatar();
+    
+    // Close modal
+    window.closeAvatarModal();
+    
+    const options = getAvatarOptions(gender || jenisKelaminSelect?.value || 'neutral');
+    showToast(`✅ ${options[index]?.label || 'Avatar'} dipilih`);
+};
+
+// Update header avatar image
+window.updateHeaderAvatar = function() {
+    const jenisKelamin = document.getElementById('settingsJenisKelamin')?.value || '';
+    const avatarIndex = document.getElementById('settingsAvatarIndex')?.value || '0';
+    const headerAvatar = document.getElementById('userAvatarDisplay');
+    
+    if (headerAvatar) {
+        const newSrc = getAvatarByIndex(jenisKelamin, parseInt(avatarIndex));
+        headerAvatar.src = newSrc;
+    }
+};
+
+// Select avatar from settings form grid
 window.selectAvatar = function(index) {
     const jenisKelamin = document.getElementById('settingsJenisKelamin').value || 'neutral';
     const avatarIndexInput = document.getElementById('settingsAvatarIndex');
@@ -2250,6 +2374,9 @@ window.selectAvatar = function(index) {
     // Update profile card preview
     window.updateSettingsProfileCardPreview();
     
+    // Update header avatar
+    window.updateHeaderAvatar();
+    
     showToast(`✅ ${options[index]?.label || 'Avatar'} dipilih`);
 };
 
@@ -2257,6 +2384,10 @@ window.selectAvatar = function(index) {
 window.updateSettingsProfileCardPreview = function() {
     const container = document.getElementById('settingsProfileCardContainer');
     if (!container) return;
+    
+    const jenisKelamin = document.getElementById('settingsJenisKelamin')?.value || '';
+    const avatarIndex = document.getElementById('settingsAvatarIndex')?.value || '0';
+    const photoURL = getAvatarByIndex(jenisKelamin, parseInt(avatarIndex));
     
     const profileData = {
         name: document.getElementById('settingsName')?.value || '',
@@ -2268,13 +2399,14 @@ window.updateSettingsProfileCardPreview = function() {
         unitKerja: document.getElementById('settingsUnitKerjaSelect')?.value || document.getElementById('settingsUnitKerjaManual')?.value || '',
         jabatanFungsional: document.getElementById('settingsJabatanFungsional')?.value || '',
         kategoriPegawai: document.getElementById('settingsKategoriPegawai')?.value || '',
-        jenisKelamin: document.getElementById('settingsJenisKelamin')?.value || '',
-        photoURL: window.tempUploadedPhotoURL || ''
+        jenisKelamin: jenisKelamin,
+        photoURL: photoURL
     };
     
     container.innerHTML = createProfileCardHTML(profileData, {
         isModal: false,
-        idPrefix: 'settingsCard'
+        idPrefix: 'settingsCard',
+        isSettings: true
     });
 };
 
@@ -3881,6 +4013,33 @@ Ya, Daftar Hadir
     <!-- Card container with scale animation -->
     <div class="relative w-full h-full flex items-center justify-center p-4">
         <div id="participantCardWrapper" class="w-full max-w-4xl transform transition-all duration-300 ease-out scale-95 opacity-0 translate-y-4"></div>
+    </div>
+</div>
+
+<!-- Modal: Avatar Selection (for Settings) -->
+<div id="avatarSelectionModal" class="fixed inset-0 z-[270] hidden" aria-modal="true" role="dialog">
+    <div id="avatarBackdrop" class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm transition-all duration-300 ease-out opacity-0" onclick="window.closeAvatarModal()"></div>
+    <div class="relative w-full h-full flex items-center justify-center p-4">
+        <div id="avatarModalContent" class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md transform transition-all duration-300 ease-out scale-95 opacity-0 translate-y-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-800">Pilih Avatar</h3>
+                <button onclick="window.closeAvatarModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Pilih jenis kelamin untuk melihat avatar yang sesuai</p>
+            <div class="flex gap-2 mb-4">
+                <button type="button" id="avatarFilterMale" onclick="window.filterAvatarByGender('male')" class="flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-all bg-indigo-100 text-indigo-700 border border-indigo-200">
+                    Laki-laki
+                </button>
+                <button type="button" id="avatarFilterFemale" onclick="window.filterAvatarByGender('female')" class="flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-all bg-slate-100 text-slate-600 border border-slate-200">
+                    Perempuan
+                </button>
+            </div>
+            <div id="avatarModalGrid" class="grid grid-cols-4 gap-3 max-h-[300px] overflow-y-auto p-2">
+                <!-- Avatar grid generated dynamically -->
+            </div>
+        </div>
     </div>
 </div>
 

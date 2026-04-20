@@ -155,9 +155,14 @@ export function createProfileCardHTML(data, options = {}) {
         ? 'w-full max-w-4xl rounded-[2rem] shadow-2xl relative'
         : 'relative overflow-hidden rounded-3xl border border-slate-200 shadow-sm';
 
-    // Avatar HTML - show image if available (user photo or default avatar)
+    // Avatar HTML - circular and clickable for settings mode
+    const isSettings = options.isSettings || false;
+    const avatarClickHandler = isSettings ? 'onclick="window.openAvatarModal()"' : '';
+    const cursorClass = isSettings ? 'cursor-pointer hover:scale-105' : '';
+    const hoverOverlay = isSettings ? '<div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>' : '';
+    
     const avatarHtml = avatarUrl
-        ? `<img src="${escapeHtml(avatarUrl)}" class="w-full h-full object-cover" alt="Avatar" onerror="this.parentElement.innerHTML='<div class=\'text-2xl font-extrabold text-white/95\'>${getInitials(displayName)}</div>'">`
+        ? `<img src="${escapeHtml(avatarUrl)}" class="w-full h-full object-cover rounded-full" alt="Avatar" onerror="this.parentElement.innerHTML='<div class=\'text-2xl font-extrabold text-white/95\'>${getInitials(displayName)}</div>'">`
         : `<div class="text-2xl font-extrabold text-white/95">${getInitials(displayName)}</div>`;
 
     // Close button for modal mode
@@ -178,9 +183,11 @@ export function createProfileCardHTML(data, options = {}) {
             <div class="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_20%_20%,white_0,transparent_40%),radial-gradient(circle_at_80%_30%,white_0,transparent_35%),radial-gradient(circle_at_30%_80%,white_0,transparent_40%)]"></div>
             <div class="relative p-8 flex flex-col md:flex-row md:items-center gap-6">
                 <div class="relative shrink-0">
-                    <div class="w-24 h-24 rounded-2xl bg-white/10 border border-white/20 shadow-inner flex items-center justify-center overflow-hidden">
+                    <div ${avatarClickHandler} class="w-24 h-24 rounded-full bg-white/10 border-2 border-white/30 shadow-lg flex items-center justify-center overflow-hidden ${cursorClass} transition-transform relative group">
                         ${avatarHtml}
+                        ${hoverOverlay}
                     </div>
+                    ${isSettings ? '<p class="text-[10px] text-white/60 text-center mt-2">Klik untuk ganti</p>' : ''}
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center flex-wrap">
