@@ -985,9 +985,8 @@ button:hover {
     
     /* Participants Panel */
     #participantsPanelContent {
-        max-height: none !important;
+        max-height: 300px !important;
         min-height: 100px;
-        max-height: 400px !important;
     }
     
     /* Resources Panel */
@@ -1114,9 +1113,13 @@ button:hover {
 }
 
 /* Panel Peserta - Ensure scrollable on all screen sizes */
-#participantsPanelContent,
+#participantsPanelContent {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
 #participantsPanelContentMobile {
-    max-height: none !important;
+    max-height: 250px !important;
     overflow-y: auto !important;
 }
 
