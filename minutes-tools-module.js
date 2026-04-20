@@ -270,7 +270,8 @@ function exportMinutes() {
 
 async function exportRoomToPDF() {
     const activeRoom = getActiveRoom();
-    const currentMeetingData = getCurrentMeetingData();
+    // KRITIKAL: Selalu ambil data terbaru dari modul penyuplai data
+    const currentMeetingData = (typeof deps.getCurrentMeetingData === 'function') ? deps.getCurrentMeetingData() : getActiveRoom();
     const quill = getQuill();
     if (!activeRoom || !currentMeetingData) {
         showToast('Tidak ada room aktif untuk diexport');
