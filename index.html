@@ -604,11 +604,15 @@ menu.classList.add('opacity-0', 'scale-95');
 setTimeout(() => menu.classList.add('hidden'), 200);
 }
 };
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
 const menu = document.getElementById('profileDropdown');
+const trigger = document.querySelector('.profile-trigger');
+// BUG FIX #2: Hanya tutup jika klik di luar menu dan trigger
 if (menu && !menu.classList.contains('hidden')) {
+if (!menu.contains(e.target) && !trigger.contains(e.target)) {
 menu.classList.add('opacity-0', 'scale-95');
 setTimeout(() => menu.classList.add('hidden'), 200);
+}
 }
 });
 
@@ -1682,8 +1686,11 @@ await authModule.handleSetupProfile(e);
 };
 
 window.handleHeaderLogoClick = async () => {
+    // BUG FIX #3: Safe check untuk activeRoom dari appState
+    const currentActiveRoom = typeof activeRoom !== 'undefined' ? activeRoom : (typeof appState !== 'undefined' ? appState.activeRoom : null);
+    
     // If user is a guest and currently in a room, prevent going to dashboard
-    if (window.isGuestUser && activeRoom) {
+    if (window.isGuestUser && currentActiveRoom) {
         showToast("Tamu tidak dapat mengakses dashboard. Silakan keluar dari rapat terlebih dahulu.");
         return;
     }
@@ -2200,11 +2207,11 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 <button onclick="window.toggleProfileMenu(event)" class="profile-trigger flex items-center gap-2.5 group p-1.5 rounded-xl hover:bg-slate-100/70 transition-all border border-transparent hover:border-slate-200/50">
 <span class="user-name-text hidden md:block text-[13px] font-bold text-slate-600 group-hover:text-slate-900 transition-colors">Dosen UNSAM</span>
 <div class="relative">
-<img id="userAvatarDisplay" src="" class="user-avatar-img w-8 h-8 rounded-xl border border-slate-200 object-cover bg-white shadow-sm transition-all group-hover:shadow-md group-hover:scale-105">
+<img id="userAvatarDisplay" src="https://ui-avatars.com/api/?name=Dosen+UNSAM&background=6366f1&color=fff&bold=true" class="user-avatar-img w-8 h-8 rounded-xl border border-slate-200 object-cover bg-white shadow-sm transition-all group-hover:shadow-md group-hover:scale-105">
 <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
 </div>
 </button>
-<div id="profileDropdown" class="dropdown-premium hidden absolute right-0 top-14 w-56 rounded-2xl z-[99999] transform origin-top-right transition-all duration-300 opacity-0 scale-95 py-2 shadow-2xl border border-slate-200/60 bg-white/95 backdrop-blur-md">
+<div id="profileDropdown" class="dropdown-premium hidden absolute right-0 top-14 w-56 rounded-2xl z-[200] transform origin-top-right transition-all duration-300 opacity-0 scale-95 py-2 shadow-2xl border border-slate-200/60 bg-white/95 backdrop-blur-md" onclick="event.stopPropagation()">
 <button onclick="window.switchView('settings');" class="w-full text-left px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-3 transition-colors">
 <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
