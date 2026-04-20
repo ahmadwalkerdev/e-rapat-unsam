@@ -866,13 +866,14 @@ if (nameInput) nameInput.value = displayName;
 // Populate Jenis Kelamin
 const jenisKelaminInput = document.getElementById('settingsJenisKelamin');
 if (jenisKelaminInput) jenisKelaminInput.value = profileData.jenisKelamin || '';
-// Populate Avatar Preview
-const avatarPreview = document.getElementById('settingsAvatarPreview');
-if (avatarPreview) {
-    const { getDefaultAvatar } = await import('./profile-card-utils.js');
-    const defaultAvatar = getDefaultAvatar(profileData.jenisKelamin);
-    avatarPreview.src = profileData.photoURL || currentUser.photoURL || defaultAvatar;
-}
+// Populate Avatar Selection
+const avatarIndexInput = document.getElementById('settingsAvatarIndex');
+if (avatarIndexInput) avatarIndexInput.value = profileData.avatarIndex || '0';
+
+// Generate avatar grid after a short delay to ensure DOM is ready
+setTimeout(() => {
+    window.generateAvatarGrid();
+}, 100);
 const settingsEmailInput = document.getElementById('settingsEmail');
 if (settingsEmailInput) {
 settingsEmailInput.value = currentUser.email || "";
@@ -2174,64 +2175,86 @@ manualInput.required = false;
 }
 };
 
-// Handler untuk perubahan jenis kelamin - update avatar preview
+// Handler untuk perubahan jenis kelamin - regenerate avatar grid
 window.handleJenisKelaminChange = async function() {
     const jenisKelamin = document.getElementById('settingsJenisKelamin').value;
-    const avatarPreview = document.getElementById('settingsAvatarPreview');
-    const { getDefaultAvatar } = await import('./profile-card-utils.js');
     
-    // Only update if no custom photo is uploaded
-    if (!window.tempUploadedPhotoURL && avatarPreview) {
-        avatarPreview.src = getDefaultAvatar(jenisKelamin);
-    }
+    // Regenerate avatar grid based on gender
+    window.generateAvatarGrid();
     
     // Update profile card preview
     window.updateSettingsProfileCardPreview();
 };
 
-// Handler untuk upload foto
-window.handlePhotoUpload = function(input) {
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            // Store temporary URL (will be uploaded to storage on save)
-            window.tempUploadedPhotoURL = e.target.result;
-            
-            // Update preview
-            const avatarPreview = document.getElementById('settingsAvatarPreview');
-            if (avatarPreview) {
-                avatarPreview.src = e.target.result;
-            }
-            
-            // Update profile card preview
-            window.updateSettingsProfileCardPreview();
-            
-            showToast("📷 Foto berhasil dipilih. Simpan untuk menerapkan.");
-        };
-        
-        reader.readAsDataURL(file);
+// Generate avatar selection grid
+window.generateAvatarGrid = async function() {
+    const jenisKelamin = document.getElementById('settingsJenisKelamin').value || 'neutral';
+    const grid = document.getElementById('settingsAvatarGrid');
+    const avatarPreview = document.getElementById('settingsAvatarPreview');
+    const avatarLabel = document.getElementById('settingsAvatarLabel');
+    const { getAvatarOptions, getAvatarByIndex } = await import('./profile-card-utils.js');
+    
+    if (!grid) return;
+    
+    // Get all avatar options for selected gender
+    const options = getAvatarOptions(jenisKelamin);
+    const currentIndex = parseInt(document.getElementById('settingsAvatarIndex')?.value || '0');
+    
+    // Generate grid HTML
+    let html = '';
+    options.forEach((opt, idx) => {
+        const isSelected = idx === currentIndex;
+        html += `
+            <button type="button" 
+                    onclick="window.selectAvatar(${idx})" 
+                    class="relative w-full aspect-square rounded-xl overflow-hidden border-2 transition-all hover:scale-105 ${isSelected ? 'border-indigo-500 ring-2 ring-indigo-500/30' : 'border-slate-200 hover:border-indigo-300'}">
+                <img src="${opt.path}" class="w-full h-full object-cover" alt="Avatar ${idx}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 text-xs\\'>${idx}</div>'">
+                ${isSelected ? '<div class="absolute inset-0 bg-indigo-500/20 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
+            </button>
+        `;
+    });
+    
+    grid.innerHTML = html;
+    
+    // Update preview
+    if (avatarPreview) {
+        avatarPreview.src = getAvatarByIndex(jenisKelamin, currentIndex);
+    }
+    if (avatarLabel) {
+        const selectedOpt = options[currentIndex];
+        avatarLabel.textContent = selectedOpt ? selectedOpt.label : 'Avatar Default';
     }
 };
 
-// Reset ke avatar default
-window.resetToDefaultAvatar = async function() {
-    window.tempUploadedPhotoURL = null;
-    const jenisKelamin = document.getElementById('settingsJenisKelamin').value;
+// Select avatar from grid
+window.selectAvatar = async function(index) {
+    const jenisKelamin = document.getElementById('settingsJenisKelamin').value || 'neutral';
+    const avatarIndexInput = document.getElementById('settingsAvatarIndex');
     const avatarPreview = document.getElementById('settingsAvatarPreview');
-    const { getDefaultAvatar } = await import('./profile-card-utils.js');
+    const avatarLabel = document.getElementById('settingsAvatarLabel');
+    const { getAvatarByIndex, getAvatarOptions } = await import('./profile-card-utils.js');
     
+    // Update hidden input
+    if (avatarIndexInput) avatarIndexInput.value = index;
+    
+    // Update preview
     if (avatarPreview) {
-        avatarPreview.src = getDefaultAvatar(jenisKelamin);
+        avatarPreview.src = getAvatarByIndex(jenisKelamin, index);
     }
     
-    // Clear file input
-    const fileInput = document.getElementById('settingsPhotoUpload');
-    if (fileInput) fileInput.value = '';
+    // Update label
+    const options = getAvatarOptions(jenisKelamin);
+    if (avatarLabel && options[index]) {
+        avatarLabel.textContent = options[index].label;
+    }
     
+    // Regenerate grid to update selection state
+    window.generateAvatarGrid();
+    
+    // Update profile card preview
     window.updateSettingsProfileCardPreview();
-    showToast("🔄 Avatar direset ke default");
+    
+    showToast(`✅ ${options[index]?.label || 'Avatar'} dipilih`);
 };
 
 // Helper untuk update preview kartu profil
@@ -2756,21 +2779,20 @@ Pengaturan Akun
 <option value="female">Perempuan</option>
 </select>
 </div>
-<div class="space-y-2 col-span-full md:col-span-1">
-<label class="block text-xs font-bold text-slate-500 uppercase">Foto Profil</label>
-<div class="flex items-center gap-3">
-<img id="settingsAvatarPreview" src="" class="w-12 h-12 rounded-xl border border-slate-200 object-cover bg-slate-100">
+<div class="space-y-2 col-span-full">
+<label class="block text-xs font-bold text-slate-500 uppercase">Pilih Avatar</label>
+<input type="hidden" id="settingsAvatarIndex" value="0">
+<div class="flex items-center gap-3 mb-3">
+<img id="settingsAvatarPreview" src="" class="w-16 h-16 rounded-xl border-2 border-indigo-500 object-cover bg-slate-100 shadow-sm">
 <div class="flex-1">
-<input type="file" id="settingsPhotoUpload" accept="image/*" class="hidden" onchange="window.handlePhotoUpload(this)">
-<button type="button" onclick="document.getElementById('settingsPhotoUpload').click()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors">
-Upload Foto
-</button>
+<p class="text-sm font-medium text-slate-700" id="settingsAvatarLabel">Avatar Default</p>
+<p class="text-[10px] text-slate-400">Klik grid di bawah untuk memilih</p>
 </div>
-<button type="button" onclick="window.resetToDefaultAvatar()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-100 transition-colors" title="Gunakan Avatar Default">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-</button>
 </div>
-<p class="text-[10px] text-slate-400 mt-1">Kosongkan untuk menggunakan avatar default berdasarkan jenis kelamin</p>
+<!-- Avatar Selection Grid -->
+<div id="settingsAvatarGrid" class="grid grid-cols-6 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
+<!-- Generated dynamically via JS -->
+</div>
 </div>
 <div class="space-y-2">
 <label class="block text-xs font-bold text-slate-500 uppercase">NIP <span class="text-red-500">*</span></label>

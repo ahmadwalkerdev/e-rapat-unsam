@@ -119,16 +119,13 @@ if (!nip.trim()) throw new Error("NIP wajib diisi.");
 if (!jabatanFungsional.trim()) throw new Error("Jabatan Fungsional wajib diisi.");
 if (nidn.trim() && nidk.trim()) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
-// Get jenis kelamin and photo URL
+// Get jenis kelamin and avatar index
 const jenisKelamin = document.getElementById('settingsJenisKelamin')?.value || '';
-let photoURL = currentUser.photoURL || '';
+const avatarIndex = document.getElementById('settingsAvatarIndex')?.value || '0';
 
-// Handle photo upload if new photo selected
-if (window.tempUploadedPhotoURL && window.tempUploadedPhotoURL.startsWith('data:')) {
-    // Upload to Firebase Storage (simplified - store base64 for now or implement storage upload)
-    // For now, we'll update the profile with the new photo URL
-    photoURL = window.tempUploadedPhotoURL;
-}
+// Build photoURL from avatar selection
+const { getAvatarByIndex } = await import('./profile-card-utils.js');
+const photoURL = getAvatarByIndex(jenisKelamin, parseInt(avatarIndex));
 
 await updateProfile(currentUser, { displayName: n, photoURL: photoURL });
 await setDoc(
@@ -144,6 +141,7 @@ jurusan: jurusan || '',
 unitKerja: unitKerja || '',
 jabatanFungsional: jabatanFungsional || '',
 jenisKelamin: jenisKelamin || '',
+avatarIndex: avatarIndex || '0',
 photoURL: photoURL || '',
 setupComplete: true,
 updatedAt: new Date().toISOString()
