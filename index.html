@@ -556,59 +556,42 @@ function initSettingsTracker() {
 // Call init tracker when settings view is loaded or on DOM ready
 document.addEventListener('DOMContentLoaded', initSettingsTracker);
 
-window.switchView = (viewId) => {
-    // If we are leaving settings and there are unsaved changes
-    const currentVisibleView = ['dashboard', 'settings', 'live', 'setup-profile'].find(v => {
-        const el = document.getElementById('view-' + v);
-        return el && !el.classList.contains('hidden');
-    });
-
-    if (currentVisibleView === 'settings' && isSettingsDirty && viewId !== 'settings') {
-        pendingViewSwitch = viewId;
-        window.openUnsavedModal();
-        return;
+window.toggleProfileMenu = (event) => {
+    event.stopPropagation();
+    const menu = document.getElementById('profileDropdown');
+    if (!menu) return;
+    if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        setTimeout(() => menu.classList.remove('opacity-0', 'scale-95'), 10);
+    } else {
+        menu.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => menu.classList.add('hidden'), 200);
     }
+};
 
-    const views = ['dashboard', 'settings', 'live', 'setup-profile'];
-// Track current visible view as previous before switching
-const currentVisible = views.find(v => {
-    const el = document.getElementById('view-' + v);
-    return el && !el.classList.contains('hidden');
-});
-// Only track if current is not settings and not the same as target
-if (currentVisible && currentVisible !== 'settings' && currentVisible !== viewId) {
-    window.previousView = currentVisible;
-    console.log('Tracking previousView:', window.previousView);
-}
-views.forEach(v => {
-const el = document.getElementById('view-' + v);
-if (el) el.classList.add('hidden');
-});
-const target = document.getElementById('view-' + viewId);
-if (target) target.classList.remove('hidden');
-if (viewId === 'settings') {
-setTimeout(() => {
-updateEmailVerificationBadge();
-}, 100);
-}
+window.switchView = (viewId) => {
+    console.log('[NAV] Switching to view:', viewId);
+    if (viewId !== 'settings') window.previousView = viewId;
+    
+    document.querySelectorAll('.page-fade').forEach(v => v.classList.add('hidden'));
+    const target = document.getElementById('view-' + viewId);
+    if (target) target.classList.remove('hidden');
+
+    if (viewId === 'settings') {
+        setTimeout(() => {
+            if (typeof updateEmailVerificationBadge === 'function') updateEmailVerificationBadge();
+            const role = document.getElementById('settingsRole')?.value || 'Dosen';
+            window.showFieldsByRole(role, 'settings-group-');
+        }, 100);
+    }
 };
-window.toggleProfileMenu = (e) => {
-if (e) e.stopPropagation();
-const menu = document.getElementById('profileDropdown');
-if (menu.classList.contains('hidden')) {
-menu.classList.remove('hidden');
-setTimeout(() => menu.classList.remove('opacity-0', 'scale-95'), 10);
-} else {
-menu.classList.add('opacity-0', 'scale-95');
-setTimeout(() => menu.classList.add('hidden'), 200);
-}
-};
+
 document.addEventListener('click', () => {
-const menu = document.getElementById('profileDropdown');
-if (menu && !menu.classList.contains('hidden')) {
-menu.classList.add('opacity-0', 'scale-95');
-setTimeout(() => menu.classList.add('hidden'), 200);
-}
+    const menu = document.getElementById('profileDropdown');
+    if (menu && !menu.classList.contains('hidden')) {
+        menu.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => menu.classList.add('hidden'), 200);
+    }
 });
 
 // --- FIXED: Role-based Visibility ---
@@ -726,18 +709,39 @@ savedRoomRole,
 });
 
 // FUNGSI TAMPILKAN FIELD BERDASARKAN ROLE
-window.showFieldsByRole = (role) => {
-    console.log('[SETUP] Showing fields for role:', role);
+window.showFieldsByRole = (role, prefix = 'group-') => {
+    console.log('[UI] Showing dynamic fields for role:', role, 'with prefix:', prefix);
     const groups = {
-        mahasiswa: document.getElementById('group-mahasiswa'),
-        nip: document.getElementById('group-nip'),
-        dosen: document.getElementById('group-dosen'),
-        staf: document.getElementById('group-staf'),
-        akademik: document.getElementById('group-akademik')
+        mahasiswa: document.getElementById(prefix + 'mahasiswa'),
+        nip: document.getElementById(prefix + 'nip'),
+        dosen: document.getElementById(prefix + 'dosen'),
+        staf: document.getElementById(prefix + 'staf'),
+        akademik: document.getElementById(prefix + 'akademik')
     };
 
     // Reset semua
-    Object.values(groups).forEach(g => g?.classList.add('hidden'));
+    Object.values(groups).forEach(g => {
+        if (g) {
+            g.classList.add('hidden');
+            if (g.id.includes('akademik')) g.classList.remove('grid');
+        }
+    });
+
+    if (role === 'Mahasiswa') {
+        if (groups.mahasiswa) groups.mahasiswa.classList.remove('hidden');
+        if (groups.akademik) groups.akademik.classList.remove('hidden');
+    } else if (role === 'Dosen') {
+        if (groups.nip) groups.nip.classList.remove('hidden');
+        if (groups.dosen) groups.dosen.classList.remove('hidden');
+        if (groups.akademik) {
+            groups.akademik.classList.remove('hidden');
+            groups.akademik.classList.add('grid');
+        }
+    } else if (role === 'Staf') {
+        if (groups.nip) groups.nip.classList.remove('hidden');
+        if (groups.staf) groups.staf.classList.remove('hidden');
+    }
+};
 
     if (role === 'Mahasiswa') {
         groups.mahasiswa?.classList.remove('hidden');
@@ -768,11 +772,15 @@ onAuthStateChanged(auth, async (user) => {
             const setupNameInput = document.getElementById('setupName');
             if (setupNameInput) setupNameInput.value = user.displayName || "";
             
-            // Ambil role dari data awal jika ada (hasil registrasi)
             const role = profileData.role || sessionStorage.getItem('pendingRole') || 'Dosen';
-            document.getElementById('setupRole').value = role;
-            window.showFieldsByRole(role);
+            const setupRoleInput = document.getElementById('setupRole');
+            if (setupRoleInput) setupRoleInput.value = role;
+            window.showFieldsByRole(role, 'group-');
         } else {
+            // Set role di settings sebelum update display
+            const settingsRoleInput = document.getElementById('settingsRole');
+            if (settingsRoleInput) settingsRoleInput.value = profileData.role || 'Dosen';
+            
             updateUserDisplay();
             showApp();
             // ... sisa kode URL access ...
@@ -2335,49 +2343,76 @@ Keluar Sesi
 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-600"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
 Pengaturan Akun
 </h5>
-<form onsubmit="window.saveProfileSettings(event)" class="space-y-6">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="space-y-2">
-<label class="block text-xs font-bold text-slate-500 uppercase">Nama & Gelar</label>
-<input type="text" id="settingsName" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
-</div>
-<div class="space-y-2">
-<label class="block text-xs font-bold text-slate-500 uppercase">NIP</label>
-<input type="text" id="settingsNip" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
-</div>
-<div class="space-y-2">
-<label class="block text-xs font-bold text-slate-500 uppercase">NIDN <span class="text-slate-400 font-normal">(Opsional)</span></label>
-<input type="text" id="settingsNidn" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
-</div>
-<div class="space-y-2">
-<label class="block text-xs font-bold text-slate-500 uppercase">NIDK <span class="text-slate-400 font-normal">(Opsional)</span></label>
-<input type="text" id="settingsNidk" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
-</div>
-                <!-- Field Unit Kerja untuk User UNSAM (Chained Dropdown) -->
-                <div class="space-y-2" id="settingsFakultasContainer">
-                    <label class="block text-xs font-bold text-slate-500 uppercase">Fakultas <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <select id="settingsFakultas" onchange="window.handleFakultasChange('settings', this)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm appearance-none cursor-pointer">
-                            <option value="" disabled selected>Pilih Fakultas</option>
-                            <option value="Ekonomi dan Bisnis">Ekonomi dan Bisnis</option>
-                            <option value="Hukum">Hukum</option>
-                            <option value="Keguruan dan Ilmu Pendidikan">Keguruan dan Ilmu Pendidikan</option>
-                            <option value="Pertanian">Pertanian</option>
-                            <option value="Sains dan Teknologi">Sains dan Teknologi</option>
-                        </select>
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="space-y-2" id="settingsJurusanContainer">
-                    <label class="block text-xs font-bold text-slate-500 uppercase">Jurusan <span class="text-red-500">*</span></label>
-                    <input type="text" id="settingsJurusan" placeholder="Ketik Nama Jurusan" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm transition-all">
-                </div>
-<div class="space-y-2" id="settingsJabatanFungsionalContainer">
-<label class="block text-xs font-bold text-slate-500 uppercase">Jabatan Fungsional</label>
-<input type="text" id="settingsJabatanFungsional" placeholder="Contoh: Lektor, Guru Besar" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
-</div>
+                    <form onsubmit="window.saveProfileSettings(event)" class="space-y-6">
+                        <input type="hidden" id="settingsRole">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2 col-span-full">
+                                <label class="block text-xs font-bold text-slate-500 uppercase">Nama & Gelar</label>
+                                <input type="text" id="settingsName" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                            </div>
+
+                            <!-- MAHASISWA ONLY (Settings) -->
+                            <div id="settings-group-mahasiswa" class="hidden col-span-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase">NIM</label>
+                                    <input type="text" id="settingsNim" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                                </div>
+                            </div>
+
+                            <!-- DOSEN & STAF (Settings - NIP) -->
+                            <div id="settings-group-nip" class="hidden space-y-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase">NIP</label>
+                                <input type="text" id="settingsNip" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                            </div>
+
+                            <!-- DOSEN ONLY (Settings) -->
+                            <div id="settings-group-dosen" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 col-span-full">
+                                <div class="space-y-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase">NIDN/NIDK</label>
+                                    <input type="text" id="settingsNidn" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase">Jabatan Fungsional</label>
+                                    <input type="text" id="settingsJabatanFungsional" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                                </div>
+                            </div>
+
+                            <!-- STAF ONLY (Settings) -->
+                            <div id="settings-group-staf" class="hidden space-y-2 col-span-full">
+                                <label class="block text-xs font-bold text-slate-500 uppercase">Unit Kerja</label>
+                                <input type="text" id="settingsUnitKerja" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                            </div>
+
+                            <!-- ACADEMIC GLOBAL (Settings) -->
+                            <div id="settings-group-akademik" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 col-span-full">
+                                <div class="space-y-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase">Fakultas</label>
+                                    <select id="settingsFakultas" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm appearance-none cursor-pointer">
+                                        <option value="FKIP">FKIP</option>
+                                        <option value="Teknik">Teknik</option>
+                                        <option value="Ekonomi">Ekonomi</option>
+                                        <option value="Hukum">Hukum</option>
+                                        <option value="Pertanian">Pertanian</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase">Jurusan / Prodi</label>
+                                    <input type="text" id="settingsJurusan" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase">Jabatan Struktural</label>
+                                <input type="text" id="settingsJabatanStruktural" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase">Nomor HP</label>
+                                <input type="tel" id="settingsPhone" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase">Email Cadangan</label>
+                                <input type="email" id="settingsEmailAlternat" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+                            </div>
 <!-- Guest-only fields: Jabatan & Instansi -->
 <div class="space-y-2 hidden" id="settingsPositionContainer">
 <label class="block text-xs font-bold text-slate-500 uppercase">Jabatan</label>
