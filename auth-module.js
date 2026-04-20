@@ -47,13 +47,47 @@ const result = await signInWithPopup(auth, new GoogleAuthProvider());
 const user = result.user;
 const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
 if (!userDoc.exists()) {
+// BUG FIX #2: Simpan data Google user baru ke Firestore sebelum redirect
+await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'), {
+name: user.displayName || '',
+emailInstitusi: user.email || '',
+photoURL: user.photoURL || '',
+provider: 'google',
+updatedAt: new Date().toISOString(),
+setupComplete: false
+});
 switchView('setup-profile');
-}
+} else {
+// BUG FIX #1: Transisi smooth untuk returning users
 showLoading(false);
-} catch(e) {
-if (e.code !== 'auth/popup-closed-by-user') {
-showToast("Gagal Login dengan Google.");
+showToast(`Selamat datang kembali, ${user.displayName || 'Pengguna'}!`);
 }
+} catch(e) {
+// BUG FIX #3: Error handling yang lebih informatif
+let errorMsg = "Gagal Login dengan Google.";
+switch(e.code) {
+case 'auth/popup-closed-by-user':
+// User menutup popup, tidak perlu toast
+return;
+case 'auth/popup-blocked':
+errorMsg = "Popup diblokir browser. Mohon izinkan popup untuk login.";
+break;
+case 'auth/network-request-failed':
+errorMsg = "Koneksi internet bermasalah. Periksa koneksi Anda.";
+break;
+case 'auth/account-exists-with-different-credential':
+errorMsg = "Email sudah terdaftar dengan metode login lain. Gunakan email/password.";
+break;
+case 'auth/cancelled-popup-request':
+// User membatalkan, tidak perlu toast
+return;
+case 'auth/invalid-credential':
+errorMsg = "Kredensial tidak valid. Coba lagi.";
+break;
+default:
+console.error('[GOOGLE LOGIN ERROR]', e.code, e.message);
+}
+showToast(errorMsg);
 } finally {
 showLoading(false);
 }
