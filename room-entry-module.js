@@ -30,22 +30,49 @@ getQuill
 } = deps;
 
 async function validateAndJoin(roomId, inputPin) {
+// IMPROVEMENT: Validasi input PIN
+if (!inputPin || inputPin.length !== 6) {
+showToast("PIN harus 6 digit angka!");
+const pinInput = document.getElementById('joinPinInput');
+if (pinInput) {
+pinInput.value = '';
+pinInput.focus();
+}
+return;
+}
+
 showLoading(true, "Memvalidasi Akses...");
 try {
 const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomId));
 if (snap.exists()) {
-if (getIsDeveloper() || snap.data().pin === inputPin) {
-const isCreator = snap.data().creatorUid === getCurrentUser()?.uid;
-await enterRoom(roomId, getIsDeveloper() ? snap.data().pin : inputPin, getIsDeveloper() || isCreator, isCreator);
+const roomData = snap.data();
+// IMPROVEMENT: Cek status rapat
+if (roomData.status === 'ended') {
+showToast("⚠️ Rapat ini telah berakhir.");
+return;
+}
+if (getIsDeveloper() || roomData.pin === inputPin) {
+const isCreator = roomData.creatorUid === getCurrentUser()?.uid;
+await enterRoom(roomId, getIsDeveloper() ? roomData.pin : inputPin, getIsDeveloper() || isCreator, isCreator);
 toggleModal('joinRoomModal', false);
+// IMPROVEMENT: Reset PIN input setelah sukses
+const pinInput = document.getElementById('joinPinInput');
+if (pinInput) pinInput.value = '';
 } else {
-showToast("PIN Akses Salah!");
+// IMPROVEMENT: Better error feedback
+showToast("❌ PIN salah! Silakan cek kembali PIN 6 digit Anda.");
+const pinInput = document.getElementById('joinPinInput');
+if (pinInput) {
+pinInput.value = '';
+pinInput.focus();
+}
 }
 } else {
-showToast("Room tidak ditemukan!");
+showToast("⚠️ Agenda rapat tidak ditemukan atau telah dihapus.");
 }
 } catch(e) {
-showToast("Gagal validasi: " + e.message);
+console.error('[JOIN ERROR]', e);
+showToast("❌ Gagal masuk: " + (e.message || "Koneksi bermasalah"));
 } finally {
 showLoading(false);
 }
@@ -183,6 +210,14 @@ window.targetRoomId = id;
 const titleEl = document.getElementById('joinRoomTitleDisplay');
 if (titleEl) titleEl.innerText = title;
 toggleModal('joinRoomModal', true);
+// IMPROVEMENT: Auto-focus PIN input dan reset value
+setTimeout(() => {
+const pinInput = document.getElementById('joinPinInput');
+if (pinInput) {
+pinInput.value = '';
+pinInput.focus();
+}
+}, 100);
 }
 
 function handleJoinRoom(e) {

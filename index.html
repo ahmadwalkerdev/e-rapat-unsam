@@ -1616,14 +1616,87 @@ const text = await navigator.clipboard.readText();
 if (text) {
 const input = document.getElementById('joinPinInput');
 if (input) {
-input.value = text.trim().substring(0, 6);
+// Filter hanya angka
+const numericText = text.replace(/\D/g, '').substring(0, 6);
+input.value = numericText;
 showToast("PIN Ditempel!");
+// Auto-submit jika 6 digit
+if (numericText.length === 6) {
+setTimeout(() => {
+document.querySelector('#joinRoomModal form').dispatchEvent(new Event('submit'));
+}, 300);
+}
 }
 }
 } catch (err) {
 showToast("Gagal mengakses clipboard. Gunakan Ctrl+V.");
 }
 };
+
+// IMPROVEMENT: Setup PIN Input - Auto-focus, Auto-submit, Number validation
+window.setupPinInput = () => {
+const pinInput = document.getElementById('joinPinInput');
+if (!pinInput) return;
+
+// Validasi hanya angka saat typing
+pinInput.addEventListener('input', (e) => {
+// Replace non-numeric characters
+const value = e.target.value.replace(/\D/g, '');
+e.target.value = value;
+
+// Auto-submit saat 6 digit terisi
+if (value.length === 6) {
+setTimeout(() => {
+document.querySelector('#joinRoomModal form').dispatchEvent(new Event('submit'));
+}, 200);
+}
+});
+
+// Prevent non-numeric key presses
+pinInput.addEventListener('keypress', (e) => {
+const char = String.fromCharCode(e.which);
+if (!/[0-9]/.test(char)) {
+e.preventDefault();
+}
+});
+};
+
+// IMPROVEMENT: Auto-focus PIN input saat modal terbuka
+window.focusPinInput = () => {
+setTimeout(() => {
+const pinInput = document.getElementById('joinPinInput');
+if (pinInput) pinInput.focus();
+}, 100);
+};
+
+// IMPROVEMENT: ESC key untuk tutup semua modal
+document.addEventListener('keydown', (e) => {
+if (e.key === 'Escape') {
+// Cari modal yang terbuka
+const openModals = document.querySelectorAll('[id$="Modal"]:not(.hidden), [id$="Modal"]:not([style*="display: none"])');
+openModals.forEach(modal => {
+if (!modal.classList.contains('hidden')) {
+// Cek jika modal punya fungsi close specific
+const modalId = modal.id;
+if (modalId === 'joinRoomModal') {
+window.toggleModal('joinRoomModal', false);
+} else if (modalId === 'logoutModal') {
+window.closeLogoutModal();
+} else if (modalId === 'unsavedChangesModal') {
+window.closeUnsavedChangesModal();
+} else if (modalId === 'forgotPasswordModal') {
+window.toggleModal('forgotPasswordModal', false);
+} else if (modalId === 'editMeetingInfoModal') {
+window.toggleModal('editMeetingInfoModal', false);
+} else if (modalId === 'addResourceModal') {
+window.toggleModal('addResourceModal', false);
+} else if (modalId === 'joinRoomModal') {
+window.toggleModal('joinRoomModal', false);
+}
+}
+});
+}
+});
 
 window.confirmEndMeeting = async () => {
 await roomManagementModule.confirmEndMeeting();
@@ -2170,7 +2243,11 @@ function initSidebarResizer() {
 }
 
 // Call initialization
-document.addEventListener('DOMContentLoaded', initSidebarResizer);
+document.addEventListener('DOMContentLoaded', () => {
+initSidebarResizer();
+// IMPROVEMENT: Setup PIN input validation
+window.setupPinInput();
+});
 
 </script>
 
@@ -3115,7 +3192,7 @@ Pengaturan Lanjutan
         <h3 id="joinRoomTitleDisplay" class="text-lg font-bold text-slate-800 mb-6 truncate px-2">Judul Rapat</h3>
         <form onsubmit="window.handleJoinRoom(event)" class="space-y-4">
             <div class="relative group">
-                <input type="text" id="joinPinInput" maxlength="6" required placeholder="PIN" class="w-full text-center text-3xl tracking-[0.4em] font-bold py-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-indigo-500 text-indigo-700 uppercase outline-none">
+                <input type="text" id="joinPinInput" maxlength="6" required placeholder="PIN" inputmode="numeric" pattern="[0-9]*" autocomplete="off" class="w-full text-center text-3xl tracking-[0.4em] font-bold py-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-indigo-500 text-indigo-700 uppercase outline-none">
                 <button type="button" onclick="window.pastePin()" class="mt-2 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center justify-center gap-1 mx-auto">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
                     Tempel dari Clipboard
