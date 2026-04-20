@@ -2995,7 +2995,7 @@ Pengaturan Lanjutan
         <!-- Main Content Panel -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden min-w-0 h-full flex flex-col">
             <!-- Notulensi Section -->
-            <div id="notulensiSection">
+            <div id="notulensiSection" class="h-full flex flex-col">
                 <div id="displayMinutes" class="flex-1 overflow-y-auto p-4 lg:p-6 prose prose-slate max-w-none text-slate-700 hidden"></div>
                 <div id="editMinutes" class="hidden flex-1 flex-col relative" style="min-height: 0;">
                     <!-- Section Navigator -->
@@ -3004,7 +3004,7 @@ Pengaturan Lanjutan
                         <button onclick="window.scrollToSection(2)" class="nav-item" title="Keputusan Rapat">✅</button>
                         <button onclick="window.scrollToSection(3)" class="nav-item" title="Tindak Lanjut">🚀</button>
                     </div>
-                    <div id="editorWrapper" style="flex: 1; min-height: 500px; max-height: calc(100vh - 300px); overflow: auto;">
+                    <div id="editorWrapper" style="flex: 1; min-height: 0; overflow: auto;">
                         <div id="minutesInput"></div>
                     </div>
                     <div id="endMeetingBtn" class="hidden flex items-center justify-between" style="border-top: 1px solid #e2e8f0; background: #f8fafc; padding: 0.75rem 1rem;">
