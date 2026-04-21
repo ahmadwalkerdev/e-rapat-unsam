@@ -428,6 +428,8 @@ export function createMinutesModule(deps) {
                     nidn: profileData.nidn || '',
                     nidk: profileData.nidk || '',
                     unitKerja: profileData.unitKerja || '',
+                    fakultas: profileData.fakultas || '',
+                    kategoriPegawai: profileData.kategoriPegawai || '',
                     jabatanFungsional: profileData.jabatanFungsional || '',
                     jenisKelamin: profileData.jenisKelamin || '',
                     avatarIndex: profileData.avatarIndex || '0',

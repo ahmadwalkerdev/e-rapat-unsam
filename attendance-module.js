@@ -222,6 +222,8 @@ function setupRealtimeAttendance(roomId) {
                 nidn: data.nidn || '',
                 nidk: data.nidk || '',
                 unitKerja: data.unitKerja || '',
+                fakultas: data.fakultas || '',
+                kategoriPegawai: data.kategoriPegawai || '',
                 jabatanFungsional: data.jabatanFungsional || '',
                 institution: data.institution || '',
                 position: data.position || '',
