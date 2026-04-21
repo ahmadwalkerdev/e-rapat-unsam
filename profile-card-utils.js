@@ -158,8 +158,7 @@ export function createProfileCardHTML(data, options = {}) {
         : 'relative overflow-hidden rounded-3xl border border-slate-200 shadow-sm';
 
     // Avatar HTML - circular and clickable for settings mode
-    const isSettings = options.isSettings || false;
-    const avatarClickHandler = isSettings ? 'onclick="window.openAvatarModal()"' : '';
+    const avatarClickHandler = isSettings ? 'onclick="window.toggleAvatarSelector()"' : '';
     const cursorClass = isSettings ? 'cursor-pointer hover:scale-105' : '';
     const hoverOverlay = isSettings ? '<div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>' : '';
     
