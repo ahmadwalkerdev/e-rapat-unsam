@@ -429,6 +429,8 @@ export function createMinutesModule(deps) {
                     nidk: profileData.nidk || '',
                     unitKerja: profileData.unitKerja || '',
                     jabatanFungsional: profileData.jabatanFungsional || '',
+                    jenisKelamin: profileData.jenisKelamin || '',
+                    avatarIndex: profileData.avatarIndex || '0',
                     role: getUserRole() || 'peserta',
                     isDeveloper: getIsDeveloper() || false,
                     email: currentUser.email || '',

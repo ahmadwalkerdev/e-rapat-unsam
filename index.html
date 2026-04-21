@@ -1824,6 +1824,56 @@ window.handleSetupProfile = async (e) => {
 await authModule.handleSetupProfile(e);
 };
 
+// OPSI C: Avatar Setup Functions
+window.updateSetupAvatarPreview = function() {
+    const jenisKelamin = document.getElementById('setupJenisKelamin').value;
+    const avatarIndex = document.getElementById('setupAvatarIndex').value || '0';
+    const previewImg = document.getElementById('setupAvatarPreviewImg');
+    const avatarLabel = document.getElementById('setupAvatarLabel');
+    
+    if (jenisKelamin && previewImg) {
+        previewImg.src = `./assets/avatars/${jenisKelamin}-${avatarIndex}.png`;
+    }
+    
+    if (avatarLabel) {
+        const labels = ['Avatar Default', 'Avatar 1', 'Avatar 2', 'Avatar 3', 'Avatar 4', 'Avatar 5', 'Avatar 6', 'Avatar 7', 'Avatar 8', 'Avatar 9', 'Avatar 10'];
+        avatarLabel.textContent = labels[parseInt(avatarIndex)] || 'Avatar Default';
+    }
+    
+    window.generateSetupAvatarGrid();
+};
+
+window.generateSetupAvatarGrid = function() {
+    const jenisKelamin = document.getElementById('setupJenisKelamin').value;
+    const grid = document.getElementById('setupAvatarGrid');
+    const currentIndex = parseInt(document.getElementById('setupAvatarIndex')?.value || '0');
+    
+    if (!grid) return;
+    
+    if (!jenisKelamin) {
+        grid.innerHTML = '<p class="text-[10px] text-slate-400 text-center col-span-5">Pilih jenis kelamin terlebih dahulu</p>';
+        return;
+    }
+    
+    let html = '';
+    for (let i = 0; i <= 10; i++) {
+        const isSelected = i === currentIndex;
+        html += `
+            <button type="button" onclick="window.selectSetupAvatar(${i})" class="relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${isSelected ? 'border-indigo-500 ring-2 ring-indigo-500/30' : 'border-slate-200 hover:border-indigo-300'}">
+                <img src="./assets/avatars/${jenisKelamin}-${i}.png" class="w-full h-full object-cover" alt="Avatar ${i}" loading="lazy" onerror="this.src='./assets/avatars/default-${jenisKelamin}.png'">
+                ${isSelected ? '<div class="absolute inset-0 bg-indigo-500/20 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
+            </button>
+        `;
+    }
+    grid.innerHTML = html;
+};
+
+window.selectSetupAvatar = function(index) {
+    const avatarIndexInput = document.getElementById('setupAvatarIndex');
+    if (avatarIndexInput) avatarIndexInput.value = index;
+    window.updateSetupAvatarPreview();
+};
+
 // OPSI C: Handler untuk Setup Profile - Staff vs Dosen
 window.handleSetupKategoriChange = function() {
 const kategori = document.getElementById('setupKategoriPegawai').value;
@@ -2645,12 +2695,28 @@ Keluar Sesi
 </div>
 <div class="space-y-1">
 <label class="text-[10px] font-bold text-slate-500 uppercase">Jenis Kelamin <span class="text-red-500">*</span></label>
-<select id="setupJenisKelamin" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm cursor-pointer">
+<select id="setupJenisKelamin" required onchange="window.updateSetupAvatarPreview()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 text-sm cursor-pointer">
 <option value="" disabled selected>Pilih Jenis Kelamin</option>
 <option value="male">Laki-laki</option>
 <option value="female">Perempuan</option>
 </select>
 <p class="text-[9px] text-slate-400 mt-0.5">Wajib diisi untuk menentukan avatar profil</p>
+</div>
+
+<!-- Avatar Selection Inline -->
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Pilih Avatar <span class="text-red-500">*</span></label>
+<input type="hidden" id="setupAvatarIndex" value="0">
+<div class="flex items-center gap-3 mb-2">
+<img id="setupAvatarPreviewImg" src="./assets/avatars/default-male.png" class="w-16 h-16 rounded-full border-2 border-indigo-500 object-cover bg-slate-100 shadow-sm">
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-700" id="setupAvatarLabel">Avatar Default</p>
+<p class="text-[10px] text-slate-400">Pilih avatar dari grid di bawah</p>
+</div>
+</div>
+<div id="setupAvatarGrid" class="grid grid-cols-5 gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200">
+<!-- Generated dynamically via JS -->
+</div>
 </div>
 
 <!-- OPSI C: Selector Staff vs Dosen -->

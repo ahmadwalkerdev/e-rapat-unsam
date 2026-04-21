@@ -278,8 +278,8 @@ if (!jabatanFungsional) throw new Error("Jabatan Fungsional wajib diisi.");
 if (nidn && nidk) throw new Error("Isi salah satu: NIDN atau NIDK (jangan keduanya).");
 
 // Build photoURL from avatar selection
-const avatarIndex = '0';
-const photoURL = `./assets/avatars/default-${jenisKelamin}.png`;
+const avatarIndex = readInputValue('setupAvatarIndex') || '0';
+const photoURL = `./assets/avatars/${jenisKelamin}-${avatarIndex}.png`;
 
 await updateProfile(currentUser, { displayName: name, photoURL: photoURL });
 await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'), {
