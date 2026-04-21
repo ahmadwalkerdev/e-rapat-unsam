@@ -2370,7 +2370,8 @@ window.updateSettingsProfileCardPreview = function() {
     container.innerHTML = createProfileCardHTML(profileData, {
         isModal: false,
         idPrefix: 'settingsCard',
-        isSettings: true
+        isSettings: true,
+        avatarIndex: parseInt(avatarIndex)
     });
 };
 
