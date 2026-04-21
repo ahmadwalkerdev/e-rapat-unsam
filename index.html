@@ -766,6 +766,16 @@ inputPanel.classList.remove('hidden');
 successPanel.classList.add('hidden');
 }
 }
+
+// Update header avatar from profile data on login
+const headerAvatar = document.getElementById('userAvatarDisplay');
+if (headerAvatar && profileData.jenisKelamin) {
+    const avatarIndex = profileData.avatarIndex || '0';
+    const photoURL = getAvatarByIndex(profileData.jenisKelamin, parseInt(avatarIndex));
+    headerAvatar.src = photoURL;
+    console.log('[Auth] Header avatar updated from profile:', photoURL);
+}
+
 if (!userDoc.exists() || !profileData?.setupComplete) {
 showApp();
 switchView('setup-profile');
