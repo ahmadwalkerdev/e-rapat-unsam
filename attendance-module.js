@@ -1,21 +1,5 @@
 import { createProfileCardHTML, escapeHtml, getInitials } from './profile-card-utils.js';
 
-// Helper function to get unique color for user based on name
-function getUserColor(name) {
-    const gradients = [
-        'from-indigo-500 to-indigo-600',
-        'from-emerald-500 to-emerald-600',
-        'from-amber-500 to-amber-600',
-        'from-rose-500 to-rose-600',
-        'from-cyan-500 to-cyan-600',
-        'from-violet-500 to-violet-600',
-        'from-blue-500 to-blue-600',
-        'from-orange-500 to-orange-600'
-    ];
-    const hash = String(name || '').split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-    return gradients[hash % gradients.length];
-}
-
 export function createAttendanceModule(deps) {
 const {
 db,
@@ -248,9 +232,10 @@ function setupRealtimeAttendance(roomId) {
             const pingBtn = (getUserRole() === 'notulen' && data.uid !== getCurrentUser()?.uid) ? `<button onclick="event.stopPropagation();window.pingParticipant('${safeDocId}')" class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all" title="Panggil Peserta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></button>` : '';
             const deleteBtn = getIsDeveloper() ? `<button onclick="event.stopPropagation();window.deleteAttendance('${safeDocId}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Hapus Peserta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : '';
 
-            // Avatar display - initials with unique gradient color
-            const userGradient = isGuestUser ? 'from-teal-500 to-teal-600' : getUserColor(data.name);
-            const avatarDisplay = `<div class="w-9 h-9 rounded-xl bg-gradient-to-br ${userGradient} text-white flex items-center justify-center text-xs font-bold shadow-sm ring-2 ring-white group-hover:scale-105 transition-transform">${initial}</div>`;
+            // Avatar display - initials with consistent styling
+            const avatarDisplay = isGuestUser
+                ? `<div class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold shadow-sm ring-2 ring-white group-hover:scale-105 transition-transform">${initial}</div>`
+                : `<div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shadow-sm ring-2 ring-white group-hover:scale-105 transition-transform">${initial}</div>`;
 
             return `<div data-profile-payload='${safeProfilePayload}' onclick="try { window.openParticipantProfileCard(JSON.parse(this.getAttribute('data-profile-payload'))); } catch(e) { console.error('Profile card error:', e); }" class="group flex items-center justify-between py-3 px-3 hover:bg-slate-50/80 rounded-xl transition-all border-b border-slate-50 last:border-0 mb-1 cursor-pointer">
 <div class="flex items-center gap-3 overflow-hidden">
