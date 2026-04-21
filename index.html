@@ -895,10 +895,13 @@ if (settingsCardContainer) {
         jurusan: profileData.jurusan,
         unitKerja: profileData.unitKerja,
         jabatanFungsional: profileData.jabatanFungsional,
+        jenisKelamin: profileData.jenisKelamin,
         photoURL: currentUser.photoURL
     }, {
         isModal: false,
-        idPrefix: 'settingsCard'
+        idPrefix: 'settingsCard',
+        isSettings: true,
+        avatarIndex: parseInt(profileData.avatarIndex || 0)
     });
     settingsCardContainer.innerHTML = cardHtml;
 }
