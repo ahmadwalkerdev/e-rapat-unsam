@@ -216,9 +216,11 @@ function setupRealtimeAttendance(roomId) {
                 : `${nipLine}${timeLine}`;
 
             // Build photoURL from avatar system
+            console.log('[Attendance] User data:', data.name, { jenisKelamin: data.jenisKelamin, avatarIndex: data.avatarIndex });
             const avatarPhotoURL = data.jenisKelamin 
                 ? getAvatarByIndex(data.jenisKelamin, parseInt(data.avatarIndex || 0))
                 : (data.photoURL || data.photoUrl || '');
+            console.log('[Attendance] Generated avatar URL:', avatarPhotoURL);
                 
             const safeProfilePayload = escapeJsString(JSON.stringify({
                 name: data.name || '',

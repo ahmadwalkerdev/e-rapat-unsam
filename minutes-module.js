@@ -440,7 +440,7 @@ export function createMinutesModule(deps) {
                 };
                 
                 await addDoc(attCol, attendanceData);
-                console.log('[AUTO ABSENSI] Successfully added to attendance');
+                console.log('[AUTO ABSENSI] Successfully added to attendance:', attendanceData);
             }
         } catch (err) { 
             console.error('[AUTO ABSENSI] Error:', err); 
