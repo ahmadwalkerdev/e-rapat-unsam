@@ -1,4 +1,4 @@
-import { createProfileCardHTML, escapeHtml, getInitials } from './profile-card-utils.js';
+import { createProfileCardHTML, escapeHtml, getInitials, getAvatarByIndex } from './profile-card-utils.js';
 
 export function createAttendanceModule(deps) {
 const {
@@ -215,6 +215,11 @@ function setupRealtimeAttendance(roomId) {
                 ? `${guestMetaLine}${timeLine}`
                 : `${nipLine}${timeLine}`;
 
+            // Build photoURL from avatar system
+            const avatarPhotoURL = data.jenisKelamin 
+                ? getAvatarByIndex(data.jenisKelamin, parseInt(data.avatarIndex || 0))
+                : (data.photoURL || data.photoUrl || '');
+                
             const safeProfilePayload = escapeJsString(JSON.stringify({
                 name: data.name || '',
                 email: data.email || data.emailInstitusi || '',
@@ -225,7 +230,7 @@ function setupRealtimeAttendance(roomId) {
                 jabatanFungsional: data.jabatanFungsional || '',
                 institution: data.institution || '',
                 position: data.position || '',
-                photoURL: data.photoURL || data.photoUrl || '',
+                photoURL: avatarPhotoURL,
                 isGuest: isGuestUser,
                 role: data.role || ''
             }));

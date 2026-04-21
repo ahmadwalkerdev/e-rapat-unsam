@@ -123,7 +123,9 @@ export function createProfileCardHTML(data, options = {}) {
         idPrefix = '',
         showCloseButton = false,
         onClose = '',
-        containerId = ''
+        containerId = '',
+        isSettings = false,
+        avatarIndex = 0
     } = options;
 
     // Determine display values with fallbacks
@@ -182,12 +184,24 @@ export function createProfileCardHTML(data, options = {}) {
             ${closeButton}
             <div class="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_20%_20%,white_0,transparent_40%),radial-gradient(circle_at_80%_30%,white_0,transparent_35%),radial-gradient(circle_at_30%_80%,white_0,transparent_40%)]"></div>
             <div class="relative p-8 flex flex-col md:flex-row md:items-center gap-6">
-                <div class="relative shrink-0">
-                    <div ${avatarClickHandler} class="w-24 h-24 rounded-full bg-white/10 border-2 border-white/30 shadow-lg flex items-center justify-center overflow-hidden ${cursorClass} transition-transform relative group">
+                <div class="relative shrink-0 flex flex-col items-center">
+                    <div onclick="${isSettings ? 'window.toggleAvatarSelector()' : ''}" class="w-24 h-24 rounded-full bg-white/10 border-2 border-white/30 shadow-lg flex items-center justify-center overflow-hidden ${isSettings ? 'cursor-pointer hover:scale-105' : ''} transition-transform relative group">
                         ${avatarHtml}
-                        ${hoverOverlay}
+                        ${isSettings ? '<div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>' : ''}
                     </div>
-                    ${isSettings ? '<p class="text-[10px] text-white/60 text-center mt-2">Klik untuk ganti</p>' : ''}
+                    ${isSettings ? `<p class="text-[10px] text-white/60 text-center mt-2">Klik untuk ganti</p>
+                    <!-- Inline Avatar Selector -->
+                    <div id="inlineAvatarSelector" class="hidden mt-3 p-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+                        <p class="text-[10px] text-white/80 text-center mb-2">Pilih Avatar ${jenisKelamin === 'male' ? 'Laki-laki' : 'Perempuan'}</p>
+                        <div class="grid grid-cols-4 gap-2 w-48">
+                            ${getAvatarOptions(jenisKelamin || 'neutral').map((opt, idx) => `
+                                <button type="button" onclick="window.selectInlineAvatar(${idx})" class="relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-110 ${idx === (avatarIndex || 0) ? 'border-white ring-2 ring-indigo-400' : 'border-white/30'}">
+                                    <img src="${opt.path}" class="w-full h-full object-cover" alt="${opt.label}">
+                                    ${idx === (avatarIndex || 0) ? '<div class="absolute inset-0 bg-indigo-500/30 flex items-center justify-center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>` : ''}
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center flex-wrap">
