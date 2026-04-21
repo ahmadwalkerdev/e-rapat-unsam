@@ -829,10 +829,17 @@ if (!currentUser) return;
 const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'));
 const profileData = userDoc.data() || {};
 const displayName = currentUser.displayName || profileData.name || "Dosen UNSAM";
-document.querySelectorAll('.user-name-text').forEach(el => el.innerText = displayName);
-document.querySelectorAll('.user-email-text').forEach(el => el.innerText = currentUser.email || "Akun Anonim");
-const photoURL = currentUser.photoURL || `https://ui-avatars.com/api/?name=${displayName}&background=6366f1&color=fff&bold=true`;
+document.querySelectorAll('.user-name-text').forEach(el => el.textContent = displayName);
+document.querySelectorAll('.user-email-text').forEach(el => el.textContent = currentUser.email || "Akun Anonim");
+
+// Use avatar from Firestore profile data, not from Auth photoURL
+const jenisKelamin = profileData.jenisKelamin;
+const avatarIndex = profileData.avatarIndex || '0';
+const photoURL = jenisKelamin 
+    ? getAvatarByIndex(jenisKelamin, parseInt(avatarIndex))
+    : (currentUser.photoURL || `https://ui-avatars.com/api/?name=${displayName}&background=6366f1&color=fff&bold=true`);
 document.querySelectorAll('.user-avatar-img').forEach(el => { el.src = photoURL; });
+console.log('[updateUserDisplay] Avatar updated from Firestore:', photoURL);
 const hour = new Date().getHours();
 let greeting = "Selamat Malam";
 if (hour < 12) greeting = "Selamat Pagi";
