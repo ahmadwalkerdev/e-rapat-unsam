@@ -2326,21 +2326,20 @@ window.selectInlineAvatar = async function(index) {
             await window.updateProfile(currentUser, { photoURL: photoURL });
             console.log('[Avatar] Auth profile updated');
             
-            // Save to Firestore
-            const { doc, setDoc, serverTimestamp } = window.FirebaseCore;
+            // Save to Firestore - use imported functions directly
             const appId = window.CONFIG?.APP_ID || 'app';
-            const profileData = {
+            const profileDataSave = {
                 jenisKelamin: jenisKelamin,
                 avatarIndex: String(index),
                 photoURL: photoURL,
                 updatedAt: new Date().toISOString()
             };
             
-            console.log('[Avatar] Saving to Firestore:', profileData);
+            console.log('[Avatar] Saving to Firestore:', profileDataSave);
             
             await setDoc(
-                doc(window.db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'),
-                profileData,
+                doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'),
+                profileDataSave,
                 { merge: true }
             );
             
