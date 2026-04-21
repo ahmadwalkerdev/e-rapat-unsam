@@ -544,6 +544,12 @@ _dashboardModuleRef = dashboardModule;
 let isSettingsDirty = false;
 let pendingViewSwitch = null;
 
+// Function to mark settings as dirty (for avatar changes, etc.)
+window.markSettingsDirty = function() {
+    isSettingsDirty = true;
+    console.log('[Settings] Marked as dirty');
+};
+
 // Track changes in settings form
 function initSettingsTracker() {
     const settingsForm = document.querySelector('#view-settings form');
@@ -553,12 +559,15 @@ function initSettingsTracker() {
     inputs.forEach(input => {
         input.addEventListener('change', () => {
             isSettingsDirty = true;
-            console.log('Settings are now dirty');
+            console.log('[SettingsTracker] Form changed, marked dirty');
         });
         input.addEventListener('input', () => {
             isSettingsDirty = true;
+            console.log('[SettingsTracker] Input changed, marked dirty');
         });
     });
+    
+    console.log('[SettingsTracker] Initialized with', inputs.length, 'fields');
 }
 
 // Call init tracker when settings view is loaded or on DOM ready
@@ -2310,14 +2319,9 @@ window.toggleAvatarSelector = function() {
     }
 };
 
-window.selectInlineAvatar = async function(index) {
-    console.log('[Avatar] selectInlineAvatar called with index:', index);
-    
+window.selectInlineAvatar = function(index) {
     const avatarIndexInput = document.getElementById('settingsAvatarIndex');
     const jenisKelaminSelect = document.getElementById('settingsJenisKelamin');
-    
-    console.log('[Avatar] avatarIndexInput:', avatarIndexInput?.value);
-    console.log('[Avatar] jenisKelaminSelect:', jenisKelaminSelect?.value);
     
     // Update values
     if (avatarIndexInput) avatarIndexInput.value = index;
@@ -2328,51 +2332,11 @@ window.selectInlineAvatar = async function(index) {
     // Update header avatar
     window.updateHeaderAvatar();
     
-    // Autosave avatar changes
-    const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
-    console.log('[Avatar] currentUser:', currentUser?.uid);
-    
-    if (currentUser) {
-        try {
-            const jenisKelamin = jenisKelaminSelect?.value || 'neutral';
-            const photoURL = getAvatarByIndex(jenisKelamin, index);
-            
-            console.log('[Avatar] Saving:', { jenisKelamin, index, photoURL });
-            
-            // Update Auth profile photo
-            await window.updateProfile(currentUser, { photoURL: photoURL });
-            console.log('[Avatar] Auth profile updated');
-            
-            // Save to Firestore - use imported functions directly
-            const appId = window.CONFIG?.APP_ID || 'app';
-            const profileDataSave = {
-                jenisKelamin: jenisKelamin,
-                avatarIndex: String(index),
-                photoURL: photoURL,
-                updatedAt: new Date().toISOString()
-            };
-            
-            console.log('[Avatar] Saving to Firestore:', profileDataSave);
-            
-            await setDoc(
-                doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'),
-                profileDataSave,
-                { merge: true }
-            );
-            
-            console.log('[Avatar] Firestore save SUCCESS:', profileDataSave);
-            showToast(`✅ Avatar ${index} tersimpan`);
-        } catch (error) {
-            console.error('[Avatar] Autosave ERROR:', error);
-            showToast('⚠️ Avatar diganti tapi gagal tersimpan: ' + error.message);
-        }
-    } else {
-        console.error('[Avatar] No current user found!');
-        showToast('⚠️ User tidak terautentikasi');
-    }
+    // Mark form as dirty
+    window.markSettingsDirty();
     
     const options = getAvatarOptions(jenisKelaminSelect?.value || 'neutral');
-    showToast(`${options[index]?.label || 'Avatar'} dipilih`);
+    showToast(`${options[index]?.label || 'Avatar'} dipilih - Jangan lupa simpan perubahan`);
 };
 
 // Update header avatar image
