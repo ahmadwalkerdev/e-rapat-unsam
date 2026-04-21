@@ -33,9 +33,9 @@ export function getDefaultAvatar(gender) {
     
     // Build filename
     if (randomIndex === 0) {
-        return `./assets/avatars/default-${gender}.png`;
+        return `assets/avatars/default-${gender}.png`;
     } else {
-        return `./assets/avatars/default-${gender}-${randomIndex}.png`;
+        return `assets/avatars/default-${gender}-${randomIndex}.png`;
     }
 }
 
@@ -48,9 +48,9 @@ export function getDefaultAvatar(gender) {
 export function getAvatarByIndex(gender, index = 0) {
     const g = gender || 'neutral';
     if (index === 0) {
-        return `./assets/avatars/default-${g}.png`;
+        return `assets/avatars/default-${g}.png`;
     }
-    return `./assets/avatars/default-${g}-${index}.png`;
+    return `assets/avatars/default-${g}-${index}.png`;
 }
 
 /**
@@ -60,12 +60,12 @@ export function getAvatarByIndex(gender, index = 0) {
  */
 export function getAvatarOptions(gender) {
     const g = gender || 'neutral';
-    const options = [{ path: `./assets/avatars/default-${g}.png`, index: 0, label: 'Avatar 1' }];
+    const options = [{ path: `assets/avatars/default-${g}.png`, index: 0, label: 'Avatar 1' }];
     
     // Add numbered variants (1-10)
     for (let i = 1; i <= 10; i++) {
         options.push({ 
-            path: `./assets/avatars/default-${g}-${i}.png`, 
+            path: `assets/avatars/default-${g}-${i}.png`, 
             index: i,
             label: `Avatar ${i + 1}` 
         });

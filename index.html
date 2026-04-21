@@ -1869,7 +1869,7 @@ window.updateSetupAvatarPreview = function() {
     const avatarLabel = document.getElementById('setupAvatarLabel');
     
     if (jenisKelamin && previewImg) {
-        previewImg.src = `./assets/avatars/${jenisKelamin}-${avatarIndex}.png`;
+        previewImg.src = `assets/avatars/default-${jenisKelamin}-${avatarIndex}.png`;
     }
     
     if (avatarLabel) {
@@ -1897,7 +1897,7 @@ window.generateSetupAvatarGrid = function() {
         const isSelected = i === currentIndex;
         html += `
             <button type="button" onclick="window.selectSetupAvatar(${i})" class="relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${isSelected ? 'border-indigo-500 ring-2 ring-indigo-500/30' : 'border-slate-200 hover:border-indigo-300'}">
-                <img src="./assets/avatars/${jenisKelamin}-${i}.png" class="w-full h-full object-cover" alt="Avatar ${i}" loading="lazy" onerror="this.src='./assets/avatars/default-${jenisKelamin}.png'">
+                <img src="assets/avatars/default-${jenisKelamin}-${i}.png" class="w-full h-full object-cover" alt="Avatar ${i}" loading="lazy" onerror="this.src='assets/avatars/default-${jenisKelamin}.png'">
                 ${isSelected ? '<div class="absolute inset-0 bg-indigo-500/20 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
             </button>
         `;
@@ -2754,7 +2754,7 @@ Keluar Sesi
 <label class="text-[10px] font-bold text-slate-500 uppercase">Pilih Avatar <span class="text-red-500">*</span></label>
 <input type="hidden" id="setupAvatarIndex" value="0">
 <div class="flex items-center gap-3 mb-2">
-<img id="setupAvatarPreviewImg" src="./assets/avatars/default-male.png" class="w-16 h-16 rounded-full border-2 border-indigo-500 object-cover bg-slate-100 shadow-sm">
+<img id="setupAvatarPreviewImg" src="assets/avatars/default-male.png" class="w-16 h-16 rounded-full border-2 border-indigo-500 object-cover bg-slate-100 shadow-sm">
 <div class="flex-1">
 <p class="text-sm font-medium text-slate-700" id="setupAvatarLabel">Avatar Default</p>
 <p class="text-[10px] text-slate-400">Pilih avatar dari grid di bawah</p>
