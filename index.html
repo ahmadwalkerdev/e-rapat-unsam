@@ -266,6 +266,13 @@ function setupDashboardListenerWrapper() {
     }
 }
 
+// Expose getCurrentUser ke window untuk akses global
+window.getCurrentUser = () => {
+    console.log('[getCurrentUser] returning:', currentUser?.uid || 'null/undefined');
+    return currentUser;
+};
+window.updateProfile = updateProfile;
+
 const authModule = createAuthModule({
 auth,
 db,
@@ -744,6 +751,7 @@ onAuthStateChanged(auth, async (user) => {
 if (isRegistering) return;
 if (user) {
 currentUser = user;
+console.log('[Auth] currentUser set:', currentUser?.uid);
 const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
 const profileData = userDoc.data() || {};
 isDeveloper = profileData.isDeveloper || false;
