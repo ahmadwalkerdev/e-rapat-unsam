@@ -2285,7 +2285,7 @@ window.toggleAvatarSelector = function() {
     }
 };
 
-window.selectInlineAvatar = function(index) {
+window.selectInlineAvatar = async function(index) {
     const avatarIndexInput = document.getElementById('settingsAvatarIndex');
     const jenisKelaminSelect = document.getElementById('settingsJenisKelamin');
     
@@ -2298,8 +2298,41 @@ window.selectInlineAvatar = function(index) {
     // Update header avatar
     window.updateHeaderAvatar();
     
+    // Autosave avatar changes
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+        try {
+            const jenisKelamin = jenisKelaminSelect?.value || 'neutral';
+            const photoURL = getAvatarByIndex(jenisKelamin, index);
+            
+            // Update Auth profile photo
+            await updateProfile(currentUser, { photoURL: photoURL });
+            
+            // Save to Firestore
+            const { doc, setDoc, serverTimestamp } = window.FirebaseCore;
+            const appId = window.CONFIG?.APP_ID || 'app';
+            const profileData = {
+                jenisKelamin: jenisKelamin,
+                avatarIndex: String(index),
+                photoURL: photoURL,
+                updatedAt: new Date().toISOString()
+            };
+            
+            await setDoc(
+                doc(window.db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'),
+                profileData,
+                { merge: true }
+            );
+            
+            showToast(`✅ Avatar tersimpan otomatis`);
+        } catch (error) {
+            console.error('Autosave avatar error:', error);
+            showToast('⚠️ Avatar diganti tapi gagal tersimpan');
+        }
+    }
+    
     const options = getAvatarOptions(jenisKelaminSelect?.value || 'neutral');
-    showToast(`✅ ${options[index]?.label || 'Avatar'} dipilih`);
+    showToast(`${options[index]?.label || 'Avatar'} dipilih`);
 };
 
 // Update header avatar image
