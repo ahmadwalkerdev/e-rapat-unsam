@@ -2304,7 +2304,7 @@ window.selectInlineAvatar = async function(index) {
     window.updateHeaderAvatar();
     
     // Autosave avatar changes
-    const currentUser = getCurrentUser();
+    const currentUser = window.getCurrentUser ? window.getCurrentUser() : null;
     console.log('[Avatar] currentUser:', currentUser?.uid);
     
     if (currentUser) {
@@ -2315,7 +2315,7 @@ window.selectInlineAvatar = async function(index) {
             console.log('[Avatar] Saving:', { jenisKelamin, index, photoURL });
             
             // Update Auth profile photo
-            await updateProfile(currentUser, { photoURL: photoURL });
+            await window.updateProfile(currentUser, { photoURL: photoURL });
             console.log('[Avatar] Auth profile updated');
             
             // Save to Firestore
