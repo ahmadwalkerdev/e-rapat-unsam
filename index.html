@@ -2353,8 +2353,8 @@ window.selectInlineAvatar = async function(index) {
                 { merge: true }
             );
             
-            console.log('[Avatar] Firestore save SUCCESS');
-            showToast(`✅ Avatar tersimpan otomatis`);
+            console.log('[Avatar] Firestore save SUCCESS:', profileDataSave);
+            showToast(`✅ Avatar ${index} tersimpan`);
         } catch (error) {
             console.error('[Avatar] Autosave ERROR:', error);
             showToast('⚠️ Avatar diganti tapi gagal tersimpan: ' + error.message);
