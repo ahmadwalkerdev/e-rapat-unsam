@@ -2286,8 +2286,13 @@ window.toggleAvatarSelector = function() {
 };
 
 window.selectInlineAvatar = async function(index) {
+    console.log('[Avatar] selectInlineAvatar called with index:', index);
+    
     const avatarIndexInput = document.getElementById('settingsAvatarIndex');
     const jenisKelaminSelect = document.getElementById('settingsJenisKelamin');
+    
+    console.log('[Avatar] avatarIndexInput:', avatarIndexInput?.value);
+    console.log('[Avatar] jenisKelaminSelect:', jenisKelaminSelect?.value);
     
     // Update values
     if (avatarIndexInput) avatarIndexInput.value = index;
@@ -2300,13 +2305,18 @@ window.selectInlineAvatar = async function(index) {
     
     // Autosave avatar changes
     const currentUser = getCurrentUser();
+    console.log('[Avatar] currentUser:', currentUser?.uid);
+    
     if (currentUser) {
         try {
             const jenisKelamin = jenisKelaminSelect?.value || 'neutral';
             const photoURL = getAvatarByIndex(jenisKelamin, index);
             
+            console.log('[Avatar] Saving:', { jenisKelamin, index, photoURL });
+            
             // Update Auth profile photo
             await updateProfile(currentUser, { photoURL: photoURL });
+            console.log('[Avatar] Auth profile updated');
             
             // Save to Firestore
             const { doc, setDoc, serverTimestamp } = window.FirebaseCore;
@@ -2318,17 +2328,23 @@ window.selectInlineAvatar = async function(index) {
                 updatedAt: new Date().toISOString()
             };
             
+            console.log('[Avatar] Saving to Firestore:', profileData);
+            
             await setDoc(
                 doc(window.db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'),
                 profileData,
                 { merge: true }
             );
             
+            console.log('[Avatar] Firestore save SUCCESS');
             showToast(`✅ Avatar tersimpan otomatis`);
         } catch (error) {
-            console.error('Autosave avatar error:', error);
-            showToast('⚠️ Avatar diganti tapi gagal tersimpan');
+            console.error('[Avatar] Autosave ERROR:', error);
+            showToast('⚠️ Avatar diganti tapi gagal tersimpan: ' + error.message);
         }
+    } else {
+        console.error('[Avatar] No current user found!');
+        showToast('⚠️ User tidak terautentikasi');
     }
     
     const options = getAvatarOptions(jenisKelaminSelect?.value || 'neutral');
