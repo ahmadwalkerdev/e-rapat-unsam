@@ -776,13 +776,12 @@ successPanel.classList.add('hidden');
 }
 }
 
-// Update header avatar from profile data on login
-const headerAvatar = document.getElementById('userAvatarDisplay');
-if (headerAvatar && profileData.jenisKelamin) {
-    const avatarIndex = profileData.avatarIndex || '0';
-    const photoURL = getAvatarByIndex(profileData.jenisKelamin, parseInt(avatarIndex));
-    headerAvatar.src = photoURL;
-    console.log('[Auth] Header avatar updated from profile:', photoURL);
+// Update header avatar initials from profile data on login
+const headerAvatarInitials = document.getElementById('userAvatarInitials');
+if (headerAvatarInitials && profileData.name) {
+    const userInitials = getInitials(profileData.name);
+    headerAvatarInitials.textContent = userInitials;
+    console.log('[Auth] Header initials updated:', userInitials);
 }
 
 if (!userDoc.exists() || !profileData?.setupComplete) {
@@ -841,14 +840,12 @@ const displayName = currentUser.displayName || profileData.name || "Dosen UNSAM"
 document.querySelectorAll('.user-name-text').forEach(el => el.textContent = displayName);
 document.querySelectorAll('.user-email-text').forEach(el => el.textContent = currentUser.email || "Akun Anonim");
 
-// Use avatar from Firestore profile data, not from Auth photoURL
-const jenisKelamin = profileData.jenisKelamin;
-const avatarIndex = profileData.avatarIndex || '0';
-const photoURL = jenisKelamin 
-    ? getAvatarByIndex(jenisKelamin, parseInt(avatarIndex))
-    : (currentUser.photoURL || `https://ui-avatars.com/api/?name=${displayName}&background=6366f1&color=fff&bold=true`);
-document.querySelectorAll('.user-avatar-img').forEach(el => { el.src = photoURL; });
-console.log('[updateUserDisplay] Avatar updated from Firestore:', photoURL);
+// Update header initials in all places
+const displayInitials = getInitials(displayName);
+document.querySelectorAll('.user-avatar-initials').forEach(el => { 
+    el.textContent = displayInitials; 
+});
+console.log('[updateUserDisplay] Initials updated:', displayInitials);
 const hour = new Date().getHours();
 let greeting = "Selamat Malam";
 if (hour < 12) greeting = "Selamat Pagi";
@@ -2699,7 +2696,7 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 <button onclick="window.toggleProfileMenu(event)" class="profile-trigger flex items-center gap-2.5 group p-1.5 rounded-xl hover:bg-slate-100/70 transition-all border border-transparent hover:border-slate-200/50">
 <span class="user-name-text hidden md:block text-[13px] font-bold text-slate-600 group-hover:text-slate-900 transition-colors">Dosen UNSAM</span>
 <div class="relative">
-<img id="userAvatarDisplay" src="https://ui-avatars.com/api/?name=Dosen+UNSAM&background=6366f1&color=fff&bold=true" class="user-avatar-img w-8 h-8 rounded-full border border-slate-200 object-cover bg-white shadow-sm transition-all group-hover:shadow-md group-hover:scale-105">
+<div id="userAvatarInitials" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm transition-all group-hover:shadow-md group-hover:scale-105">UN</div>
 <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
 </div>
 </button>
