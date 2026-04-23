@@ -9,6 +9,7 @@ query,
 where,
 onSnapshot,
 doc,
+getDoc,
 updateDoc,
 deleteDoc,
 escapeJsString,
@@ -25,45 +26,54 @@ playPingSound
 // Track last ping timestamp to avoid playing sound multiple times
 let lastPingTimestamp = null;
 
-function openParticipantProfileCard(data) {
+async function openParticipantProfileCard(data) {
     console.log('[ATTENDANCE] openParticipantProfileCard called with data:', data?.name);
     
     const modal = document.getElementById('participantProfileCardModal');
     const wrapper = document.getElementById('participantCardWrapper');
     const backdrop = document.getElementById('participantCardBackdrop');
     
-    if (!modal) {
-        console.error('[ATTENDANCE] Modal not found: participantProfileCardModal');
-        return;
-    }
-    if (!wrapper) {
-        console.error('[ATTENDANCE] Wrapper not found: participantCardWrapper');
-        return;
+    if (!modal || !wrapper) return;
+
+    // Jika email tidak ada di payload attendance, ambil dari profil Firestore
+    let enrichedData = { ...data };
+    if (!enrichedData.email && enrichedData.uid && getDoc) {
+        try {
+            const profileSnap = await getDoc(doc(db, 'artifacts', appId, 'users', enrichedData.uid, 'profile', 'data'));
+            if (profileSnap.exists()) {
+                const pd = profileSnap.data();
+                enrichedData.email = pd.email || pd.emailInstitusi || '';
+                // Lengkapi field lain yang mungkin juga kosong di data lama
+                if (!enrichedData.nip) enrichedData.nip = pd.nip || '';
+                if (!enrichedData.nidn) enrichedData.nidn = pd.nidn || '';
+                if (!enrichedData.nidk) enrichedData.nidk = pd.nidk || '';
+                if (!enrichedData.unitKerja) enrichedData.unitKerja = pd.unitKerja || '';
+                if (!enrichedData.fakultas) enrichedData.fakultas = pd.fakultas || '';
+                if (!enrichedData.kategoriPegawai) enrichedData.kategoriPegawai = pd.kategoriPegawai || '';
+                if (!enrichedData.jabatanFungsional) enrichedData.jabatanFungsional = pd.jabatanFungsional || '';
+            }
+        } catch (e) {
+            console.warn('[ATTENDANCE] Could not enrich profile data:', e.message);
+        }
     }
 
     // Generate card HTML using reusable utility
-    const cardHtml = createProfileCardHTML(data, {
+    const cardHtml = createProfileCardHTML(enrichedData, {
         isModal: true,
         idPrefix: 'participantCard',
         showCloseButton: true,
         onClose: 'window.closeParticipantProfileCard()'
     });
 
-    // Inject card into wrapper (keep modal backdrop intact)
     wrapper.innerHTML = cardHtml;
-
-    // Show modal first (remove hidden)
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     
-    // Trigger animations after a microtask to ensure DOM update
     requestAnimationFrame(() => {
-        // Animate backdrop fade in
         if (backdrop) {
             backdrop.classList.remove('opacity-0');
             backdrop.classList.add('opacity-100');
         }
-        // Animate card scale up and fade in
         wrapper.classList.remove('scale-95', 'opacity-0', 'translate-y-4');
         wrapper.classList.add('scale-100', 'opacity-100', 'translate-y-0');
     });
