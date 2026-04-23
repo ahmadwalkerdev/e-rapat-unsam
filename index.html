@@ -1737,33 +1737,44 @@ if (pinInput) pinInput.focus();
 }, 100);
 };
 
-// IMPROVEMENT: ESC key untuk tutup semua modal
+// Universal modal close helper
+function closeActiveModal(modalId) {
+    const confirmOnly = ['globalConfirmModal', 'unsavedChangesModal', 'endMeetingModal'];
+    if (confirmOnly.includes(modalId)) return; // jangan tutup modal konfirmasi dengan Esc/backdrop
+    if (modalId === 'participantProfileCardModal') {
+        window.closeParticipantProfileCard?.();
+    } else if (modalId === 'logoutModal') {
+        window.closeLogoutModal();
+    } else if (modalId === 'guestJoinModal') {
+        window.closeGuestJoinModal();
+    } else {
+        window.toggleModal(modalId, false);
+    }
+}
+
+// ESC key: tutup semua modal yang terbuka
 document.addEventListener('keydown', (e) => {
-if (e.key === 'Escape') {
-// Cari modal yang terbuka
-const openModals = document.querySelectorAll('[id$="Modal"]:not(.hidden), [id$="Modal"]:not([style*="display: none"])');
-openModals.forEach(modal => {
-if (!modal.classList.contains('hidden')) {
-// Cek jika modal punya fungsi close specific
-const modalId = modal.id;
-if (modalId === 'joinRoomModal') {
-window.toggleModal('joinRoomModal', false);
-} else if (modalId === 'logoutModal') {
-window.closeLogoutModal();
-} else if (modalId === 'unsavedChangesModal') {
-window.closeUnsavedChangesModal();
-} else if (modalId === 'forgotPasswordModal') {
-window.toggleModal('forgotPasswordModal', false);
-} else if (modalId === 'editMeetingInfoModal') {
-window.toggleModal('editMeetingInfoModal', false);
-} else if (modalId === 'addResourceModal') {
-window.toggleModal('addResourceModal', false);
-} else if (modalId === 'joinRoomModal') {
-window.toggleModal('joinRoomModal', false);
-}
-}
+    if (e.key !== 'Escape') return;
+    const openModals = document.querySelectorAll('[id$="Modal"]:not(.hidden)');
+    openModals.forEach(modal => {
+        if (!modal.classList.contains('hidden')) {
+            closeActiveModal(modal.id);
+        }
+    });
 });
-}
+
+// Backdrop click: tutup modal ketika klik di luar konten
+document.addEventListener('click', (e) => {
+    const openModals = document.querySelectorAll('[id$="Modal"]:not(.hidden)');
+    openModals.forEach(modal => {
+        if (modal.classList.contains('hidden')) return;
+        // Untuk modal partisipan, sudah ada handler di attendance-module.js
+        if (modal.id === 'participantProfileCardModal') return;
+        // Cek apakah klik langsung pada backdrop (elemen modal itu sendiri)
+        if (e.target === modal) {
+            closeActiveModal(modal.id);
+        }
+    });
 });
 
 window.confirmEndMeeting = async () => {
