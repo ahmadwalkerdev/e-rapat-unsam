@@ -130,7 +130,7 @@ export function createProfileCardHTML(data, options = {}) {
 
     // Determine display values with fallbacks
     const displayName = name || 'Nama Akun';
-    const displayEmail = email || emailInstitusi || 'email@unsam.ac.id';
+    const displayEmail = email || emailInstitusi || '';
     const displayNip = nip || '-';
     // Only show NIDN/NIDK for dosen
     const displayNidnNidk = isDosen 
@@ -261,7 +261,7 @@ export function createProfileCardHTML(data, options = {}) {
                         <div style="min-width:0;">
                             <p style="font-size:10px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Identitas Peserta Rapat</p>
                             <h4 style="font-size:26px;font-weight:800;color:#1e293b;line-height:1.2;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</h4>
-                            <p style="font-size:13px;color:#64748b;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeEmail}</p>
+                            ${safeEmail ? `<p style="font-size:13px;color:#64748b;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeEmail}</p>` : ''}
                         </div>
                         <div style="flex-shrink:0;margin-left:16px;margin-top:2px;">
                             ${categoryBadgeRight}
