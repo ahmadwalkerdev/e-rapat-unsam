@@ -242,13 +242,13 @@ export function createProfileCardHTML(data, options = {}) {
                         background:rgba(255,255,255,0.12);
                         border:1.5px solid rgba(255,255,255,0.25);
                         border-radius:50%;
-                        display:flex;flex-direction:column;
+                        display:flex;
                         align-items:center;justify-content:center;
-                        margin-bottom:16px;
+                        margin-bottom:10px;
                     ">
-                        <span style="font-size:32px;font-weight:800;line-height:1;">${safeInitials}</span>
-                        <span style="font-size:11px;font-weight:600;opacity:0.75;margin-top:2px;">${categoryLabel}</span>
+                        <span style="font-size:34px;font-weight:800;line-height:1;">${safeInitials}</span>
                     </div>
+                    <span style="font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;margin-bottom:14px;">${categoryLabel}</span>
                     <p style="font-size:9px;font-weight:700;letter-spacing:0.18em;opacity:0.6;text-transform:uppercase;margin-bottom:4px;">Universitas Samudra</p>
                     <p style="font-size:12px;font-weight:700;">E-RAPAT UNSAM</p>
                 </div>
