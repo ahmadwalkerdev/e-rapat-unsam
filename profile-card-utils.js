@@ -205,93 +205,95 @@ export function createProfileCardHTML(data, options = {}) {
     return `
         <div ${idAttr} class="${containerClasses}">
             ${closeButton}
-            <div style="
-                background:#ffffff;
-                border-radius:20px;
-                display:flex;
-                flex-direction:row;
-                position:relative;
-                box-shadow:0 30px 60px -12px rgba(0,0,0,0.15);
-                overflow:hidden;
-                min-height:240px;
-            ">
-                <!-- Glow dekoratif -->
-                <div style="position:absolute;width:200px;height:200px;background:#6366f1;filter:blur(100px);opacity:0.05;top:-50px;right:-50px;pointer-events:none;"></div>
+            <div class="profile-voucher-card" style="background:#ffffff;border-radius:20px;display:flex;position:relative;box-shadow:0 30px 60px -12px rgba(0,0,0,0.15);overflow:hidden;">
+                <style>
+                    .profile-voucher-card { flex-direction: row; }
+                    .profile-voucher-left { width: 28%; border-right: 2px dashed rgba(255,255,255,0.25); border-bottom: none; }
+                    .profile-voucher-perforation-v { display: block; }
+                    .profile-voucher-perforation-h { display: none; }
+                    .profile-voucher-grid { grid-template-columns: repeat(3,1fr); }
+                    .profile-voucher-name { font-size: 26px; }
+                    .profile-voucher-right { padding: 32px 36px; }
+                    @media (max-width: 640px) {
+                        .profile-voucher-card { flex-direction: column; }
+                        .profile-voucher-left { width: 100% !important; border-right: none; border-bottom: 2px dashed rgba(255,255,255,0.25); padding: 24px 16px !important; flex-direction: row !important; gap: 16px; justify-content: flex-start !important; }
+                        .profile-voucher-left-inner { flex-direction: row !important; align-items: center; gap: 14px; }
+                        .profile-voucher-circle { width: 72px !important; height: 72px !important; margin-bottom: 0 !important; flex-shrink: 0; }
+                        .profile-voucher-circle span { font-size: 24px !important; }
+                        .profile-voucher-left-text { text-align: left !important; }
+                        .profile-voucher-perforation-v { display: none; }
+                        .profile-voucher-perforation-h { display: block; }
+                        .profile-voucher-grid { grid-template-columns: repeat(2,1fr) !important; }
+                        .profile-voucher-name { font-size: 20px !important; }
+                        .profile-voucher-right { padding: 20px !important; }
+                        .profile-voucher-footer { flex-direction: column; gap: 10px; align-items: flex-start !important; }
+                    }
+                </style>
 
-                <!-- Lubang perforasi atas & bawah -->
-                <div style="position:absolute;left:28%;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;transform:translateX(-50%) translateY(-50%);top:0;"></div>
-                <div style="position:absolute;left:28%;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;transform:translateX(-50%) translateY(50%);bottom:0;"></div>
+                <!-- Glow dekoratif -->
+                <div style="position:absolute;width:200px;height:200px;background:#6366f1;filter:blur(100px);opacity:0.05;top:-50px;right:-50px;pointer-events:none;z-index:0;"></div>
+
+                <!-- Lubang perforasi vertikal (desktop) -->
+                <div class="profile-voucher-perforation-v" style="position:absolute;left:28%;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;transform:translateX(-50%) translateY(-50%);top:0;"></div>
+                <div class="profile-voucher-perforation-v" style="position:absolute;left:28%;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;transform:translateX(-50%) translateY(50%);bottom:0;"></div>
+
+                <!-- Lubang perforasi horizontal (mobile) -->
+                <div class="profile-voucher-perforation-h" style="position:absolute;top:calc(var(--stub-h,120px));left:-14px;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;"></div>
+                <div class="profile-voucher-perforation-h" style="position:absolute;top:calc(var(--stub-h,120px));right:-14px;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;"></div>
 
                 <!-- LEFT PANEL -->
-                <div style="
-                    width:28%;
-                    background:linear-gradient(135deg,#6366f1 0%,#4338ca 100%);
-                    display:flex;
-                    flex-direction:column;
-                    align-items:center;
-                    justify-content:center;
-                    color:white;
-                    border-right:2px dashed rgba(255,255,255,0.25);
-                    position:relative;
-                    padding:32px 16px;
-                    flex-shrink:0;
-                ">
-                    <!-- Lingkaran inisial -->
-                    <div style="
-                        width:100px;height:100px;
-                        background:rgba(255,255,255,0.12);
-                        border:1.5px solid rgba(255,255,255,0.25);
-                        border-radius:50%;
-                        display:flex;
-                        align-items:center;justify-content:center;
-                        margin-bottom:10px;
-                    ">
-                        <span style="font-size:34px;font-weight:800;line-height:1;">${safeInitials}</span>
+                <div class="profile-voucher-left" style="background:linear-gradient(135deg,#6366f1 0%,#4338ca 100%);display:flex;align-items:center;justify-content:center;color:white;position:relative;padding:32px 16px;flex-shrink:0;z-index:1;">
+                    <div class="profile-voucher-left-inner" style="display:flex;flex-direction:column;align-items:center;">
+                        <div class="profile-voucher-circle" style="width:100px;height:100px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px;flex-shrink:0;">
+                            <span style="font-size:34px;font-weight:800;line-height:1;">${safeInitials}</span>
+                        </div>
+                        <div class="profile-voucher-left-text" style="text-align:center;">
+                            <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;margin-bottom:10px;">${categoryLabel}</span>
+                            <p style="font-size:9px;font-weight:700;letter-spacing:0.18em;opacity:0.6;text-transform:uppercase;margin-bottom:3px;margin-top:2px;">Universitas Samudra</p>
+                            <p style="font-size:11px;font-weight:700;margin:0;">E-RAPAT UNSAM</p>
+                        </div>
                     </div>
-                    <span style="font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;margin-bottom:14px;">${categoryLabel}</span>
-                    <p style="font-size:9px;font-weight:700;letter-spacing:0.18em;opacity:0.6;text-transform:uppercase;margin-bottom:4px;">Universitas Samudra</p>
-                    <p style="font-size:12px;font-weight:700;">E-RAPAT UNSAM</p>
                 </div>
 
                 <!-- RIGHT PANEL -->
-                <div style="flex:1;padding:32px 36px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;">
+                <div class="profile-voucher-right" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0;z-index:1;">
 
                     <!-- Header -->
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                        <div style="min-width:0;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                        <div style="min-width:0;flex:1;">
                             <p style="font-size:10px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Identitas Peserta Rapat</p>
-                            <h4 style="font-size:26px;font-weight:800;color:#1e293b;line-height:1.2;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</h4>
-                            ${safeEmail ? `<p style="font-size:13px;color:#64748b;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeEmail}</p>` : ''}
+                            <h4 class="profile-voucher-name" style="font-weight:800;color:#1e293b;line-height:1.2;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName}</h4>
+                            ${safeEmail ? `<p style="font-size:12px;color:#64748b;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeEmail}</p>` : ''}
                         </div>
-                        <div style="flex-shrink:0;margin-left:16px;margin-top:2px;">
+                        <div style="flex-shrink:0;margin-top:2px;">
                             ${categoryBadgeRight}
                         </div>
                     </div>
 
                     <!-- Detail grid -->
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;padding-top:18px;border-top:1px solid #f1f5f9;">
+                    <div class="profile-voucher-grid" style="display:grid;gap:14px;margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9;">
                         <div>
                             <p style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">NIP</p>
-                            <p id="${idPrefix}Nip" style="font-size:13px;color:#334155;font-weight:600;">${escapeHtml(displayNip)}</p>
+                            <p id="${idPrefix}Nip" style="font-size:13px;color:#334155;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(displayNip)}</p>
                         </div>
                         <div>
                             <p style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">${isDosen ? 'NIDN / NIDK' : 'Unit Kerja'}</p>
-                            <p id="${idPrefix}NidnNidk" style="font-size:13px;color:#334155;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${isDosen ? escapeHtml(displayNidnNidk || '-') : escapeHtml(displayUnit)}</p>
+                            <p id="${idPrefix}NidnNidk" style="font-size:13px;color:#334155;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${isDosen ? escapeHtml(displayNidnNidk || '-') : escapeHtml(displayUnit)}</p>
                         </div>
                         <div>
                             <p style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Jabatan</p>
-                            <p id="${idPrefix}JabatanFungsional" style="font-size:13px;color:#334155;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(displayJabatan)}</p>
+                            <p id="${idPrefix}JabatanFungsional" style="font-size:13px;color:#334155;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(displayJabatan)}</p>
                         </div>
                         ${isDosen ? `
                         <div style="grid-column:1/-1;">
                             <p style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Fakultas / Jurusan</p>
-                            <p id="${idPrefix}UnitKerja" style="font-size:13px;color:#334155;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(displayUnit)}</p>
+                            <p id="${idPrefix}UnitKerja" style="font-size:13px;color:#334155;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(displayUnit)}</p>
                         </div>` : ''}
                     </div>
 
                     <!-- Footer -->
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">
-                        <div style="font-family:monospace;background:#f8fafc;padding:5px 12px;border-radius:6px;color:#475569;font-weight:700;font-size:12px;border:1px solid #e2e8f0;letter-spacing:0.05em;">
+                    <div class="profile-voucher-footer" style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+                        <div style="font-family:monospace;background:#f8fafc;padding:5px 12px;border-radius:6px;color:#475569;font-weight:700;font-size:12px;border:1px solid #e2e8f0;letter-spacing:0.05em;white-space:nowrap;">
                             UNSAM · E-RAPAT
                         </div>
                         ${barcodeSvg}
