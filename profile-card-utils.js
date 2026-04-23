@@ -159,151 +159,142 @@ export function createProfileCardHTML(data, options = {}) {
 
     // Close button for modal mode
     const closeButton = showCloseButton
-        ? `<button onclick="${onClose}" class="absolute top-3 right-3 z-20 text-slate-400 hover:text-slate-700 transition-colors bg-slate-100 hover:bg-slate-200 rounded-lg p-1.5" aria-label="Tutup">
-             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        ? `<button onclick="${onClose}" style="position:absolute;top:-40px;right:0;z-index:30;background:rgba(255,255,255,0.15);border:none;color:white;border-radius:10px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;backdrop-filter:blur(4px);" aria-label="Tutup">
+             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
              </svg>
+             Tutup
            </button>`
         : '';
 
     // Container ID attribute
     const idAttr = containerId ? `id="${containerId}"` : '';
 
-    // Ticket-style perforated edge SVG
-    const perforatedEdge = `
-        <svg class="absolute left-0 top-0 h-full" width="18" viewBox="0 0 18 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0" y="0" width="18" height="400" fill="currentColor"/>
-            <circle cx="9" cy="20" r="9" fill="white"/>
-            <circle cx="9" cy="50" r="9" fill="white"/>
-            <circle cx="9" cy="80" r="9" fill="white"/>
-            <circle cx="9" cy="110" r="9" fill="white"/>
-            <circle cx="9" cy="140" r="9" fill="white"/>
-            <circle cx="9" cy="170" r="9" fill="white"/>
-            <circle cx="9" cy="200" r="9" fill="white"/>
-            <circle cx="9" cy="230" r="9" fill="white"/>
-            <circle cx="9" cy="260" r="9" fill="white"/>
-            <circle cx="9" cy="290" r="9" fill="white"/>
-            <circle cx="9" cy="320" r="9" fill="white"/>
-            <circle cx="9" cy="350" r="9" fill="white"/>
-            <circle cx="9" cy="380" r="9" fill="white"/>
-        </svg>`;
+    // Category badge text
+    const categoryLabel = isDosen ? 'Dosen' : (isGuest ? 'Tamu Undangan' : 'Tenaga Kependidikan');
+    const categoryBadgeRight = isDosen
+        ? `<span style="background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">DOSEN</span>`
+        : (isGuest
+            ? `<span style="background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">TAMU</span>`
+            : `<span style="background:#f1f5f9;color:#475569;padding:3px 10px;border-radius:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">STAFF</span>`);
+
+    // Barcode SVG dekoratif
+    const barcodeSvg = `<svg width="110" height="28" viewBox="0 0 100 20" style="opacity:0.35;">
+        <rect x="0" width="2" height="20" fill="#334155"/>
+        <rect x="4" width="1" height="20" fill="#334155"/>
+        <rect x="7" width="3" height="20" fill="#334155"/>
+        <rect x="12" width="1" height="20" fill="#334155"/>
+        <rect x="15" width="2" height="20" fill="#334155"/>
+        <rect x="20" width="4" height="20" fill="#334155"/>
+        <rect x="26" width="1" height="20" fill="#334155"/>
+        <rect x="30" width="2" height="20" fill="#334155"/>
+        <rect x="35" width="3" height="20" fill="#334155"/>
+        <rect x="40" width="1" height="20" fill="#334155"/>
+        <rect x="45" width="2" height="20" fill="#334155"/>
+        <rect x="50" width="1" height="20" fill="#334155"/>
+        <rect x="55" width="4" height="20" fill="#334155"/>
+        <rect x="62" width="2" height="20" fill="#334155"/>
+        <rect x="70" width="1" height="20" fill="#334155"/>
+        <rect x="75" width="3" height="20" fill="#334155"/>
+        <rect x="80" width="1" height="20" fill="#334155"/>
+        <rect x="85" width="2" height="20" fill="#334155"/>
+        <rect x="90" width="4" height="20" fill="#334155"/>
+        <rect x="96" width="2" height="20" fill="#334155"/>
+    </svg>`;
 
     return `
         <div ${idAttr} class="${containerClasses}">
             ${closeButton}
+            <div style="
+                background:#ffffff;
+                border-radius:20px;
+                display:flex;
+                flex-direction:row;
+                position:relative;
+                box-shadow:0 30px 60px -12px rgba(0,0,0,0.15);
+                overflow:hidden;
+                min-height:240px;
+            ">
+                <!-- Glow dekoratif -->
+                <div style="position:absolute;width:200px;height:200px;background:#6366f1;filter:blur(100px);opacity:0.05;top:-50px;right:-50px;pointer-events:none;"></div>
 
-            <!-- Ticket shell -->
-            <div class="relative flex flex-col md:flex-row overflow-hidden rounded-2xl shadow-xl" style="min-height:200px;">
+                <!-- Lubang perforasi atas & bawah -->
+                <div style="position:absolute;left:28%;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;transform:translateX(-50%) translateY(-50%);top:0;"></div>
+                <div style="position:absolute;left:28%;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;transform:translateX(-50%) translateY(50%);bottom:0;"></div>
 
-                <!-- LEFT STUB: inisial + label -->
-                <div class="relative bg-indigo-600 text-white flex flex-col items-center justify-center px-6 py-8 shrink-0 md:w-40">
-                    <!-- perforated edge kanan (desktop) -->
-                    <div class="hidden md:block absolute right-0 top-0 bottom-0 w-px">
-                        <svg class="h-full" width="20" viewBox="0 0 20 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="8" y="0" width="4" height="400" fill="#4338ca" stroke="none"/>
-                            <circle cx="10" cy="16"  r="10" fill="white"/>
-                            <circle cx="10" cy="48"  r="10" fill="white"/>
-                            <circle cx="10" cy="80"  r="10" fill="white"/>
-                            <circle cx="10" cy="112" r="10" fill="white"/>
-                            <circle cx="10" cy="144" r="10" fill="white"/>
-                            <circle cx="10" cy="176" r="10" fill="white"/>
-                            <circle cx="10" cy="208" r="10" fill="white"/>
-                            <circle cx="10" cy="240" r="10" fill="white"/>
-                            <circle cx="10" cy="272" r="10" fill="white"/>
-                            <circle cx="10" cy="304" r="10" fill="white"/>
-                            <circle cx="10" cy="336" r="10" fill="white"/>
-                            <circle cx="10" cy="368" r="10" fill="white"/>
-                            <circle cx="10" cy="400" r="10" fill="white"/>
-                        </svg>
+                <!-- LEFT PANEL -->
+                <div style="
+                    width:28%;
+                    background:linear-gradient(135deg,#6366f1 0%,#4338ca 100%);
+                    display:flex;
+                    flex-direction:column;
+                    align-items:center;
+                    justify-content:center;
+                    color:white;
+                    border-right:2px dashed rgba(255,255,255,0.25);
+                    position:relative;
+                    padding:32px 16px;
+                    flex-shrink:0;
+                ">
+                    <!-- Lingkaran inisial -->
+                    <div style="
+                        width:100px;height:100px;
+                        background:rgba(255,255,255,0.12);
+                        border:1.5px solid rgba(255,255,255,0.25);
+                        border-radius:50%;
+                        display:flex;flex-direction:column;
+                        align-items:center;justify-content:center;
+                        margin-bottom:16px;
+                    ">
+                        <span style="font-size:32px;font-weight:800;line-height:1;">${safeInitials}</span>
+                        <span style="font-size:11px;font-weight:600;opacity:0.75;margin-top:2px;">${categoryLabel}</span>
                     </div>
-                    <!-- perforated edge bawah (mobile) -->
-                    <div class="md:hidden absolute bottom-0 left-0 right-0 h-px">
-                        <svg class="w-full" height="20" viewBox="0 0 800 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="0" y="8" width="800" height="4" fill="#4338ca"/>
-                            <circle cx="16"  cy="10" r="10" fill="white"/>
-                            <circle cx="48"  cy="10" r="10" fill="white"/>
-                            <circle cx="80"  cy="10" r="10" fill="white"/>
-                            <circle cx="112" cy="10" r="10" fill="white"/>
-                            <circle cx="144" cy="10" r="10" fill="white"/>
-                            <circle cx="176" cy="10" r="10" fill="white"/>
-                            <circle cx="208" cy="10" r="10" fill="white"/>
-                            <circle cx="240" cy="10" r="10" fill="white"/>
-                            <circle cx="272" cy="10" r="10" fill="white"/>
-                            <circle cx="304" cy="10" r="10" fill="white"/>
-                            <circle cx="336" cy="10" r="10" fill="white"/>
-                            <circle cx="368" cy="10" r="10" fill="white"/>
-                            <circle cx="400" cy="10" r="10" fill="white"/>
-                            <circle cx="432" cy="10" r="10" fill="white"/>
-                            <circle cx="464" cy="10" r="10" fill="white"/>
-                            <circle cx="496" cy="10" r="10" fill="white"/>
-                            <circle cx="528" cy="10" r="10" fill="white"/>
-                            <circle cx="560" cy="10" r="10" fill="white"/>
-                            <circle cx="592" cy="10" r="10" fill="white"/>
-                            <circle cx="624" cy="10" r="10" fill="white"/>
-                            <circle cx="656" cy="10" r="10" fill="white"/>
-                            <circle cx="688" cy="10" r="10" fill="white"/>
-                            <circle cx="720" cy="10" r="10" fill="white"/>
-                            <circle cx="752" cy="10" r="10" fill="white"/>
-                            <circle cx="784" cy="10" r="10" fill="white"/>
-                        </svg>
-                    </div>
-
-                    <div class="w-16 h-16 rounded-full bg-white/15 border-2 border-white/30 flex items-center justify-center mb-3">
-                        <span class="text-2xl font-black text-white">${safeInitials}</span>
-                    </div>
-                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-200 text-center leading-tight">
-                        ${isDosen ? 'Dosen' : (isGuest ? 'Tamu' : 'Staff')}
-                    </p>
-                    <p class="text-[8px] font-bold text-indigo-300/70 mt-0.5 text-center">UNSAM</p>
+                    <p style="font-size:9px;font-weight:700;letter-spacing:0.18em;opacity:0.6;text-transform:uppercase;margin-bottom:4px;">Universitas Samudra</p>
+                    <p style="font-size:12px;font-weight:700;">E-RAPAT UNSAM</p>
                 </div>
 
-                <!-- RIGHT MAIN: info detail -->
-                <div class="bg-white flex-1 px-7 py-6 flex flex-col justify-between">
+                <!-- RIGHT PANEL -->
+                <div style="flex:1;padding:32px 36px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;">
+
                     <!-- Header -->
-                    <div class="mb-4 pb-4 border-b border-dashed border-slate-200">
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="min-w-0">
-                                <p class="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 mb-1">Identitas Peserta</p>
-                                <h4 class="text-xl font-black text-slate-800 leading-tight truncate">${safeName}</h4>
-                                <p class="text-xs text-slate-400 font-medium mt-0.5 truncate">${safeEmail}</p>
-                            </div>
-                            <div class="shrink-0 mt-0.5">
-                                ${isDosen
-                                    ? `<span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-600 text-[9px] font-black uppercase tracking-wider">DOSEN</span>`
-                                    : (isGuest
-                                        ? `<span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-200 text-teal-600 text-[9px] font-black uppercase tracking-wider">TAMU</span>`
-                                        : `<span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-500 text-[9px] font-black uppercase tracking-wider">STAFF</span>`)}
-                            </div>
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                        <div style="min-width:0;">
+                            <p style="font-size:10px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Identitas Peserta Rapat</p>
+                            <h4 style="font-size:26px;font-weight:800;color:#1e293b;line-height:1.2;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</h4>
+                            <p style="font-size:13px;color:#64748b;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeEmail}</p>
+                        </div>
+                        <div style="flex-shrink:0;margin-left:16px;margin-top:2px;">
+                            ${categoryBadgeRight}
                         </div>
                     </div>
 
-                    <!-- Data rows -->
-                    <div class="grid grid-cols-2 gap-x-6 gap-y-3 flex-1">
+                    <!-- Detail grid -->
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;padding-top:18px;border-top:1px solid #f1f5f9;">
                         <div>
-                            <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">NIP</p>
-                            <p id="${idPrefix}Nip" class="text-sm font-bold text-slate-700 mt-0.5">${escapeHtml(displayNip)}</p>
+                            <p style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">NIP</p>
+                            <p id="${idPrefix}Nip" style="font-size:13px;color:#334155;font-weight:600;">${escapeHtml(displayNip)}</p>
                         </div>
-                        ${displayNidnNidk !== null ? `
                         <div>
-                            <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">NIDN / NIDK</p>
-                            <p id="${idPrefix}NidnNidk" class="text-sm font-bold text-slate-700 mt-0.5">${escapeHtml(displayNidnNidk)}</p>
-                        </div>` : '<div></div>'}
-                        <div class="col-span-2">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">${unitLabel}</p>
-                            <p id="${idPrefix}UnitKerja" class="text-sm font-bold text-slate-700 mt-0.5 truncate">${escapeHtml(displayUnit)}</p>
+                            <p style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">${isDosen ? 'NIDN / NIDK' : 'Unit Kerja'}</p>
+                            <p id="${idPrefix}NidnNidk" style="font-size:13px;color:#334155;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${isDosen ? escapeHtml(displayNidnNidk || '-') : escapeHtml(displayUnit)}</p>
                         </div>
-                        <div class="col-span-2">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Jabatan</p>
-                            <p id="${idPrefix}JabatanFungsional" class="text-sm font-bold text-slate-700 mt-0.5 truncate">${escapeHtml(displayJabatan)}</p>
+                        <div>
+                            <p style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Jabatan</p>
+                            <p id="${idPrefix}JabatanFungsional" style="font-size:13px;color:#334155;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(displayJabatan)}</p>
                         </div>
+                        ${isDosen ? `
+                        <div style="grid-column:1/-1;">
+                            <p style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Fakultas / Jurusan</p>
+                            <p id="${idPrefix}UnitKerja" style="font-size:13px;color:#334155;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(displayUnit)}</p>
+                        </div>` : ''}
                     </div>
 
-                    <!-- Footer barcode-style -->
-                    <div class="mt-4 pt-3 border-t border-dashed border-slate-200 flex items-center justify-between">
-                        <div class="flex gap-0.5">
-                            ${Array.from({length: 28}, (_, i) => `<div class="w-0.5 bg-slate-${[2,3,4,5][i%4]*100} rounded-full" style="height:${12 + (i % 3) * 6}px"></div>`).join('')}
+                    <!-- Footer -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">
+                        <div style="font-family:monospace;background:#f8fafc;padding:5px 12px;border-radius:6px;color:#475569;font-weight:700;font-size:12px;border:1px solid #e2e8f0;letter-spacing:0.05em;">
+                            UNSAM · E-RAPAT
                         </div>
-                        <p class="text-[8px] font-black tracking-[0.25em] text-slate-300 uppercase ml-3">E-RAPAT</p>
+                        ${barcodeSvg}
                     </div>
                 </div>
             </div>
