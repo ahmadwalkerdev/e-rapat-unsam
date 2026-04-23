@@ -226,6 +226,7 @@ function setupRealtimeAttendance(roomId) {
                 : `${nipLine}${timeLine}`;
 
             const safeProfilePayload = escapeJsString(JSON.stringify({
+                uid: data.uid || '',
                 name: data.name || '',
                 email: data.email || data.emailInstitusi || '',
                 nip: data.nip || '',
