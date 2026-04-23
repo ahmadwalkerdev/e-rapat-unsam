@@ -32,6 +32,48 @@ export function createDashboardModule(deps) {
     let calendarRenderTimeout;
     const creatorNameCache = new Map();
     let currentFilter = 'all'; // 'all' | 'mine'
+    let currentArchiveFilter = 'all'; // 'all' | 'week' | 'month' | 'lastmonth'
+
+    function setArchiveFilter(filter) {
+        currentArchiveFilter = filter;
+        const ids = ['archiveFilterAll', 'archiveFilterWeek', 'archiveFilterMonth', 'archiveFilterLastMonth'];
+        const map = { all: 'archiveFilterAll', week: 'archiveFilterWeek', month: 'archiveFilterMonth', lastmonth: 'archiveFilterLastMonth' };
+        ids.forEach(id => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            if (id === map[filter]) {
+                btn.className = 'px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all bg-white text-indigo-600 shadow-sm border border-slate-200 uppercase tracking-wider';
+            } else {
+                btn.className = 'px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all text-slate-500 hover:text-slate-700 hover:bg-white/60 uppercase tracking-wider';
+            }
+        });
+        // Re-render dengan filter baru
+        const snapshot = window._lastRoomsSnapshot;
+        if (snapshot) renderDashboardRooms(snapshot);
+    }
+    window.setArchiveFilter = setArchiveFilter;
+
+    function isInArchiveFilterRange(room) {
+        if (currentArchiveFilter === 'all') return true;
+        const refDate = room.meetingDate || room.scheduledAt || room.createdAt;
+        if (!refDate) return false;
+        const d = new Date(refDate);
+        const now = new Date();
+        if (currentArchiveFilter === 'week') {
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+            return d >= startOfWeek;
+        }
+        if (currentArchiveFilter === 'month') {
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        }
+        if (currentArchiveFilter === 'lastmonth') {
+            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            return d.getMonth() === lastMonth.getMonth() && d.getFullYear() === lastMonth.getFullYear();
+        }
+        return true;
+    }
 
     function setupDashboardListener() {
         const currentUser = getCurrentUser();
@@ -58,6 +100,7 @@ export function createDashboardModule(deps) {
 
         const unsub = onSnapshot(roomsCol, (snapshot) => {
             clearTimeout(loadingTimeout);
+            window._lastRoomsSnapshot = snapshot;
             try {
                 renderDashboardRooms(snapshot);
                 renderMiniCalendar(); // CRITICAL: Pastikan kalender render ulang setiap ada data baru dari Firestore
@@ -169,7 +212,7 @@ export function createDashboardModule(deps) {
 
             if (isArchived) {
                 selesaiCount++;
-                if (renderedArchiveCount < ARCHIVE_LIMIT) {
+                if (renderedArchiveCount < ARCHIVE_LIMIT && isInArchiveFilterRange(room)) {
                     badgeText = 'Selesai';
                     badgeClass = 'bg-slate-100 text-slate-500 border-slate-200';
                     const creatorName = room.creatorName || room.creatorEmail || "Notulen Anonim";
@@ -268,6 +311,25 @@ export function createDashboardModule(deps) {
         const creatorEmail = String(room?.creatorEmail || "U");
         const creatorInitial = escapeHtml((creatorEmail[0] || "U").toUpperCase());
 
+        // Format tanggal dan waktu rapat
+        const refDate = room.meetingDate || room.scheduledAt || room.createdAt;
+        let dateStr = '-';
+        let timeStr = '';
+        if (refDate) {
+            const d = new Date(refDate);
+            dateStr = d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        if (room.meetingStartTime) {
+            timeStr = room.meetingStartTime;
+            if (room.meetingEndTime) timeStr += ` – ${room.meetingEndTime}`;
+        }
+        const dateTimeHtml = `
+            <div class="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>${dateStr}</span>
+                ${timeStr ? `<span class="text-slate-300">•</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>${timeStr}</span>` : ''}
+            </div>`;
+
         const menuBtn = (isCreator || isDeveloper) ? `
             <div class="ml-2">
                 <button onclick="event.stopPropagation(); window.toggleRoomMenu(this)" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all" title="Menu Opsi">
@@ -316,10 +378,11 @@ export function createDashboardModule(deps) {
                 </div>
 
                 <div class="pointer-events-auto flex-1 flex flex-col">
-                    <h4 class="font-bold text-slate-800 text-lg mb-1 leading-tight group-hover:text-indigo-600 transition-colors truncate w-full" title="${safeRoomTitle}">
+                    <h4 class="font-bold text-slate-800 text-lg mb-2 leading-tight group-hover:text-indigo-600 transition-colors truncate w-full" title="${safeRoomTitle}">
                         ${safeRoomTitle}
                     </h4>
-                    ${durationText ? `<p class="text-[10px] text-slate-500 font-semibold mb-4">${durationText}</p>` : '<div class="mb-4"></div>'}
+                    ${dateTimeHtml}
+                    ${durationText ? `<p class="text-[10px] text-slate-500 font-semibold mt-1 mb-3">${durationText}</p>` : '<div class="mb-3"></div>'}
                     
                     <div class="flex items-center gap-2 mb-6 mt-auto">
                         <div class="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500 border border-white shadow-sm">${creatorInitial}</div>
