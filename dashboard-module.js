@@ -531,7 +531,7 @@ export function createDashboardModule(deps) {
 
             dayDiv.className = `cal-day-item cal-day-${day} relative h-8 flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all group ${bgClass}`;
 
-            // Poin 1 & 4: Dots & Tooltip
+            // Dots, badge +N, & Tooltip
             let indicatorHtml = '';
             if (dayAgendas.length > 0) {
                 const dots = [];
@@ -539,24 +539,30 @@ export function createDashboardModule(deps) {
                 dayAgendas.forEach(r => {
                     const refTime = new Date(r.scheduledAt || r.createdAt).getTime();
                     const now = new Date().getTime();
-                    let color = 'bg-amber-400'; // Upcoming
+                    let color = 'bg-amber-400';
                     if (r.status === 'archived') color = 'bg-slate-400';
                     else if (refTime <= now) color = 'bg-emerald-400';
-                    
                     if (!statusAdded.has(color)) {
                         dots.push(`<span class="w-1 h-1 rounded-full ${color}"></span>`);
                         statusAdded.add(color);
                     }
                 });
                 indicatorHtml = `<div class="absolute bottom-1 flex gap-0.5 justify-center">${dots.slice(0,3).join('')}</div>`;
-                
-                // Tooltip
+
+                // Badge +N jika > 1 agenda
+                const badgeHtml = dayAgendas.length > 1
+                    ? `<span class="absolute -top-1 -right-1 min-w-[14px] h-[14px] px-0.5 bg-indigo-500 text-white text-[8px] font-black rounded-full flex items-center justify-center leading-none z-20">${dayAgendas.length > 9 ? '9+' : dayAgendas.length}</span>`
+                    : '';
+
+                // Tooltip dengan label tanggal dinamis
+                const tooltipDateLabel = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' }).format(new Date(year, month, day));
                 const tooltipHtml = dayAgendas.map(a => `<div class="truncate border-b border-white/5 py-1 last:border-0">• ${escapeHtml(a.title)}</div>`).join('');
                 dayDiv.innerHTML = `
+                    ${badgeHtml}
                     <span class="text-[10px] relative z-10">${day}</span>
                     ${indicatorHtml}
                     <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 p-2 bg-slate-900/95 backdrop-blur-md text-white text-[9px] rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 z-[100] shadow-2xl border border-white/10 transform translate-y-1 group-hover:translate-y-0">
-                        <div class="font-bold text-indigo-400 mb-1 border-b border-indigo-500/30 pb-1">Agenda Hari Ini:</div>
+                        <div class="font-bold text-indigo-400 mb-1 border-b border-indigo-500/30 pb-1">Agenda ${tooltipDateLabel}:</div>
                         ${tooltipHtml}
                     </div>
                 `;
@@ -567,8 +573,15 @@ export function createDashboardModule(deps) {
             fragment.appendChild(dayDiv);
         }
 
+        container.style.opacity = '0';
+        container.style.transform = 'translateY(6px)';
         container.innerHTML = '';
         container.appendChild(fragment);
+        requestAnimationFrame(() => {
+            container.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out';
+            container.style.opacity = '1';
+            container.style.transform = 'translateY(0)';
+        });
     }
 
     function debouncedRenderMiniCalendar() {
