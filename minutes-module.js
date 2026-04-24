@@ -152,6 +152,47 @@ export function createMinutesModule(deps) {
 
             editorEl.innerHTML = '';
 
+            // Build toolbar container element manually agar undo/redo bisa dirender
+            const toolbarEl = document.createElement('div');
+            toolbarEl.innerHTML = `
+                <span class="ql-formats">
+                    <button class="ql-undo" title="Undo (Ctrl+Z)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7v6h6"/><path d="M3 13c2.5-6.5 11-9 17-4s3 13-3 15"/></svg>
+                    </button>
+                    <button class="ql-redo" title="Redo (Ctrl+Y)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 7v6h-6"/><path d="M21 13c-2.5-6.5-11-9-17-4S1 22 7 24"/></svg>
+                    </button>
+                </span>
+                <span class="ql-formats">
+                    <select class="ql-header"><option value="1"/><option value="2"/><option value="3"/><option selected/></select>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-bold"></button>
+                    <button class="ql-italic"></button>
+                    <button class="ql-underline"></button>
+                    <button class="ql-strike"></button>
+                </span>
+                <span class="ql-formats">
+                    <select class="ql-color"></select>
+                    <select class="ql-background"></select>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-list" value="ordered"></button>
+                    <button class="ql-list" value="bullet"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-blockquote"></button>
+                    <button class="ql-code-block"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-link"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-clean"></button>
+                </span>
+            `;
+            wrapperEl.insertBefore(toolbarEl, editorEl);
+
             const newQuill = new Quill(editorEl, {
                 theme: 'snow',
                 placeholder: 'Ketik notulensi rapat...',
@@ -162,16 +203,7 @@ export function createMinutesModule(deps) {
                         userOnly: true
                     },
                     toolbar: {
-                        container: [
-                            ['undo', 'redo'],
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'color': quillColorPalette }, { 'background': quillColorPalette }],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['blockquote', 'code-block'],
-                            ['link'],
-                            ['clean']
-                        ],
+                        container: toolbarEl,
                         handlers: {
                             undo: function() { this.quill.history.undo(); },
                             redo: function() { this.quill.history.redo(); }
@@ -179,13 +211,6 @@ export function createMinutesModule(deps) {
                     }
                 }
             });
-
-            // Undo/Redo button icons
-            const toolbar = newQuill.getModule('toolbar');
-            const undoBtn = toolbar.container.querySelector('.ql-undo');
-            const redoBtn = toolbar.container.querySelector('.ql-redo');
-            if (undoBtn) undoBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7v6h6"/><path d="M3 13C5.5 6.5 14 4 20 9s3 13-3 15"/></svg>';
-            if (redoBtn) redoBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 7v6h-6"/><path d="M21 13C18.5 6.5 10 4 4 9S1 22 7 24"/></svg>';
 
             setQuill(newQuill);
             console.log('Quill editor initialized successfully');
