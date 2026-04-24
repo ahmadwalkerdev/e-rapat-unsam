@@ -202,96 +202,75 @@ export function createProfileCardHTML(data, options = {}) {
         <rect x="96" width="2" height="20" fill="#334155"/>
     </svg>`;
 
-    // Unique ID for clipPath agar tidak konflik jika ada 2 card di halaman
-    const clipId = 'vpc-' + Math.random().toString(36).slice(2, 8);
-
     return `
         <div ${idAttr} class="${containerClasses}">
             ${closeButton}
-
-            <!-- SVG clipPath definitions — transparan sungguhan -->
-            <svg width="0" height="0" style="position:absolute;">
-                <defs>
-                    <!-- Desktop: potong lingkaran di kiri/kanan pada 28% -->
-                    <clipPath id="${clipId}-desk" clipPathUnits="objectBoundingBox">
-                        <path d="
-                            M0,0.05 A0.02,0.04 0 0,1 0.28,0.05
-                            A0.02,0.04 0 0,1 0.28,0
-                            L1,0 L1,1 L0.28,1
-                            A0.02,0.04 0 0,1 0.28,0.95
-                            A0.02,0.04 0 0,1 0,0.95 Z
-                        "/>
-                    </clipPath>
-                    <!-- Mobile: potong lingkaran di atas/bawah pada 38% tinggi -->
-                    <clipPath id="${clipId}-mob" clipPathUnits="objectBoundingBox">
-                        <path d="
-                            M0.05,0 L0.95,0 L1,0
-                            L1,0.38 A0.06,0.02 0 0,1 0,0.38
-                            L0,0 Z
-                            M0,0.38 A0.06,0.02 0 0,0 1,0.38
-                            L1,1 L0,1 Z
-                        "/>
-                    </clipPath>
-                </defs>
-            </svg>
-
-            <style>
-                .pvc-${clipId} { flex-direction: row; clip-path: url(#${clipId}-desk); }
-                .pvc-left-${clipId} { width: 28%; border-right: 2px dashed rgba(255,255,255,0.3); border-bottom: none; }
-                .pvc-inner-${clipId} { flex-direction: column; align-items: center; }
-                .pvc-circle-${clipId} { width: 100px; height: 100px; margin-bottom: 10px; }
-                .pvc-circle-${clipId} span { font-size: 34px; }
-                .pvc-lefttext-${clipId} { text-align: center; }
-                .pvc-grid-${clipId} { grid-template-columns: repeat(3,1fr); }
-                .pvc-name-${clipId} { font-size: 26px; }
-                .pvc-right-${clipId} { padding: 32px 36px; }
-                .pvc-footer-${clipId} { flex-direction: row; align-items: center; }
-                @media (max-width: 640px) {
-                    .pvc-${clipId} { flex-direction: column; clip-path: none; border-radius: 20px; overflow: hidden; }
-                    .pvc-left-${clipId} { width: 100% !important; border-right: none !important; border-bottom: 2px dashed rgba(255,255,255,0.3); padding: 20px 16px !important; }
-                    .pvc-inner-${clipId} { flex-direction: row !important; align-items: center; gap: 14px; justify-content: flex-start; }
-                    .pvc-circle-${clipId} { width: 72px !important; height: 72px !important; margin-bottom: 0 !important; flex-shrink: 0; }
-                    .pvc-circle-${clipId} span { font-size: 24px !important; }
-                    .pvc-lefttext-${clipId} { text-align: left !important; }
-                    .pvc-grid-${clipId} { grid-template-columns: repeat(2,1fr) !important; }
-                    .pvc-name-${clipId} { font-size: 20px !important; }
-                    .pvc-right-${clipId} { padding: 20px !important; }
-                    .pvc-footer-${clipId} { flex-direction: column !important; gap: 10px; align-items: flex-start !important; }
-                }
-            </style>
-
-            <div class="pvc-${clipId}" style="background:#ffffff;display:flex;position:relative;box-shadow:0 30px 60px -12px rgba(0,0,0,0.18);border-radius:20px;">
+            <div class="profile-voucher-card" style="background:#ffffff;border-radius:20px;display:flex;position:relative;box-shadow:0 30px 60px -12px rgba(0,0,0,0.15);overflow:hidden;">
+                <style>
+                    .profile-voucher-card { flex-direction: row; }
+                    .profile-voucher-left { width: 28%; border-right: 2px dashed rgba(255,255,255,0.25); border-bottom: none; position: relative; }
+                    .profile-voucher-perforation-v { display: block; }
+                    .profile-voucher-perforation-h { display: none; }
+                    .profile-voucher-grid { grid-template-columns: repeat(3,1fr); }
+                    .profile-voucher-name { font-size: 26px; }
+                    .profile-voucher-right { padding: 32px 36px; }
+                    @media (max-width: 640px) {
+                        .profile-voucher-card { flex-direction: column; }
+                        .profile-voucher-left { width: 100% !important; border-right: none !important; border-bottom: 2px dashed rgba(255,255,255,0.25) !important; padding: 24px 16px !important; }
+                        .profile-voucher-left-inner { flex-direction: row !important; align-items: center; gap: 14px; }
+                        .profile-voucher-circle { width: 72px !important; height: 72px !important; margin-bottom: 0 !important; flex-shrink: 0; }
+                        .profile-voucher-circle span { font-size: 24px !important; }
+                        .profile-voucher-left-text { text-align: left !important; }
+                        .profile-voucher-perforation-v { display: none !important; }
+                        .profile-voucher-perforation-h { display: block !important; }
+                        .profile-voucher-grid { grid-template-columns: repeat(2,1fr) !important; }
+                        .profile-voucher-name { font-size: 20px !important; }
+                        .profile-voucher-right { padding: 20px !important; }
+                        .profile-voucher-footer { flex-direction: column; gap: 10px; align-items: flex-start !important; }
+                    }
+                </style>
 
                 <!-- Glow dekoratif -->
                 <div style="position:absolute;width:200px;height:200px;background:#6366f1;filter:blur(100px);opacity:0.05;top:-50px;right:-50px;pointer-events:none;z-index:0;"></div>
 
+                <!-- Lubang perforasi vertikal (desktop) -->
+                <div class="profile-voucher-perforation-v" style="position:absolute;left:28%;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;transform:translateX(-50%) translateY(-50%);top:0;"></div>
+                <div class="profile-voucher-perforation-v" style="position:absolute;left:28%;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;transform:translateX(-50%) translateY(50%);bottom:0;"></div>
+
                 <!-- LEFT PANEL -->
-                <div class="pvc-left-${clipId}" style="background:linear-gradient(135deg,#6366f1 0%,#4338ca 100%);display:flex;align-items:center;justify-content:center;color:white;position:relative;padding:32px 16px;flex-shrink:0;z-index:1;">
-                    <div class="pvc-inner-${clipId}" style="display:flex;">
-                        <div class="pvc-circle-${clipId}" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <span style="font-weight:800;line-height:1;">${safeInitials}</span>
+                <div class="profile-voucher-left" style="background:linear-gradient(135deg,#6366f1 0%,#4338ca 100%);display:flex;align-items:center;justify-content:center;color:white;position:relative;padding:32px 16px;flex-shrink:0;z-index:1;">
+                    <!-- Lubang perforasi kiri & kanan (mobile) - center dengan border-bottom -->
+                    <div class="profile-voucher-perforation-h" style="position:absolute;bottom:-14px;left:-14px;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;"></div>
+                    <div class="profile-voucher-perforation-h" style="position:absolute;bottom:-14px;right:-14px;width:28px;height:28px;background:#f1f5f9;border-radius:50%;z-index:20;"></div>
+                    <div class="profile-voucher-left-inner" style="display:flex;flex-direction:column;align-items:center;">
+                        <div class="profile-voucher-circle" style="width:100px;height:100px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px;flex-shrink:0;">
+                            <span style="font-size:34px;font-weight:800;line-height:1;">${safeInitials}</span>
                         </div>
-                        <div class="pvc-lefttext-${clipId}">
-                            <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;margin-bottom:8px;">${categoryLabel}</span>
-                            <p style="font-size:9px;font-weight:700;letter-spacing:0.18em;opacity:0.6;text-transform:uppercase;margin:0 0 3px 0;">Universitas Samudra</p>
+                        <div class="profile-voucher-left-text" style="text-align:center;">
+                            <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;margin-bottom:10px;">${categoryLabel}</span>
+                            <p style="font-size:9px;font-weight:700;letter-spacing:0.18em;opacity:0.6;text-transform:uppercase;margin-bottom:3px;margin-top:2px;">Universitas Samudra</p>
                             <p style="font-size:11px;font-weight:700;margin:0;">E-RAPAT UNSAM</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- RIGHT PANEL -->
-                <div class="pvc-right-${clipId}" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0;z-index:1;">
+                <div class="profile-voucher-right" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0;z-index:1;">
 
+                    <!-- Header -->
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
                         <div style="min-width:0;flex:1;">
                             <p style="font-size:10px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;">Identitas Peserta Rapat</p>
-                            <h4 class="pvc-name-${clipId}" style="font-weight:800;color:#1e293b;line-height:1.2;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName}</h4>
+                            <h4 class="profile-voucher-name" style="font-weight:800;color:#1e293b;line-height:1.2;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName}</h4>
                             ${safeEmail ? `<p style="font-size:12px;color:#64748b;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeEmail}</p>` : ''}
                         </div>
-                        <div style="flex-shrink:0;margin-top:2px;">${categoryBadgeRight}</div>
+                        <div style="flex-shrink:0;margin-top:2px;">
+                            ${categoryBadgeRight}
+                        </div>
                     </div>
 
-                    <div class="pvc-grid-${clipId}" style="display:grid;gap:14px;margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9;">
+                    <!-- Detail grid -->
+                    <div class="profile-voucher-grid" style="display:grid;gap:14px;margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9;">
                         <div>
                             <p style="font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">NIP</p>
                             <p id="${idPrefix}Nip" style="font-size:13px;color:#334155;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(displayNip)}</p>
@@ -311,8 +290,9 @@ export function createProfileCardHTML(data, options = {}) {
                         </div>` : ''}
                     </div>
 
-                    <div class="pvc-footer-${clipId}" style="display:flex;justify-content:space-between;margin-top:16px;">
-                        <div style="font-family:monospace;background:#f8fafc;padding:5px 12px;border-radius:6px;color:#475569;font-weight:700;font-size:12px;border:1px solid #e2e8f0;white-space:nowrap;">
+                    <!-- Footer -->
+                    <div class="profile-voucher-footer" style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+                        <div style="font-family:monospace;background:#f8fafc;padding:5px 12px;border-radius:6px;color:#475569;font-weight:700;font-size:12px;border:1px solid #e2e8f0;letter-spacing:0.05em;white-space:nowrap;">
                             UNSAM · E-RAPAT
                         </div>
                         ${barcodeSvg}
