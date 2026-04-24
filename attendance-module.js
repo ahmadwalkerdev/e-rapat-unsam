@@ -153,10 +153,28 @@ function setupRealtimeAttendance(roomId) {
         collection(db, 'artifacts', appId, 'public', 'data', 'attendance'),
         where('roomId', '==', roomId)
     );
+    let isFirstLoad = true;
     const unsub = onSnapshot(attendanceQ, (snap) => {
         const listDesktop = document.getElementById('participantsPanelContent');
         const listMobile = document.getElementById('participantsPanelContentMobile');
         if (!listDesktop || !listMobile) return;
+
+        // Notifikasi peserta baru — skip first load
+        if (!isFirstLoad) {
+            snap.docChanges().forEach(change => {
+                if (change.type === 'added') {
+                    const data = change.doc.data();
+                    const currentUser = getCurrentUser();
+                    // Jangan notif diri sendiri
+                    if (data.uid !== currentUser?.uid) {
+                        const nama = data.name || 'Seseorang';
+                        const role = data.role === 'notulen' ? 'sebagai Notulen' : '';
+                        showToast(`${nama} telah bergabung ke rapat ${role}`.trim(), 'info');
+                    }
+                }
+            });
+        }
+        isFirstLoad = false;
 
         listDesktop.innerHTML = '';
         listMobile.innerHTML = '';
