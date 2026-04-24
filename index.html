@@ -1801,6 +1801,60 @@ document.body.removeChild(textArea);
 };
 
 
+window.shareRoomInvitation = async function() {
+    const room = activeRoom;
+    if (!room) { showToast('Tidak ada room aktif', 'error'); return; }
+
+    const judul = room.title || room.name || 'Rapat';
+    const pin = document.getElementById('displayPin')?.innerText || room.pin || '-';
+    const link = window.location.origin + window.location.pathname;
+
+    // Format tanggal & waktu rapat jika tersedia
+    let waktuInfo = '';
+    if (room.meetingDate) {
+        const tgl = new Date(room.meetingDate).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        const jam = room.startTime ? ` pukul ${room.startTime}` : '';
+        waktuInfo = `\n📅 Waktu     : ${tgl}${jam} WIB`;
+    }
+    if (room.location) {
+        waktuInfo += `\n📍 Tempat    : ${room.location}`;
+    }
+
+    const template =
+`Yth. Bapak/Ibu,
+
+Dengan hormat, kami mengundang Anda untuk menghadiri rapat berikut:
+
+📋 Agenda    : ${judul}${waktuInfo}
+
+Untuk bergabung, silakan akses tautan berikut dan masukkan PIN yang tersedia:
+
+🔗 Tautan    : ${link}
+🔑 PIN Rapat : ${pin}
+
+Harap bergabung tepat waktu. Atas perhatian dan kehadiran Bapak/Ibu, kami ucapkan terima kasih.
+
+Hormat kami,
+Penyelenggara Rapat
+Universitas Samudra`;
+
+    try {
+        await navigator.clipboard.writeText(template);
+        showToast('✅ Teks undangan berhasil disalin!', 'success');
+    } catch (err) {
+        const ta = document.createElement('textarea');
+        ta.value = template;
+        ta.style.position = 'fixed';
+        ta.style.left = '-999999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { document.execCommand('copy'); showToast('✅ Teks undangan berhasil disalin!', 'success'); }
+        catch { showToast('Gagal menyalin undangan', 'error'); }
+        document.body.removeChild(ta);
+    }
+};
+
 // Developer Mode: Handle attendance choice
 window.handleDevAttendanceChoice = function(choice) {
 // choice: true = daftar hadir, false = tidak daftar
@@ -2995,6 +3049,9 @@ Pengaturan Lanjutan
                         <span id="displayPin" onclick="window.copyToClipboard(this.innerText)" class="text-indigo-900 font-mono font-bold text-base cursor-pointer hover:text-indigo-600 transition-colors select-none tracking-[0.15em]">000000</span>
                         <button onclick="window.copyToClipboard(document.getElementById('displayPin').innerText)" class="p-1.5 text-indigo-300 hover:text-indigo-600 hover:bg-white rounded-lg transition-all shadow-none hover:shadow-sm" title="Salin PIN">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        </button>
+                        <button onclick="window.shareRoomInvitation()" class="p-1.5 text-indigo-300 hover:text-emerald-600 hover:bg-white rounded-lg transition-all shadow-none hover:shadow-sm" title="Bagikan Undangan Rapat">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                         </button>
                     </div>
                 </div>
