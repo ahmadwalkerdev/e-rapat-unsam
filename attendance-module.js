@@ -141,9 +141,9 @@ document.addEventListener('click', function(e) {
     const modal = document.getElementById('participantProfileCardModal');
     const wrapper = document.getElementById('participantCardWrapper');
     
-    // If modal is open and click is on modal but not on wrapper (card)
+    // If modal is open and click is on backdrop (outside card)
     if (modal && !modal.classList.contains('hidden') && 
-        e.target === modal || e.target.closest('#participantCardBackdrop')) {
+        (e.target === modal || !!e.target.closest('#participantCardBackdrop'))) {
         window.closeParticipantProfileCard();
     }
 });
