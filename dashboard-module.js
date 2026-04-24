@@ -523,7 +523,7 @@ export function createDashboardModule(deps) {
 
             dayDiv.onclick = (e) => {
                 e.stopPropagation();
-                // Hanya fungsi visual untuk tooltip (sudah ada di indikator)
+                showCalendarAgenda(year, month, day);
             };
 
             let bgClass = "bg-transparent text-slate-600 hover:bg-slate-100";
@@ -686,19 +686,29 @@ export function createDashboardModule(deps) {
     }
 
     function showCalendarAgenda(y, m, d) {
-        document.querySelectorAll('.cal-day-item').forEach(el => el.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-100/50'));
-        const sel = document.getElementById(`cal-day-${y}-${m}-${d}`);
-        if (sel) sel.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-100/50');
+        document.querySelectorAll('.cal-day-item').forEach(el => el.classList.remove('ring-2', 'ring-indigo-500', 'ring-offset-1'));
+        const dayItems = document.querySelectorAll(`.cal-day-${d}`);
+        dayItems.forEach(el => el.classList.add('ring-2', 'ring-indigo-500', 'ring-offset-1'));
         const container = document.getElementById('calendarAgendaDetails');
         if (!container) return;
+        const dateStr = `${y}-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+        const currentUser = getCurrentUser();
         const rooms = allRoomsDataForCalendar.filter(r => {
-            const rd = new Date(r.scheduledAt || r.createdAt);
-            return rd.getFullYear() === y && rd.getMonth() === m && rd.getDate() === d;
+            let roomDateStr = r.meetingDate;
+            if (!roomDateStr && r.scheduledAt) {
+                const sd = new Date(r.scheduledAt);
+                roomDateStr = `${sd.getFullYear()}-${(sd.getMonth() + 1).toString().padStart(2, '0')}-${sd.getDate().toString().padStart(2, '0')}`;
+            }
+            if (currentFilter === 'mine' && r.creatorUid !== currentUser?.uid) return false;
+            return roomDateStr === dateStr;
         });
+        const dateLabel = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long' }).format(new Date(y, m, d));
         if (rooms.length === 0) {
-            container.innerHTML = `<p class="text-[10px] text-slate-400 text-center italic py-1">Tidak ada agenda.</p>`;
+            container.innerHTML = `<p class="text-[10px] text-slate-400 text-center italic py-1">Tidak ada agenda pada ${dateLabel}.</p>`;
+            container.classList.remove('hidden');
+            container.classList.add('flex');
         } else {
-            let h = `<p class="text-[10px] font-bold text-slate-600 mb-1.5">Agenda ${d}/${m+1}/${y}:</p>`;
+            let h = `<p class="text-[10px] font-bold text-indigo-600 mb-1.5 uppercase tracking-wider">Agenda ${dateLabel}:</p>`;
             rooms.forEach(r => {
                 const p = r.status === 'archived' || new Date(r.scheduledAt || r.createdAt) < new Date();
                 const t = new Date(r.scheduledAt || r.createdAt).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
@@ -719,12 +729,19 @@ ${statusBadge}
             container.innerHTML = h;
             container.classList.remove('hidden');
             container.classList.add('flex');
+            container.style.animation = 'fadeIn 0.2s ease-out';
         }
     }
 
     function changeCalendarMonth(offset) {
         currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
         renderMiniCalendar();
+        const details = document.getElementById('calendarAgendaDetails');
+        if (details) {
+            details.classList.add('hidden');
+            details.classList.remove('flex');
+            details.innerHTML = '<p class="text-[10px] text-slate-400 text-center italic py-1">Pilih tanggal untuk melihat agenda.</p>';
+        }
     }
 
     function getAllRoomsDataForCalendar() {
