@@ -1150,6 +1150,54 @@ button:hover {
     }
 }
 
+/* --- Room Card Skeleton Loading --- */
+.room-card-skeleton {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow: hidden;
+}
+
+.room-card-skeleton .skel-line {
+    border-radius: 0.5rem;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite ease-in-out;
+}
+
+.room-card-skeleton .skel-badge { height: 22px; width: 90px; }
+.room-card-skeleton .skel-title { height: 20px; width: 80%; margin-top: 0.5rem; }
+.room-card-skeleton .skel-title-short { height: 20px; width: 50%; }
+.room-card-skeleton .skel-meta { height: 14px; width: 60%; }
+.room-card-skeleton .skel-avatar {
+    width: 28px; height: 28px; border-radius: 9999px; flex-shrink: 0;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite ease-in-out;
+}
+.room-card-skeleton .skel-creator { height: 14px; width: 45%; }
+.room-card-skeleton .skel-btn { height: 44px; width: 100%; border-radius: 0.75rem; margin-top: auto; }
+
+/* --- Room Card Enter Animation --- */
+@keyframes card-enter {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.room-card-animate {
+    animation: card-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* --- Login Background Animation --- */
 @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }

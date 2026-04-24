@@ -87,12 +87,28 @@ export function createDashboardModule(deps) {
         const archiveContainer = document.getElementById('archiveListContainer');
         let loadingTimeout;
 
+        const skeletonCard = () => `
+            <div class="room-card-skeleton">
+                <div class="flex justify-between items-start">
+                    <div class="skel-line skel-badge"></div>
+                    <div class="skel-avatar"></div>
+                </div>
+                <div class="skel-line skel-title"></div>
+                <div class="skel-line skel-title-short"></div>
+                <div class="skel-line skel-meta"></div>
+                <div class="flex items-center gap-2 mt-2">
+                    <div class="skel-avatar"></div>
+                    <div class="skel-line skel-creator"></div>
+                </div>
+                <div class="skel-line skel-btn"></div>
+            </div>`;
+
         if (container && archiveContainer) {
-            container.innerHTML = '<div class="col-span-full py-20 flex flex-col items-center justify-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div><p class="text-slate-500 text-sm mt-2">Memuat agenda...</p></div>';
-            archiveContainer.innerHTML = '<div class="col-span-full py-20 flex flex-col items-center justify-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-400"></div><p class="text-slate-400 text-sm mt-2">Memuat arsip...</p></div>';
+            container.innerHTML = skeletonCard() + skeletonCard() + skeletonCard() + skeletonCard();
+            archiveContainer.innerHTML = '';
 
             loadingTimeout = setTimeout(() => {
-                if (container.innerHTML.includes('Memuat agenda')) {
+                if (container.querySelector('.room-card-skeleton')) {
                     container.innerHTML = '<div class="col-span-full py-20 flex flex-col items-center justify-center bg-amber-50 rounded-2xl border border-amber-200"><div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 mb-4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div><p class="text-amber-700 font-bold text-sm">Koneksi Lambat</p><p class="text-amber-600 text-xs mt-1">Memuat lebih lama dari biasanya. Silakan tunggu...</p></div>';
                 }
             }, 10000);
@@ -191,6 +207,8 @@ export function createDashboardModule(deps) {
         let renderedArchiveCount = 0;
         const ACTIVE_LIMIT = 9;
         const ARCHIVE_LIMIT = 6;
+        let activeIndex = 0;
+        let archiveIndex = 0;
 
         sortedRooms.forEach((docSnap) => {
             const room = docSnap.data();
@@ -216,9 +234,10 @@ export function createDashboardModule(deps) {
                     badgeText = 'Selesai';
                     badgeClass = 'bg-slate-100 text-slate-500 border-slate-200';
                     const creatorName = room.creatorName || room.creatorEmail || "Notulen Anonim";
-                    const card = createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper);
+                    const card = createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper, archiveIndex);
                     archiveFragment.appendChild(card);
                     renderedArchiveCount++;
+                    archiveIndex++;
                 }
             } else {
                 if (refTime > now) {
@@ -245,9 +264,10 @@ export function createDashboardModule(deps) {
                     }
 
                     const creatorName = room.creatorName || room.creatorEmail || "Notulen Anonim";
-                    const card = createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper);
+                    const card = createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper, activeIndex);
                     activeFragment.appendChild(card);
                     renderedActiveCount++;
+                    activeIndex++;
                 }
             }
         });
@@ -298,10 +318,11 @@ export function createDashboardModule(deps) {
         debouncedRenderMiniCalendar();
     }
 
-    function createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper) {
+    function createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper, index = 0) {
         const card = document.createElement('div');
         card.setAttribute('data-room', roomId);
-        card.className = "bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group relative overflow-hidden isolate";
+        card.className = "room-card-animate bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group relative overflow-hidden isolate";
+        card.style.animationDelay = `${index * 60}ms`;
         const safeRoomId = escapeJsString(roomId);
         const safeRoomTitle = escapeHtml(room?.title || '-');
         const safeRoomTitleJs = escapeJsString(room?.title || '');
