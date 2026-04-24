@@ -2230,6 +2230,11 @@ async function updateUserNameAcrossSystem(newName) {
 await settingsModule.updateUserNameAcrossSystem(newName);
 }
 
+window.savePasswordSettings = async (e) => {
+    if (e) e.preventDefault();
+    await settingsModule.savePasswordSettings(e);
+};
+
 window.saveProfileSettings = async (e) => {
     if (e) e.preventDefault();
     const success = await settingsModule.saveProfileSettings(e);
@@ -2914,27 +2919,40 @@ Pengaturan Akun
 <label class="block text-xs font-bold text-slate-500 uppercase">Instansi</label>
 <input type="text" id="settingsInstitution" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 </div>
-<div class="space-y-2 col-span-full border-t pt-6">
-<h6 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">Ubah Kata Sandi <span class="text-xs font-normal text-slate-400">(Opsional)</span></h6>
-<label class="block text-xs font-bold text-slate-500 uppercase">Kata Sandi Lama</label>
-<input type="password" id="settingsOldPassword" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 </div>
-<div class="space-y-2 col-span-full md:col-span-1">
+<div class="flex justify-end pt-4"><button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700">Simpan Perubahan</button></div>
+</form>
+</div>
+
+<!-- Keamanan Akun (Kata Sandi) - Card Terpisah -->
+<div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+<h5 class="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-600"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+Keamanan Akun
+</h5>
+<form onsubmit="window.savePasswordSettings(event)" class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2 md:col-span-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">Kata Sandi Lama</label>
+<input type="password" id="settingsOldPassword" placeholder="Masukkan kata sandi saat ini" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+</div>
+<div class="space-y-2">
 <label class="block text-xs font-bold text-slate-500 uppercase">Kata Sandi Baru</label>
-<input type="password" id="settingsPassword" oninput="window.checkPasswordStrength('#settingsPassword', '#passwordStrengthText', '#passwordStrengthBar', '#passwordStrengthContainer')" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+<input type="password" id="settingsPassword" oninput="window.checkPasswordStrength('#settingsPassword', '#passwordStrengthText', '#passwordStrengthBar', '#passwordStrengthContainer')" placeholder="Minimal 6 karakter" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 <div id="passwordStrengthContainer" class="hidden pt-1">
 <div class="flex justify-between items-center mb-1"><span id="passwordStrengthText" class="text-[9px] font-bold"></span></div>
 <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden"><div id="passwordStrengthBar" class="h-full w-0 transition-all"></div></div>
 </div>
 </div>
-<div class="space-y-2 col-span-full md:col-span-1">
-<label class="block text-xs font-bold text-slate-500 uppercase">Konfirmasi Baru</label>
-<input type="password" id="settingsConfirmPassword" oninput="window.checkPasswordMatch('settings')" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
+<div class="space-y-2">
+<label class="block text-xs font-bold text-slate-500 uppercase">Konfirmasi Kata Sandi Baru</label>
+<input type="password" id="settingsConfirmPassword" oninput="window.checkPasswordMatch('settings')" placeholder="Ulangi kata sandi baru" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none text-sm">
 </div>
 </div>
-<div class="flex justify-end pt-4"><button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700">Simpan Perubahan</button></div>
+<div class="flex justify-end pt-2"><button type="submit" class="px-6 py-2.5 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-900 transition-colors">Ubah Kata Sandi</button></div>
 </form>
 </div>
+
 <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
 <h5 class="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-600"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>

@@ -86,10 +86,6 @@ const nip = document.getElementById('settingsNip')?.value || '';
 const nidn = document.getElementById('settingsNidn')?.value || '';
 const nidk = document.getElementById('settingsNidk')?.value || '';
 const jabatanFungsional = document.getElementById('settingsJabatanFungsional')?.value || '';
-const op = document.getElementById('settingsOldPassword')?.value;
-const np = document.getElementById('settingsPassword')?.value;
-const cp = document.getElementById('settingsConfirmPassword')?.value;
-
 // OPSI C: Handle Kategori Pegawai
 const kategoriPegawai = document.getElementById('settingsKategoriPegawai')?.value || '';
 let fakultas = '';
@@ -160,27 +156,6 @@ nidk: nidk || '',
 isGuest: false
 });
 
-if (np && np.trim() !== "") {
-if (!op) throw new Error("Kata Sandi Lama diperlukan!");
-if (np !== cp) throw new Error("Konfirmasi tidak cocok!");
-try {
-const cred = EmailAuthProvider.credential(currentUser.email, op);
-await reauthenticateWithCredential(currentUser, cred);
-await updatePassword(currentUser, np);
-} catch (authError) {
-if (authError.code === 'auth/invalid-credential' || authError.code === 'auth/wrong-password') {
-throw new Error("Kata Sandi Lama yang Anda masukkan salah.");
-}
-throw authError;
-}
-}
-
-document.getElementById('settingsOldPassword').value = "";
-document.getElementById('settingsPassword').value = "";
-document.getElementById('settingsConfirmPassword').value = "";
-const strengthCont = document.getElementById('passwordStrengthContainer');
-if (strengthCont) strengthCont.classList.add('hidden');
-
 showToast("Profil berhasil diperbarui.");
 updateUserDisplay();
 return true;
@@ -189,6 +164,44 @@ showToast(error.message || "Gagal menyimpan perubahan.");
 return false;
 } finally {
 showLoading(false);
+}
+}
+
+async function savePasswordSettings(e) {
+e.preventDefault();
+const currentUser = getCurrentUser();
+if (!currentUser) return;
+
+const op = document.getElementById('settingsOldPassword')?.value || '';
+const np = document.getElementById('settingsPassword')?.value || '';
+const cp = document.getElementById('settingsConfirmPassword')?.value || '';
+
+if (!np.trim()) { showToast('Kata sandi baru tidak boleh kosong.'); return; }
+if (!op.trim()) { showToast('Kata sandi lama diperlukan.'); return; }
+if (np !== cp) { showToast('Konfirmasi kata sandi tidak cocok.'); return; }
+if (np.length < 6) { showToast('Kata sandi minimal 6 karakter.'); return; }
+
+showLoading(true, 'Mengubah kata sandi...');
+try {
+    const cred = EmailAuthProvider.credential(currentUser.email, op);
+    await reauthenticateWithCredential(currentUser, cred);
+    await updatePassword(currentUser, np);
+
+    document.getElementById('settingsOldPassword').value = '';
+    document.getElementById('settingsPassword').value = '';
+    document.getElementById('settingsConfirmPassword').value = '';
+    const strengthCont = document.getElementById('passwordStrengthContainer');
+    if (strengthCont) strengthCont.classList.add('hidden');
+
+    showToast('✅ Kata sandi berhasil diubah.');
+} catch (err) {
+    if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+        showToast('Kata sandi lama yang Anda masukkan salah.');
+    } else {
+        showToast(err.message || 'Gagal mengubah kata sandi.');
+    }
+} finally {
+    showLoading(false);
 }
 }
 
@@ -341,6 +354,7 @@ showLoading(false);
 return {
 updateUserNameAcrossSystem,
 saveProfileSettings,
+savePasswordSettings,
 sendVerificationEmailAction,
 requestPasswordReset,
 enableEmailEdit,
