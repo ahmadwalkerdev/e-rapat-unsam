@@ -67,7 +67,7 @@ async function openParticipantProfileCard(data) {
 
     wrapper.innerHTML = cardHtml;
     modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    modal.classList.add('flex', 'items-center', 'justify-center');
     
     requestAnimationFrame(() => {
         if (backdrop) {
@@ -99,7 +99,7 @@ function closeParticipantProfileCard() {
     // Wait for animation to complete before hiding
     setTimeout(() => {
         modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        modal.classList.remove('flex', 'items-center', 'justify-center');
         // Reset classes for next open
         if (wrapper) {
             wrapper.classList.remove('scale-95', 'opacity-100', 'translate-y-0');
