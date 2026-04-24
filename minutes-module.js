@@ -264,6 +264,19 @@ export function createMinutesModule(deps) {
         }
     }
 
+    let typingTimeout = null;
+
+    async function setTypingStatus(roomId, isTyping) {
+        try {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'minutes', roomId), {
+                isTyping,
+                typingAt: isTyping ? new Date().toISOString() : null
+            }, { merge: true });
+        } catch (e) {
+            // silent fail — typing indicator is non-critical
+        }
+    }
+
     async function syncMinutes(text) {
         const activeRoom = getActiveRoom();
         if (!activeRoom || getUserRole() !== 'notulen') return;
@@ -273,6 +286,11 @@ export function createMinutesModule(deps) {
             autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>Menyimpan...';
             autosave.classList.replace('text-emerald-500', 'text-amber-500');
         }
+
+        // Set typing indicator on
+        setTypingStatus(activeRoom.id, true);
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => setTypingStatus(activeRoom.id, false), 4000);
 
         clearTimeout(saveTimeout);
         saveTimeout = setTimeout(async () => {
@@ -312,6 +330,21 @@ export function createMinutesModule(deps) {
             const quill = getQuill();
 
             try {
+                // Typing indicator untuk peserta
+                if (userRole === 'peserta') {
+                    const indicator = document.getElementById('typingIndicator');
+                    if (indicator) {
+                        const isTyping = data?.isTyping === true;
+                        const typingAt = data?.typingAt ? new Date(data.typingAt).getTime() : 0;
+                        const isStale = Date.now() - typingAt > 10000;
+                        if (isTyping && !isStale) {
+                            indicator.classList.remove('hidden');
+                        } else {
+                            indicator.classList.add('hidden');
+                        }
+                    }
+                }
+
                 if (data && data.text) {
                     if (userRole === 'peserta' && display) {
                         display.innerHTML = DOMPurify.sanitize(data.text || "<p class='text-slate-400'>Belum ada notulensi...</p>");

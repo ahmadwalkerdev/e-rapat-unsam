@@ -3148,6 +3148,16 @@ Pengaturan Lanjutan
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden min-w-0 h-full flex flex-col">
             <!-- Notulensi Section -->
             <div id="notulensiSection" class="h-full flex flex-col">
+                <div id="typingIndicator" class="hidden items-center gap-2 px-4 pt-3 pb-1">
+                    <div class="flex items-center gap-1.5 text-xs text-indigo-500 font-medium bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-1.5">
+                        <span class="flex gap-0.5 items-end h-3">
+                            <span class="w-1 bg-indigo-400 rounded-full animate-bounce" style="height:6px;animation-delay:0ms"></span>
+                            <span class="w-1 bg-indigo-400 rounded-full animate-bounce" style="height:10px;animation-delay:150ms"></span>
+                            <span class="w-1 bg-indigo-400 rounded-full animate-bounce" style="height:6px;animation-delay:300ms"></span>
+                        </span>
+                        <span>Notulen sedang memperbarui notulensi...</span>
+                    </div>
+                </div>
                 <div id="displayMinutes" class="flex-1 overflow-y-auto p-4 lg:p-6 prose prose-slate max-w-none text-slate-700 hidden"></div>
                 <div id="editMinutes" class="hidden flex-1 flex-col relative" style="min-height: 0;">
                     <!-- Section Navigator -->
