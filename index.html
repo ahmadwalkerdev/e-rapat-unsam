@@ -658,6 +658,8 @@ if (role === 'notulen') {
     if(editArea) editArea.style.display = 'flex';
     if(displayArea) displayArea.classList.add('hidden');
     if(displayArea) displayArea.style.display = 'none';
+    const typingIndicator = document.getElementById('typingIndicator');
+    if(typingIndicator) typingIndicator.classList.add('hidden');
     // Tampilkan Tombol Kontrol
     if(endBtn) {
         endBtn.classList.remove('hidden');
@@ -1115,19 +1117,17 @@ window.switchDashboardTab = (tab) => {
     if (!activeContainer || !archiveContainer || !activeBtn || !archiveBtn) return;
     
     if (tab === 'active') {
-        activeContainer.classList.remove('hidden');
-        archiveContainer.classList.add('hidden');
-        archiveFilterBar?.classList.remove('flex');
-        archiveFilterBar?.classList.add('hidden');
+        activeContainer.style.display = 'grid';
+        archiveContainer.style.display = 'none';
+        if (archiveFilterBar) archiveFilterBar.style.display = 'none';
         activeBtn.classList.add('text-indigo-600', 'border-indigo-600');
         activeBtn.classList.remove('text-slate-400', 'border-transparent');
         archiveBtn.classList.add('text-slate-400', 'border-transparent');
         archiveBtn.classList.remove('text-indigo-600', 'border-indigo-600');
     } else {
-        activeContainer.classList.add('hidden');
-        archiveContainer.classList.remove('hidden');
-        archiveFilterBar?.classList.remove('hidden');
-        archiveFilterBar?.classList.add('flex');
+        activeContainer.style.display = 'none';
+        archiveContainer.style.display = 'grid';
+        if (archiveFilterBar) archiveFilterBar.style.display = 'flex';
         archiveBtn.classList.add('text-indigo-600', 'border-indigo-600');
         archiveBtn.classList.remove('text-slate-400', 'border-transparent');
         activeBtn.classList.add('text-slate-400', 'border-transparent');
@@ -2796,7 +2796,7 @@ Keluar Sesi
         <button onclick="window.setArchiveFilter('lastmonth')" id="archiveFilterLastMonth" class="px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all text-slate-500 hover:text-slate-700 hover:bg-white/60 uppercase tracking-wider">Bulan Lalu</button>
     </div>
 </div>
-<div id="archiveListContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mt-2"></div>
+<div id="archiveListContainer" class="hidden grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mt-2" style="display:none;"></div>
 </div>
 
 <!-- VIEW: SETTINGS -->
