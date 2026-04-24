@@ -103,7 +103,7 @@ export function createProfileCardHTML(data, options = {}) {
 
     // Container classes based on mode (modal vs inline)
     const containerClasses = isModal
-        ? 'w-full max-w-3xl relative'
+        ? 'w-full max-w-3xl mx-auto relative'
         : 'relative';
 
     // Avatar display - initials only
