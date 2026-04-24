@@ -12,37 +12,9 @@ export function getInitials(name) {
 }
 
 /**
- * Get default avatar URL based on gender
- * Supports multiple avatar files with naming convention:
- * - default-male.png, default-male-1.png, default-male-2.png, etc.
- * - default-female.png, default-female-1.png, default-female-2.png, etc.
- * - default-neutral.png (for any gender)
- * 
- * @param {string} gender - 'male', 'female', or null
- * @returns {string} Path to default avatar
- */
-export function getDefaultAvatar(gender) {
-    // If no gender specified, random between male/female
-    if (!gender || gender === '') {
-        gender = Math.random() > 0.5 ? 'male' : 'female';
-    }
-    
-    // Array of possible avatar indices (0 = default without number)
-    const indices = [0, 1, 2, 3, 4, 5];
-    const randomIndex = indices[Math.floor(Math.random() * indices.length)];
-    
-    // Build filename
-    if (randomIndex === 0) {
-        return `assets/avatars/default-${gender}.png`;
-    } else {
-        return `assets/avatars/default-${gender}-${randomIndex}.png`;
-    }
-}
-
-/**
  * Get specific avatar by gender and index
  * @param {string} gender - 'male', 'female', 'neutral'
- * @param {number} index - 0 for default, 1-5 for variants
+ * @param {number} index - 0 for default, 1-10 for variants
  * @returns {string} Path to avatar
  */
 export function getAvatarByIndex(gender, index = 0) {
@@ -53,26 +25,6 @@ export function getAvatarByIndex(gender, index = 0) {
     return `assets/avatars/default-${g}-${index}.png`;
 }
 
-/**
- * Get all available avatar options for a gender
- * @param {string} gender - 'male', 'female', 'neutral'
- * @returns {Array<{path: string, index: number}>}
- */
-export function getAvatarOptions(gender) {
-    const g = gender || 'neutral';
-    const options = [{ path: `assets/avatars/default-${g}.png`, index: 0, label: 'Avatar 1' }];
-    
-    // Add numbered variants (1-10)
-    for (let i = 1; i <= 10; i++) {
-        options.push({ 
-            path: `assets/avatars/default-${g}-${i}.png`, 
-            index: i,
-            label: `Avatar ${i + 1}` 
-        });
-    }
-    
-    return options;
-}
 
 export function escapeHtml(value) {
     if (value === null || value === undefined) return '';

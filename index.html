@@ -83,7 +83,7 @@ import { createSettingsModule } from "./settings-module.js";
 import { createMinutesModule } from "./minutes-module.js";
 import { createMinutesToolsModule } from "./minutes-tools-module.js";
 import { createDashboardModule } from "./dashboard-module.js";
-import { createProfileCardHTML, getInitials, getDefaultAvatar, getAvatarByIndex, getAvatarOptions } from "./profile-card-utils.js";
+import { createProfileCardHTML, getInitials, getAvatarByIndex } from "./profile-card-utils.js";
 
 // --- KONFIGURASI FIREBASE ---
 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -2227,130 +2227,9 @@ manualInput.required = false;
 }
 };
 
-// Handler untuk perubahan jenis kelamin - regenerate avatar grid
+// Handler untuk perubahan jenis kelamin - update profile card preview
 window.handleJenisKelaminChange = function() {
-    // Regenerate avatar grid based on gender
-    window.generateAvatarGrid();
-    
-    // Update profile card preview
     window.updateSettingsProfileCardPreview();
-};
-
-// Generate avatar selection grid
-window.generateAvatarGrid = function() {
-    const jenisKelamin = document.getElementById('settingsJenisKelamin').value || 'neutral';
-    const grid = document.getElementById('settingsAvatarGrid');
-    const avatarPreview = document.getElementById('settingsAvatarPreview');
-    const avatarLabel = document.getElementById('settingsAvatarLabel');
-    
-    if (!grid) return;
-    
-    // Get all avatar options for selected gender
-    const options = getAvatarOptions(jenisKelamin);
-    const currentIndex = parseInt(document.getElementById('settingsAvatarIndex')?.value || '0');
-    
-    // Generate grid HTML
-    let html = '';
-    options.forEach((opt, idx) => {
-        const isSelected = idx === currentIndex;
-        html += `
-            <button type="button" 
-                    onclick="window.selectAvatar(${idx})" 
-                    class="relative w-full aspect-square rounded-xl overflow-hidden border-2 transition-all hover:scale-105 ${isSelected ? 'border-indigo-500 ring-2 ring-indigo-500/30' : 'border-slate-200 hover:border-indigo-300'}">
-                <img src="${opt.path}" class="w-full h-full object-cover" alt="Avatar ${idx}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 text-xs\\'>${idx}</div>'">
-                ${isSelected ? '<div class="absolute inset-0 bg-indigo-500/20 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
-            </button>
-        `;
-    });
-    
-    grid.innerHTML = html;
-    
-    // Update preview
-    if (avatarPreview) {
-        avatarPreview.src = getAvatarByIndex(jenisKelamin, currentIndex);
-    }
-    if (avatarLabel) {
-        const selectedOpt = options[currentIndex];
-        avatarLabel.textContent = selectedOpt ? selectedOpt.label : 'Avatar Default';
-    }
-};
-
-// Inline Avatar Selector Functions
-window.toggleAvatarSelector = function() {
-    const selector = document.getElementById('inlineAvatarSelector');
-    if (selector) {
-        selector.classList.toggle('hidden');
-    }
-};
-
-window.selectInlineAvatar = function(index) {
-    const avatarIndexInput = document.getElementById('settingsAvatarIndex');
-    const jenisKelaminSelect = document.getElementById('settingsJenisKelamin');
-    
-    // Update values
-    if (avatarIndexInput) avatarIndexInput.value = index;
-    
-    // Update profile card preview (this will regenerate the inline selector)
-    window.updateSettingsProfileCardPreview();
-    
-    // Update header avatar
-    window.updateHeaderAvatar();
-    
-    // Mark form as dirty
-    window.markSettingsDirty();
-    
-    const options = getAvatarOptions(jenisKelaminSelect?.value || 'neutral');
-    showToast(`${options[index]?.label || 'Avatar'} dipilih - Jangan lupa simpan perubahan`);
-};
-
-// Update header avatar image
-window.updateHeaderAvatar = function() {
-    const jenisKelamin = document.getElementById('settingsJenisKelamin')?.value || '';
-    const avatarIndex = document.getElementById('settingsAvatarIndex')?.value || '0';
-    const headerAvatar = document.getElementById('userAvatarDisplay');
-    
-    console.log('[HeaderAvatar] Updating:', { jenisKelamin, avatarIndex, headerAvatarFound: !!headerAvatar });
-    
-    if (headerAvatar && jenisKelamin) {
-        const newSrc = getAvatarByIndex(jenisKelamin, parseInt(avatarIndex));
-        console.log('[HeaderAvatar] New src:', newSrc);
-        headerAvatar.src = newSrc;
-    } else {
-        console.log('[HeaderAvatar] Skipped: missing headerAvatar or jenisKelamin');
-    }
-};
-
-// Select avatar from settings form grid
-window.selectAvatar = function(index) {
-    const jenisKelamin = document.getElementById('settingsJenisKelamin').value || 'neutral';
-    const avatarIndexInput = document.getElementById('settingsAvatarIndex');
-    const avatarPreview = document.getElementById('settingsAvatarPreview');
-    const avatarLabel = document.getElementById('settingsAvatarLabel');
-    
-    // Update hidden input
-    if (avatarIndexInput) avatarIndexInput.value = index;
-    
-    // Update preview
-    if (avatarPreview) {
-        avatarPreview.src = getAvatarByIndex(jenisKelamin, index);
-    }
-    
-    // Update label
-    const options = getAvatarOptions(jenisKelamin);
-    if (avatarLabel && options[index]) {
-        avatarLabel.textContent = options[index].label;
-    }
-    
-    // Regenerate grid to update selection state
-    window.generateAvatarGrid();
-    
-    // Update profile card preview
-    window.updateSettingsProfileCardPreview();
-    
-    // Update header avatar
-    window.updateHeaderAvatar();
-    
-    showToast(`✅ ${options[index]?.label || 'Avatar'} dipilih`);
 };
 
 // Helper untuk update preview kartu profil
