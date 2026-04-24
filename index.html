@@ -3609,9 +3609,9 @@ Pengaturan Lanjutan
 <div id="createRoomModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
 <div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl transform scale-95 relative transition-all duration-300 max-h-[90vh] flex flex-col border border-slate-100">
 <!-- Header -->
-<div class="p-8 pb-4 flex justify-between items-start">
+<div class="p-5 sm:p-8 pb-4 flex justify-between items-start">
 <div>
-<h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Buat Agenda Baru</h3>
+<h3 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">Buat Agenda Baru</h3>
 <p class="text-sm text-slate-500 font-medium mt-1">Lengkapi detail untuk menerbitkan jadwal rapat digital.</p>
 </div>
 <button onclick="window.toggleModal('createRoomModal', false)" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all">
@@ -3621,7 +3621,7 @@ Pengaturan Lanjutan
 
 <form onsubmit="window.handleCreateRoom(event)" class="flex flex-col flex-1 min-h-0">
 <!-- Scrollable Content -->
-<div class="px-8 pb-8 overflow-y-auto space-y-8">
+<div class="px-5 sm:px-8 pb-5 sm:pb-8 overflow-y-auto space-y-6 sm:space-y-8">
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 <!-- Column 1: Lingkup + Informasi Dasar -->
 <div class="lg:col-span-4 space-y-6">
@@ -3743,9 +3743,9 @@ Terbitkan Agenda
   <!-- MODAL: EDIT MEETING INFO (DETAILED REDESIGN) -->
   <div id="editMeetingInfoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
     <div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl transform scale-95 relative transition-all duration-300 max-h-[90vh] flex flex-col border border-slate-100">
-      <div class="p-8 pb-4 flex justify-between items-start">
+      <div class="p-5 sm:p-8 pb-4 flex justify-between items-start">
         <div>
-          <h3 class="text-3xl font-extrabold text-slate-800 tracking-tight">Edit Informasi Agenda</h3>
+          <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">Edit Informasi Agenda</h3>
           <p class="text-sm text-slate-500 font-medium mt-1">Perbarui detail agenda, jadwal, atau identitas pimpinan.</p>
         </div>
         <button onclick="window.toggleModal('editMeetingInfoModal', false)" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all">
@@ -3753,7 +3753,7 @@ Terbitkan Agenda
         </button>
       </div>
       <form onsubmit="window.handleEditMeetingInfo(event)" class="flex flex-col flex-1 min-h-0">
-        <div class="px-8 pb-8 overflow-y-auto space-y-8">
+        <div class="px-5 sm:px-8 pb-5 sm:pb-8 overflow-y-auto space-y-6 sm:space-y-8">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <!-- Column 1: Lingkup + Informasi Dasar -->
             <div class="lg:col-span-4 space-y-6">
