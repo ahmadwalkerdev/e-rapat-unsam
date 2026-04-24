@@ -156,8 +156,14 @@ export function createMinutesModule(deps) {
                 theme: 'snow',
                 placeholder: 'Ketik notulensi rapat...',
                 modules: {
+                    history: {
+                        delay: 1000,
+                        maxStack: 100,
+                        userOnly: true
+                    },
                     toolbar: {
                         container: [
+                            ['undo', 'redo'],
                             [{ 'header': [1, 2, 3, false] }],
                             ['bold', 'italic', 'underline', 'strike'],
                             [{ 'color': quillColorPalette }, { 'background': quillColorPalette }],
@@ -165,10 +171,21 @@ export function createMinutesModule(deps) {
                             ['blockquote', 'code-block'],
                             ['link'],
                             ['clean']
-                        ]
+                        ],
+                        handlers: {
+                            undo: function() { this.quill.history.undo(); },
+                            redo: function() { this.quill.history.redo(); }
+                        }
                     }
                 }
             });
+
+            // Undo/Redo button icons
+            const toolbar = newQuill.getModule('toolbar');
+            const undoBtn = toolbar.container.querySelector('.ql-undo');
+            const redoBtn = toolbar.container.querySelector('.ql-redo');
+            if (undoBtn) undoBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7v6h6"/><path d="M3 13C5.5 6.5 14 4 20 9s3 13-3 15"/></svg>';
+            if (redoBtn) redoBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 7v6h-6"/><path d="M21 13C18.5 6.5 10 4 4 9S1 22 7 24"/></svg>';
 
             setQuill(newQuill);
             console.log('Quill editor initialized successfully');
