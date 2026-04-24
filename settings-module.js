@@ -132,6 +132,7 @@ await setDoc(
 doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'data'),
 {
 name: n,
+emailInstitusi: currentUser.email || '',
 nip: nip || '',
 nidn: nidn || '',
 nidk: nidk || '',
