@@ -92,16 +92,9 @@ _toastTimer = setTimeout(() => {
 export function toggleModal(id, show) {
 const el = document.getElementById(id);
 if (!el) return;
-const inner = el.querySelector(':scope > div');
 if (show) {
     el.classList.remove('hidden');
-    setTimeout(() => {
-        el.classList.remove('opacity-0');
-        if (inner) inner.classList.remove('scale-95');
-    }, 10);
 } else {
-    el.classList.add('opacity-0');
-    if (inner) inner.classList.add('scale-95');
-    setTimeout(() => el.classList.add('hidden'), 200);
+    el.classList.add('hidden');
 }
 }
