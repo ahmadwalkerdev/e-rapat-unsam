@@ -319,15 +319,45 @@ export function createMinutesModule(deps) {
         }
     }
 
+    function setAutosaveSaving() {
+        const autosave = document.getElementById('autosaveIndicator');
+        if (!autosave) return;
+        autosave.innerHTML = '<div class="relative flex items-center justify-center"><div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div></div><span class="text-xs font-bold text-amber-600 tracking-wide">Menyimpan...</span>';
+    }
+
+    function setAutosaveError() {
+        const autosave = document.getElementById('autosaveIndicator');
+        if (!autosave) return;
+        autosave.innerHTML = '<div class="relative flex items-center justify-center"><div class="w-2 h-2 bg-red-500 rounded-full"></div><div class="absolute w-4 h-4 bg-red-400/30 rounded-full animate-ping"></div></div><span class="text-xs font-bold text-red-600 tracking-wide">Gagal Simpan</span>';
+    }
+
+    function setAutosaveSavedNow() {
+        window._lastAutosaveTime = Date.now();
+        renderAutosaveSavedRelative();
+    }
+
+    function renderAutosaveSavedRelative() {
+        const autosave = document.getElementById('autosaveIndicator');
+        if (!autosave || !window._lastAutosaveTime) return;
+        const diffSec = Math.floor((Date.now() - window._lastAutosaveTime) / 1000);
+        let label = 'Tersimpan baru saja';
+        if (diffSec >= 60 && diffSec < 3600) label = `Tersimpan ${Math.floor(diffSec / 60)} menit lalu`;
+        else if (diffSec >= 3600) label = `Tersimpan ${Math.floor(diffSec / 3600)} jam lalu`;
+        else if (diffSec >= 10) label = `Tersimpan ${diffSec} detik lalu`;
+        autosave.innerHTML = `<div class="relative flex items-center justify-center"><div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse z-10"></div><div class="absolute w-4 h-4 bg-emerald-400/30 rounded-full animate-ping"></div></div><span class="text-xs font-bold text-slate-600 tracking-wide">${label}</span>`;
+    }
+
+    // Auto-refresh relative timestamp tiap 15 detik
+    if (!window._autosaveTickerStarted) {
+        window._autosaveTickerStarted = true;
+        setInterval(renderAutosaveSavedRelative, 15000);
+    }
+
     async function syncMinutes(text) {
         const activeRoom = getActiveRoom();
         if (!activeRoom || getUserRole() !== 'notulen') return;
 
-        const autosave = document.getElementById('autosaveIndicator');
-        if (autosave) {
-            autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>Menyimpan...';
-            autosave.classList.replace('text-emerald-500', 'text-amber-500');
-        }
+        setAutosaveSaving();
 
         // Set typing indicator on
         setTypingStatus(activeRoom.id, true);
@@ -343,16 +373,10 @@ export function createMinutesModule(deps) {
                     wordCount: text ? text.split(/\s+/).filter(word => word.length > 0).length : 0
                 }, { merge: true });
 
-                if (autosave) {
-                    autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Tersimpan';
-                    autosave.classList.replace('text-amber-500', 'text-emerald-500');
-                }
+                setAutosaveSavedNow();
             } catch (err) {
                 console.error("Auto-sync error:", err);
-                if (autosave) {
-                    autosave.innerHTML = '<span class="w-1.5 h-1.5 bg-red-500 rounded-full"></span>Gagal Simpan';
-                    autosave.classList.replace('text-emerald-500', 'text-red-500');
-                }
+                setAutosaveError();
                 showToast("Gagal menyimpan: " + err.message);
             }
         }, 1000);

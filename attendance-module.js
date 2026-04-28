@@ -297,8 +297,24 @@ ${deleteBtn}${pingBtn}
         </div>`;
         const pesertaHtml = renderHtml(pesertas);
 
-        listDesktop.innerHTML = notulenHtml + (notulens.length > 0 && pesertas.length > 0 ? separator : '') + pesertaHtml;
-        listMobile.innerHTML = listDesktop.innerHTML;
+        if (count === 0) {
+            const emptyHtml = `
+                <div class="py-8 px-3 flex flex-col items-center justify-center text-center animate-fade-in-scale">
+                    <div class="relative mb-3">
+                        <div class="absolute inset-0 bg-indigo-200/30 blur-xl rounded-full"></div>
+                        <div class="relative w-14 h-14 bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200/60 rounded-2xl flex items-center justify-center text-indigo-400">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                    </div>
+                    <p class="text-xs font-bold text-slate-700 mb-0.5">Menunggu Peserta</p>
+                    <p class="text-[10px] text-slate-400 leading-relaxed">Belum ada yang hadir.<br>Bagikan PIN untuk mengundang.</p>
+                </div>`;
+            listDesktop.innerHTML = emptyHtml;
+            listMobile.innerHTML = emptyHtml;
+        } else {
+            listDesktop.innerHTML = notulenHtml + (notulens.length > 0 && pesertas.length > 0 ? separator : '') + pesertaHtml;
+            listMobile.innerHTML = listDesktop.innerHTML;
+        }
 
         const itemHeight = 72;
         const paddingOffset = 40;
