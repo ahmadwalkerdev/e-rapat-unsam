@@ -168,6 +168,9 @@ export function createDashboardModule(deps) {
         if (!el) return;
         const start = parseInt(el.innerText, 10) || 0;
         if (start === target) { el.innerText = target; return; }
+        // Add flip animation
+        el.classList.add('stat-flip-value');
+        el.addEventListener('animationend', () => el.classList.remove('stat-flip-value'), { once: true });
         const startTime = performance.now();
         const tick = (now) => {
             const elapsed = now - startTime;
@@ -315,7 +318,7 @@ export function createDashboardModule(deps) {
             const subtitle = currentFilter === 'mine' ? 'Mulai sekarang dengan membuat agenda pertama Anda.' : 'Buat agenda baru untuk memulai kolaborasi tim.';
             container.innerHTML = `
                 <div class="col-span-full py-16 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50/40 via-white to-slate-50 rounded-3xl border border-dashed border-indigo-200/60 animate-fade-in-scale">
-                    <div class="relative mb-5">
+                    <div class="relative mb-5 empty-state-float">
                         <div class="absolute inset-0 bg-indigo-200/40 blur-2xl rounded-full"></div>
                         <div class="relative w-20 h-20 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-200">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
@@ -333,7 +336,7 @@ export function createDashboardModule(deps) {
         if (archiveContainer.children.length === 0) {
             archiveContainer.innerHTML = `
                 <div class="col-span-full py-16 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-dashed border-slate-200 animate-fade-in-scale">
-                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 mb-4 shadow-sm border border-slate-100">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 mb-4 shadow-sm border border-slate-100 empty-state-float">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" x2="14" y1="12" y2="12"/></svg>
                     </div>
                     <p class="text-slate-500 font-bold text-sm">Belum Ada Riwayat Arsip Rapat</p>
@@ -583,13 +586,19 @@ export function createDashboardModule(deps) {
 
                 // Tooltip dengan label tanggal dinamis
                 const tooltipDateLabel = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' }).format(new Date(year, month, day));
-                const tooltipHtml = dayAgendas.map(a => `<div class="truncate border-b border-white/5 py-1 last:border-0">• ${escapeHtml(a.title)}</div>`).join('');
+                const tooltipHtml = dayAgendas.map(a => {
+                    const timeStr = a.meetingStartTime ? `<span class="text-indigo-300 font-mono">${a.meetingStartTime}</span> ` : '';
+                    return `<div class="truncate border-b border-white/5 py-1 last:border-0 flex items-center gap-1">${timeStr}<span class="truncate">${escapeHtml(a.title)}</span></div>`;
+                }).join('');
                 dayDiv.innerHTML = `
                     ${badgeHtml}
                     <span class="text-[10px] relative z-10">${day}</span>
                     ${indicatorHtml}
-                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 p-2 bg-slate-900/95 backdrop-blur-md text-white text-[9px] rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 z-[100] shadow-2xl border border-white/10 transform translate-y-1 group-hover:translate-y-0">
-                        <div class="font-bold text-indigo-400 mb-1 border-b border-indigo-500/30 pb-1">Agenda ${tooltipDateLabel}:</div>
+                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2.5 bg-slate-900/95 backdrop-blur-xl text-white text-[9px] rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 z-[100] shadow-2xl border border-white/10 transform translate-y-2 group-hover:translate-y-0 scale-95 group-hover:scale-100">
+                        <div class="font-bold text-indigo-400 mb-1.5 border-b border-indigo-500/30 pb-1.5 flex items-center gap-1.5">
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+                            ${tooltipDateLabel} · ${dayAgendas.length} agenda
+                        </div>
                         ${tooltipHtml}
                     </div>
                 `;
