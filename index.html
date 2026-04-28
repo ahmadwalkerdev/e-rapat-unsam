@@ -423,6 +423,7 @@ function closeAllRoomMenus() {
         }
     });
 }
+window.closeAllRoomMenus = closeAllRoomMenus;
 // Listen scroll on window + main scrollable container (captures all scroll sources)
 window.addEventListener('scroll', closeAllRoomMenus, { passive: true, capture: true });
 
