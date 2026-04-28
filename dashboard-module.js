@@ -799,6 +799,8 @@ ${statusBadge}
 
     window.openEditRoomModal = async (roomId) => {
         console.log('[DEBUG] Opening Edit Modal for room:', roomId);
+        // Tutup dropdown menu jika terbuka
+        if (typeof closeAllRoomMenus === 'function') closeAllRoomMenus();
         // Jika dipanggil tanpa roomId (dari dalam room), ambil dari activeRoom
         if (!roomId) {
             const activeRoom = deps.getActiveRoom();
