@@ -102,6 +102,6 @@ if (show) {
 } else {
     el.classList.add('opacity-0');
     if (inner) inner.classList.add('scale-95');
-    setTimeout(() => el.classList.add('hidden'), 300);
+    setTimeout(() => el.classList.add('hidden'), 200);
 }
 }
