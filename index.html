@@ -36,8 +36,8 @@
 <link rel="stylesheet" href="./styles.css?v=1">
 
 <!-- GLOBAL CONFIRM MODAL -->
-<div id="globalConfirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm backdrop-saturate-[1.5] z-[300] flex items-center justify-center p-4 hidden opacity-0 transition-all duration-200">
-    <div class="modal-glass-content bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl border border-white/60 transform scale-95 transition-all duration-200">
+<div id="globalConfirmModal" class="fixed inset-0 bg-slate-900/70 z-[300] flex items-center justify-center p-4 hidden opacity-0 transition-all duration-200">
+    <div class="modal-glass-content bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 transform scale-95 transition-all duration-200">
         <div class="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mb-8 mx-auto shadow-inner">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
         </div>
@@ -425,7 +425,16 @@ function closeAllRoomMenus() {
 }
 window.closeAllRoomMenus = closeAllRoomMenus;
 // Listen scroll on window + main scrollable container (captures all scroll sources)
-window.addEventListener('scroll', closeAllRoomMenus, { passive: true, capture: true });
+// Scroll listener dengan throttling untuk performa
+let scrollTimeout;
+window.addEventListener('scroll', () => {
+    if (!scrollTimeout) {
+        scrollTimeout = setTimeout(() => {
+            closeAllRoomMenus();
+            scrollTimeout = null;
+        }, 50);
+    }
+}, { passive: true, capture: true });
 
 window.confirmDeleteRoom = async (roomId, title) => {
     const confirm = await window.showConfirmModal(
