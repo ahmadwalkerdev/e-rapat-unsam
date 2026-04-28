@@ -88,19 +88,12 @@ export function createDashboardModule(deps) {
         let loadingTimeout;
 
         const skeletonCard = () => `
-            <div class="room-card-skeleton">
-                <div class="flex justify-between items-start">
-                    <div class="skel-line skel-badge"></div>
-                    <div class="skel-avatar"></div>
-                </div>
-                <div class="skel-line skel-title"></div>
-                <div class="skel-line skel-title-short"></div>
-                <div class="skel-line skel-meta"></div>
-                <div class="flex items-center gap-2 mt-2">
-                    <div class="skel-avatar"></div>
-                    <div class="skel-line skel-creator"></div>
-                </div>
-                <div class="skel-line skel-btn"></div>
+            <div class="skeleton-card p-6 rounded-2xl border border-slate-100 flex flex-col gap-4">
+                <div class="flex justify-between items-start"><div class="skeleton skeleton-badge"></div><div class="skeleton w-8 h-8 rounded-lg"></div></div>
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text w-4/5"></div>
+                <div class="flex items-center gap-2 mt-auto"><div class="skeleton skeleton-avatar"></div><div class="flex-1 space-y-1.5"><div class="skeleton skeleton-text w-24"></div><div class="skeleton skeleton-text w-16" style="height:8px"></div></div></div>
+                <div class="skeleton skeleton-btn w-full"></div>
             </div>`;
 
         if (container && archiveContainer) {
@@ -108,7 +101,7 @@ export function createDashboardModule(deps) {
             archiveContainer.innerHTML = '';
 
             loadingTimeout = setTimeout(() => {
-                if (container.querySelector('.room-card-skeleton')) {
+                if (container.querySelector('.skeleton-card')) {
                     container.innerHTML = '<div class="col-span-full py-20 flex flex-col items-center justify-center bg-amber-50 rounded-2xl border border-amber-200"><div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 mb-4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div><p class="text-amber-700 font-bold text-sm">Koneksi Lambat</p><p class="text-amber-600 text-xs mt-1">Memuat lebih lama dari biasanya. Silakan tunggu...</p></div>';
                 }
             }, 10000);
@@ -354,7 +347,8 @@ export function createDashboardModule(deps) {
     function createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper, index = 0) {
         const card = document.createElement('div');
         card.setAttribute('data-room', roomId);
-        card.className = "room-card-animate bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group relative overflow-hidden isolate";
+        const isLive = badgeText === 'Berlangsung';
+        card.className = `room-card-animate bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group relative overflow-hidden isolate${isLive ? ' room-card-live' : ''}`;
         card.style.animationDelay = `${index * 60}ms`;
         const safeRoomId = escapeJsString(roomId);
         const safeRoomTitle = escapeHtml(room?.title || '-');

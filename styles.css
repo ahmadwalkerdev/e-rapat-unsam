@@ -644,19 +644,6 @@ body {
     margin: 1.5rem 0;
 }
 
-/* --- Skeleton Loading --- */
-.skeleton {
-    background: linear-gradient(90deg, var(--slate-200) 25%, var(--slate-100) 50%, var(--slate-200) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: var(--radius);
-}
-
-@keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
 /* ============================================
    APP-SPECIFIC STYLES & OVERRIDES
    ============================================ */
@@ -1150,38 +1137,6 @@ button:hover {
     }
 }
 
-/* --- Room Card Skeleton Loading --- */
-.room-card-skeleton {
-    background: white;
-    border-radius: 1rem;
-    border: 1px solid #e2e8f0;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    overflow: hidden;
-}
-
-.room-card-skeleton .skel-line {
-    border-radius: 0.5rem;
-    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s infinite ease-in-out;
-}
-
-.room-card-skeleton .skel-badge { height: 22px; width: 90px; }
-.room-card-skeleton .skel-title { height: 20px; width: 80%; margin-top: 0.5rem; }
-.room-card-skeleton .skel-title-short { height: 20px; width: 50%; }
-.room-card-skeleton .skel-meta { height: 14px; width: 60%; }
-.room-card-skeleton .skel-avatar {
-    width: 28px; height: 28px; border-radius: 9999px; flex-shrink: 0;
-    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s infinite ease-in-out;
-}
-.room-card-skeleton .skel-creator { height: 14px; width: 45%; }
-.room-card-skeleton .skel-btn { height: 44px; width: 100%; border-radius: 0.75rem; margin-top: auto; }
-
 /* --- Room Card Enter Animation --- */
 @keyframes card-enter {
     from {
@@ -1247,6 +1202,220 @@ button:hover {
     transform: translateX(-50%) translateY(0);
 }
 
+/* --- Quill Toolbar Floating Pill --- */
+.ql-toolbar.ql-snow {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 1rem !important;
+    margin: 0.5rem 0.5rem 0 !important;
+    padding: 6px 8px !important;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04), 0 1px 2px -1px rgba(0,0,0,0.04) !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 2px !important;
+}
+
+.ql-toolbar.ql-snow .ql-formats {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 1px !important;
+    margin-right: 0 !important;
+    padding-right: 8px !important;
+    border-right: 1px solid #e2e8f0 !important;
+}
+
+.ql-toolbar.ql-snow .ql-formats:last-child {
+    border-right: none !important;
+    padding-right: 0 !important;
+}
+
+.ql-toolbar.ql-snow button {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.15s ease !important;
+}
+
+.ql-toolbar.ql-snow button:hover {
+    background: #eef2ff !important;
+    color: #4f46e5 !important;
+}
+
+.ql-toolbar.ql-snow button:hover .ql-stroke {
+    stroke: #4f46e5 !important;
+}
+
+.ql-toolbar.ql-snow button:hover .ql-fill {
+    fill: #4f46e5 !important;
+}
+
+.ql-toolbar.ql-snow button.ql-active {
+    background: #eef2ff !important;
+    color: #4338ca !important;
+}
+
+.ql-toolbar.ql-snow button.ql-active .ql-stroke {
+    stroke: #4338ca !important;
+}
+
+.ql-toolbar.ql-snow button.ql-active .ql-fill {
+    fill: #4338ca !important;
+}
+
+.ql-toolbar.ql-snow .ql-picker {
+    border-radius: 8px !important;
+    transition: all 0.15s ease !important;
+}
+
+.ql-toolbar.ql-snow .ql-picker:hover {
+    background: #eef2ff !important;
+}
+
+.ql-toolbar.ql-snow .ql-picker-label {
+    border-color: transparent !important;
+    padding: 2px 6px !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+}
+
+.ql-container.ql-snow {
+    border: none !important;
+    font-family: inherit !important;
+}
+
+/* --- Sidebar Resize Handle — Enhanced Dot Pattern --- */
+@media (min-width: 1025px) {
+    .resizer-handle::before {
+        content: '';
+        position: absolute;
+        width: 4px;
+        height: 32px;
+        background-image: radial-gradient(circle, #cbd5e1 1.5px, transparent 1.5px);
+        background-size: 4px 6px;
+        background-repeat: repeat-y;
+        border-radius: 2px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .resizer-handle:hover::before {
+        opacity: 1;
+        background-image: radial-gradient(circle, #6366f1 1.5px, transparent 1.5px);
+    }
+
+    .resizer-handle.is-resizing::before {
+        opacity: 1;
+        background-image: radial-gradient(circle, #6366f1 1.5px, transparent 1.5px);
+    }
+}
+
+/* --- Skeleton Shimmer --- */
+@keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 1rem;
+}
+
+.skeleton-text {
+    height: 12px;
+    border-radius: 6px;
+}
+
+.skeleton-title {
+    height: 20px;
+    border-radius: 8px;
+    width: 65%;
+}
+
+.skeleton-badge {
+    height: 22px;
+    width: 80px;
+    border-radius: 6px;
+}
+
+.skeleton-btn {
+    height: 44px;
+    border-radius: 12px;
+}
+
+.skeleton-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+}
+
+/* --- Toast Variant System --- */
+@keyframes toast-slide-in {
+    from { opacity: 0; transform: translateX(20px) translateY(0); }
+    to { opacity: 1; transform: translateX(0) translateY(0); }
+}
+
+@keyframes toast-shake {
+    0%, 100% { transform: translateX(0); }
+    15%, 45%, 75% { transform: translateX(-4px); }
+    30%, 60%, 90% { transform: translateX(4px); }
+}
+
+@keyframes toast-progress {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+}
+
+.toast-variant {
+    animation: toast-slide-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.toast-shake {
+    animation: toast-shake 0.5s ease-in-out;
+}
+
+.toast-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 0 0 1rem 1rem;
+    transform-origin: left;
+    animation: toast-progress 3s linear forwards;
+}
+
+/* --- Active Room Card Live Pulse Border --- */
+@keyframes room-live-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2), 0 1px 3px rgba(0,0,0,0.04); }
+    50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1), 0 4px 12px rgba(16, 185, 129, 0.08); }
+}
+
+.room-card-live {
+    border-color: #a7f3d0 !important;
+    animation: room-live-glow 3s ease-in-out infinite;
+    position: relative;
+}
+
+.room-card-live::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    z-index: 20;
+    animation: pulse 2s ease-in-out infinite;
+}
+
 /* --- Login Background Animation --- */
 @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
@@ -1259,4 +1428,33 @@ button:hover {
 }
 .animation-delay-2000 {
     animation-delay: 2s;
+}
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+/* --- Auth Floating Particles --- */
+@keyframes float-particle {
+    0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+    25% { transform: translateY(-30px) translateX(10px) scale(1.1); opacity: 0.6; }
+    50% { transform: translateY(-15px) translateX(-10px) scale(0.95); opacity: 0.4; }
+    75% { transform: translateY(-40px) translateX(5px) scale(1.05); opacity: 0.5; }
+}
+
+.auth-particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: float-particle var(--duration, 8s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* --- Auth Logo Hover --- */
+.auth-logo-container {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.auth-logo-container:hover {
+    transform: scale(1.05) rotate(2deg);
 }
