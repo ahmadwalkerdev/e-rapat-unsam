@@ -224,9 +224,7 @@ export function createMinutesModule(deps) {
                     const q = getQuill();
                     if (!q) return;
                     const text = q.getText().trim();
-                    const words = text ? text.split(/\s+/).length : 0;
-                    const chars = q.getLength() - 1;
-                    console.log(`Words: ${words}, Characters: ${chars}`);
+                    renderEditorStatus(text);
                 } catch (e) {
                     console.warn('Error updating word count:', e);
                 }
@@ -319,6 +317,66 @@ export function createMinutesModule(deps) {
         }
     }
 
+    // Render editor status bar (word count, char count, reading time)
+    function renderEditorStatus(plainText) {
+        const bar = document.getElementById('editorStatusBar');
+        if (!bar) return;
+        bar.classList.remove('hidden');
+        bar.classList.add('flex');
+
+        const text = (plainText || '').trim();
+        const words = text ? text.split(/\s+/).filter(w => w.length > 0).length : 0;
+        const chars = text.length;
+        // Reading time: 200 wpm avg untuk Bahasa Indonesia
+        const minutes = Math.max(1, Math.ceil(words / 200));
+
+        const wEl = document.getElementById('statusWordCount');
+        const cEl = document.getElementById('statusCharCount');
+        const rEl = document.getElementById('statusReadingTime');
+        if (wEl) wEl.innerText = words.toLocaleString('id-ID');
+        if (cEl) cEl.innerText = chars.toLocaleString('id-ID');
+        if (rEl) rEl.innerText = words === 0 ? '0 mnt' : `${minutes} mnt`;
+    }
+
+    // Render plain text dari HTML untuk peserta (yang lihat displayMinutes)
+    function renderEditorStatusFromHtml(html) {
+        if (!html) { renderEditorStatus(''); return; }
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        const plain = (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ');
+        renderEditorStatus(plain);
+    }
+
+    // Update last edit timestamp (ISO string) dengan auto-refresh relative
+    function updateLastEditTime(isoString) {
+        if (isoString) window._lastMinutesEditTime = new Date(isoString).getTime();
+        const el = document.getElementById('statusLastEditText');
+        const wrap = document.getElementById('statusLastEdit');
+        if (!el || !wrap) return;
+        if (!window._lastMinutesEditTime) { wrap.classList.add('hidden'); return; }
+        wrap.classList.remove('hidden');
+        const diffSec = Math.floor((Date.now() - window._lastMinutesEditTime) / 1000);
+        let label = 'Diedit baru saja';
+        if (diffSec >= 10 && diffSec < 60) label = `Diedit ${diffSec} detik lalu`;
+        else if (diffSec >= 60 && diffSec < 3600) label = `Diedit ${Math.floor(diffSec / 60)} menit lalu`;
+        else if (diffSec >= 3600 && diffSec < 86400) label = `Diedit ${Math.floor(diffSec / 3600)} jam lalu`;
+        else if (diffSec >= 86400) label = `Diedit ${Math.floor(diffSec / 86400)} hari lalu`;
+        el.innerText = label;
+    }
+
+    if (!window._lastEditTickerStarted) {
+        window._lastEditTickerStarted = true;
+        setInterval(() => updateLastEditTime(), 15000);
+    }
+
+    // Toggle typing indicator di status bar
+    function setStatusTyping(isTyping) {
+        const ind = document.getElementById('statusTypingIndicator');
+        if (!ind) return;
+        if (isTyping) { ind.classList.remove('hidden'); ind.classList.add('inline-flex'); }
+        else { ind.classList.add('hidden'); ind.classList.remove('inline-flex'); }
+    }
+
     function setAutosaveSaving() {
         const autosave = document.getElementById('autosaveIndicator');
         if (!autosave) return;
@@ -396,22 +454,30 @@ export function createMinutesModule(deps) {
             const quill = getQuill();
 
             try {
-                // Typing indicator untuk peserta
+                // Typing indicator untuk peserta (legacy + status bar baru)
                 if (userRole === 'peserta') {
                     const indicator = document.getElementById('typingIndicator');
+                    const isTyping = data?.isTyping === true;
+                    const typingAt = data?.typingAt ? new Date(data.typingAt).getTime() : 0;
+                    const isStale = Date.now() - typingAt > 10000;
+                    const showTyping = isTyping && !isStale;
                     if (indicator) {
-                        const isTyping = data?.isTyping === true;
-                        const typingAt = data?.typingAt ? new Date(data.typingAt).getTime() : 0;
-                        const isStale = Date.now() - typingAt > 10000;
-                        if (isTyping && !isStale) {
-                            indicator.classList.remove('hidden');
-                        } else {
-                            indicator.classList.add('hidden');
-                        }
+                        if (showTyping) indicator.classList.remove('hidden');
+                        else indicator.classList.add('hidden');
                     }
+                    setStatusTyping(showTyping);
+                }
+
+                // Update last edit timestamp di status bar (utk semua role)
+                if (data?.lastUpdated) {
+                    updateLastEditTime(data.lastUpdated);
                 }
 
                 if (data && data.text) {
+                    // Update word/char count untuk peserta (notulen pakai quill text-change)
+                    if (userRole === 'peserta') {
+                        renderEditorStatusFromHtml(data.text);
+                    }
                     if (userRole === 'peserta' && display) {
                         display.innerHTML = DOMPurify.sanitize(data.text || "<p class='text-slate-400'>Belum ada notulensi...</p>");
                     } else if (userRole === 'notulen') {
