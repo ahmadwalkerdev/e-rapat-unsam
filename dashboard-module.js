@@ -171,6 +171,23 @@ export function createDashboardModule(deps) {
         });
     };
 
+    function animateCount(el, target, duration = 600) {
+        if (!el) return;
+        const start = parseInt(el.innerText, 10) || 0;
+        if (start === target) { el.innerText = target; return; }
+        const startTime = performance.now();
+        const tick = (now) => {
+            const elapsed = now - startTime;
+            const t = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+            const value = Math.round(start + (target - start) * eased);
+            el.innerText = value;
+            if (t < 1) requestAnimationFrame(tick);
+            else el.innerText = target;
+        };
+        requestAnimationFrame(tick);
+    }
+
     function renderDashboardRooms(snapshot) {
         const container = document.getElementById('roomListContainer');
         const archiveContainer = document.getElementById('archiveListContainer');
@@ -290,28 +307,44 @@ export function createDashboardModule(deps) {
             container.appendChild(viewMore);
         }
 
-        if (berlangsungCountEl) berlangsungCountEl.innerText = berlangsungCount;
-        if (akanDatangCountEl) akanDatangCountEl.innerText = akanDatangCount;
-        if (selesaiCountEl) selesaiCountEl.innerText = selesaiCount;
+        if (berlangsungCountEl) animateCount(berlangsungCountEl, berlangsungCount);
+        if (akanDatangCountEl) animateCount(akanDatangCountEl, akanDatangCount);
+        if (selesaiCountEl) animateCount(selesaiCountEl, selesaiCount);
+
+        // Update badge counters di tab
+        const activeTabBadge = document.getElementById('tabActiveBadge');
+        const archiveTabBadge = document.getElementById('tabArchiveBadge');
+        if (activeTabBadge) activeTabBadge.innerText = berlangsungCount + akanDatangCount;
+        if (archiveTabBadge) archiveTabBadge.innerText = selesaiCount;
 
         if (container.children.length === 0) {
+            const headline = currentFilter === 'mine' ? 'Anda Belum Membuat Agenda' : 'Belum Ada Agenda Aktif';
+            const subtitle = currentFilter === 'mine' ? 'Mulai sekarang dengan membuat agenda pertama Anda.' : 'Buat agenda baru untuk memulai kolaborasi tim.';
             container.innerHTML = `
-                <div class="col-span-full py-20 flex flex-col items-center justify-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 page-fade">
-                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-slate-300 mb-4 shadow-sm">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <div class="col-span-full py-16 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50/40 via-white to-slate-50 rounded-3xl border border-dashed border-indigo-200/60 animate-fade-in-scale">
+                    <div class="relative mb-5">
+                        <div class="absolute inset-0 bg-indigo-200/40 blur-2xl rounded-full"></div>
+                        <div class="relative w-20 h-20 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-200">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+                        </div>
                     </div>
-                    <p class="text-slate-500 font-bold text-sm">Belum Ada Agenda Aktif</p>
-                    <p class="text-slate-400 text-xs mt-1">Silakan buat agenda baru untuk memulai kolaborasi.</p>
+                    <p class="text-slate-800 font-extrabold text-base mb-1">${headline}</p>
+                    <p class="text-slate-500 text-xs mb-5 text-center max-w-sm leading-relaxed">${subtitle}</p>
+                    <button onclick="window.openCreateRoomModal()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-200 transition-all hover:-translate-y-0.5 active:scale-95 flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Buat Agenda Baru
+                    </button>
                 </div>`;
         }
 
         if (archiveContainer.children.length === 0) {
             archiveContainer.innerHTML = `
-                <div class="col-span-full py-20 flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 page-fade">
-                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-slate-300 mb-4 shadow-sm">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" x2="14" y1="12" y2="12"/></svg>
+                <div class="col-span-full py-16 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-dashed border-slate-200 animate-fade-in-scale">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 mb-4 shadow-sm border border-slate-100">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" x2="14" y1="12" y2="12"/></svg>
                     </div>
-                    <p class="text-slate-400 font-semibold text-sm">Belum Ada Riwayat Arsip Rapat</p>
+                    <p class="text-slate-500 font-bold text-sm">Belum Ada Riwayat Arsip Rapat</p>
+                    <p class="text-slate-400 text-xs mt-1">Agenda yang telah selesai akan muncul di sini.</p>
                 </div>`;
         }
 
