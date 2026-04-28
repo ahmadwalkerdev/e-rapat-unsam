@@ -1389,17 +1389,36 @@ function updateMeetingInfoSection(data) {
     }
 }
 
+// Update summary chips di header Meeting Info
+function updateMeetingInfoSummary() {
+    const timeText = document.getElementById('meetingInfoTime')?.innerText?.trim() || '';
+    const locationText = document.getElementById('meetingInfoLocation')?.innerText?.trim() || '';
+    const participantCount = document.getElementById('participantCount')?.innerText?.trim() || '0';
+
+    const timeChip = document.getElementById('summaryChipTimeText');
+    const locChip = document.getElementById('summaryChipLocationText');
+    const partChip = document.getElementById('summaryChipParticipantsText');
+
+    if (timeChip) timeChip.innerText = timeText && timeText !== '-' ? timeText : 'Belum diatur';
+    if (locChip) locChip.innerText = locationText && locationText !== '-' ? locationText : 'Belum diatur';
+    if (partChip) partChip.innerText = `${participantCount} peserta`;
+}
+
 // Toggle Meeting Info Section
 window.toggleMeetingInfo = function() {
     const content = document.getElementById('meetingInfoContent');
     const icon = document.getElementById('meetingInfoToggleIcon');
+    const summary = document.getElementById('meetingInfoSummary');
     if (content && icon) {
         if (content.classList.contains('hidden')) {
             content.classList.remove('hidden');
             icon.style.transform = 'rotate(180deg)';
+            if (summary) { summary.classList.add('hidden'); summary.classList.remove('flex'); }
         } else {
             content.classList.add('hidden');
             icon.style.transform = 'rotate(0deg)';
+            updateMeetingInfoSummary();
+            if (summary) { summary.classList.remove('hidden'); summary.classList.add('flex'); }
         }
     }
 }
@@ -1828,10 +1847,44 @@ window.confirmEndMeeting = async () => {
 await roomManagementModule.confirmEndMeeting();
 };
 
+function showPinCopyFeedback() {
+    // Flash hijau pada PIN container
+    const pinContainer = document.getElementById('roomPinDisplay');
+    if (pinContainer) {
+        pinContainer.classList.add('pin-copy-flash');
+        setTimeout(() => pinContainer.classList.remove('pin-copy-flash'), 700);
+    }
+
+    // Floating tooltip "Tersalin!" di atas PIN
+    const pinEl = document.getElementById('displayPin');
+    if (pinEl && !document.getElementById('pinCopyTooltip')) {
+        const tip = document.createElement('div');
+        tip.id = 'pinCopyTooltip';
+        tip.className = 'pin-copy-tooltip';
+        tip.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Tersalin!';
+        pinEl.parentElement.style.position = 'relative';
+        pinEl.parentElement.appendChild(tip);
+        requestAnimationFrame(() => tip.classList.add('show'));
+        setTimeout(() => {
+            tip.classList.remove('show');
+            setTimeout(() => tip.remove(), 250);
+        }, 1400);
+    }
+
+    // Swap icon copy → checkmark sesaat
+    const copyBtns = document.querySelectorAll('button[title="Salin PIN"]');
+    copyBtns.forEach(btn => {
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-emerald-600"><polyline points="20 6 9 17 4 12"/></svg>';
+        setTimeout(() => { btn.innerHTML = originalHTML; }, 1400);
+    });
+}
+
 window.copyToClipboard = async function(text) {
 try {
 await navigator.clipboard.writeText(text);
 showToast('PIN Disalin!');
+showPinCopyFeedback();
 } catch (err) {
 const textArea = document.createElement("textarea"); 
 textArea.value = text; 
@@ -1841,7 +1894,7 @@ textArea.style.top = "-999999px";
 document.body.appendChild(textArea); 
 textArea.focus(); 
 textArea.select();
-try { document.execCommand('copy'); showToast('PIN Disalin!'); } catch (fallbackErr) { showToast('Gagal menyalin PIN'); }
+try { document.execCommand('copy'); showToast('PIN Disalin!'); showPinCopyFeedback(); } catch (fallbackErr) { showToast('Gagal menyalin PIN'); }
 document.body.removeChild(textArea);
 }
 };
@@ -3173,8 +3226,8 @@ Pengaturan Lanjutan
     <div id="meetingInfoSection" class="px-4 md:px-6 lg:px-8 pt-2 shrink-0 max-w-[1600px] w-full mx-auto">
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
             <!-- Header with toggle and edit -->
-            <div onclick="window.toggleMeetingInfo()" class="px-4 py-2.5 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200/60 flex items-center justify-between cursor-pointer hover:bg-indigo-100/40 transition-colors">
-                <div class="flex items-center gap-2.5">
+            <div onclick="window.toggleMeetingInfo()" class="px-4 py-2.5 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200/60 flex items-center justify-between cursor-pointer hover:bg-indigo-100/40 transition-colors gap-3">
+                <div class="flex items-center gap-2.5 shrink-0">
                     <div class="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -3184,6 +3237,21 @@ Pengaturan Lanjutan
                         </svg>
                     </div>
                     <h3 class="text-sm font-bold text-slate-800 tracking-wide">Informasi Rapat</h3>
+                </div>
+                <!-- Summary chips: muncul saat panel collapsed -->
+                <div id="meetingInfoSummary" class="hidden flex-1 items-center justify-end gap-1.5 flex-wrap min-w-0 overflow-hidden">
+                    <span id="summaryChipTime" class="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 border border-indigo-100 rounded-lg text-[10px] font-bold text-slate-700 shadow-sm">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-indigo-500"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span id="summaryChipTimeText">-</span>
+                    </span>
+                    <span id="summaryChipLocation" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 border border-emerald-100 rounded-lg text-[10px] font-bold text-slate-700 shadow-sm max-w-[180px]">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald-500 shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span id="summaryChipLocationText" class="truncate">-</span>
+                    </span>
+                    <span id="summaryChipParticipants" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 border border-amber-100 rounded-lg text-[10px] font-bold text-slate-700 shadow-sm">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-amber-500"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span id="summaryChipParticipantsText">0 peserta</span>
+                    </span>
                 </div>
                 <div class="flex items-center gap-1" onclick="event.stopPropagation()">
                     <button id="editRoomInfoBtn" onclick="window.toggleEditMeetingInfo()" class="hidden p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-100 rounded-md transition-all" title="Edit Informasi Rapat">

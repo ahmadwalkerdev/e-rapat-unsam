@@ -1198,6 +1198,55 @@ button:hover {
     animation: card-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* --- PIN Copy Feedback --- */
+@keyframes pin-flash {
+    0% { background-color: rgba(99, 102, 241, 0.04); border-color: rgba(199, 210, 254, 0.5); }
+    30% { background-color: rgba(16, 185, 129, 0.18); border-color: rgba(52, 211, 153, 0.7); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); }
+    100% { background-color: rgba(99, 102, 241, 0.04); border-color: rgba(199, 210, 254, 0.5); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.pin-copy-flash {
+    animation: pin-flash 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pin-copy-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+    box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 50;
+}
+
+.pin-copy-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #059669;
+}
+
+.pin-copy-tooltip.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
 /* --- Login Background Animation --- */
 @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
