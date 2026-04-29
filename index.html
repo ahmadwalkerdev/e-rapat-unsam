@@ -326,13 +326,8 @@ const settingsModule = createSettingsModule({
 
 window.toggleRoomMenu = (btn) => {
     const dropdown = btn.nextElementSibling;
-    console.log('[DEBUG] toggleRoomMenu clicked, dropdown:', dropdown);
-    if (!dropdown) {
-        console.error('[DEBUG] Dropdown not found as nextElementSibling');
-        return;
-    }
     const allMenus = document.querySelectorAll('.room-menu-dropdown');
-
+    
     // Close other menus
     allMenus.forEach(m => {
         if (m !== dropdown) {
@@ -343,17 +338,12 @@ window.toggleRoomMenu = (btn) => {
     if (dropdown.classList.contains('hidden')) {
         // Calculate position since it's now 'fixed' to avoid overflow-hidden clipping
         const rect = btn.getBoundingClientRect();
-        const top = rect.bottom + 8;
-        const left = rect.right - 192; // 192px is w-48
-        console.log('[DEBUG] Positioning dropdown at:', { top, left, rect });
-        dropdown.style.top = `${top}px`;
-        dropdown.style.left = `${left}px`;
+        dropdown.style.top = `${rect.bottom + 8}px`;
+        dropdown.style.left = `${rect.right - 192}px`; // 192px is w-48
 
         dropdown.classList.remove('hidden');
-        console.log('[DEBUG] Removed hidden, classes now:', dropdown.className);
         setTimeout(() => {
             dropdown.classList.remove('opacity-0', 'translate-y-2');
-            console.log('[DEBUG] Dropdown should be visible now');
         }, 10);
     } else {
         dropdown.classList.add('opacity-0', 'translate-y-2');
