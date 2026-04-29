@@ -81,11 +81,9 @@ if (progressBar) {
 msg.innerText = message;
 
 if (_toastTimer) clearTimeout(_toastTimer);
-toast.classList.remove('opacity-0', 'translate-y-4');
-toast.classList.add('opacity-100', 'translate-y-0');
+toast.classList.remove('hidden');
 _toastTimer = setTimeout(() => {
-    toast.classList.add('opacity-0', 'translate-y-4');
-    toast.classList.remove('opacity-100', 'translate-y-0');
+    toast.classList.add('hidden');
 }, 3000);
 }
 

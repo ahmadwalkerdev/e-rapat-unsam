@@ -36,8 +36,8 @@
 <link rel="stylesheet" href="./styles.css?v=1">
 
 <!-- GLOBAL CONFIRM MODAL -->
-<div id="globalConfirmModal" class="fixed inset-0 bg-slate-900/70 z-[300] flex items-center justify-center p-4 hidden opacity-0 transition-all duration-200">
-    <div class="modal-glass-content bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 transform scale-95 transition-all duration-200">
+<div id="globalConfirmModal" class="fixed inset-0 bg-slate-900/70 z-[300] flex items-center justify-center p-4 hidden">
+    <div class="modal-glass-content bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl border border-slate-100">
         <div class="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mb-8 mx-auto shadow-inner">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
         </div>
@@ -696,22 +696,13 @@ updateEmailVerificationBadge();
 window.toggleProfileMenu = (e) => {
 if (e) e.stopPropagation();
 const menu = document.getElementById('profileDropdown');
-if (menu.classList.contains('hidden')) {
-menu.classList.remove('hidden');
-setTimeout(() => menu.classList.remove('opacity-0', 'scale-95'), 10);
-} else {
-menu.classList.add('opacity-0', 'scale-95');
-setTimeout(() => menu.classList.add('hidden'), 200);
-}
+if (menu) menu.classList.toggle('hidden');
 };
 
 // Fungsi untuk menutup menu profil
 window.closeProfileMenu = () => {
 const menu = document.getElementById('profileDropdown');
-if (menu && !menu.classList.contains('hidden')) {
-menu.classList.add('opacity-0', 'scale-95');
-setTimeout(() => menu.classList.add('hidden'), 200);
-}
+if (menu) menu.classList.add('hidden');
 };
 
 document.addEventListener('click', (e) => {
@@ -720,8 +711,7 @@ const trigger = document.querySelector('.profile-trigger');
 // BUG FIX #2: Hanya tutup jika klik di luar menu dan trigger
 if (menu && !menu.classList.contains('hidden')) {
 if (!menu.contains(e.target) && !trigger.contains(e.target)) {
-menu.classList.add('opacity-0', 'scale-95');
-setTimeout(() => menu.classList.add('hidden'), 200);
+menu.classList.add('hidden');
 }
 }
 });
@@ -2180,32 +2170,12 @@ window.handleLogout = () => {
 
 window.openLogoutModal = () => {
     const modal = document.getElementById('logoutModal');
-    const backdrop = document.getElementById('logoutBackdrop');
-    const content = document.getElementById('logoutContent');
-    if (!modal) return;
-
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        backdrop.classList.remove('opacity-0');
-        backdrop.classList.add('opacity-100');
-        content.classList.remove('scale-95', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
-    }, 10);
+    if (modal) modal.classList.remove('hidden');
 };
 
 window.closeLogoutModal = () => {
     const modal = document.getElementById('logoutModal');
-    const backdrop = document.getElementById('logoutBackdrop');
-    const content = document.getElementById('logoutContent');
-    
-    backdrop.classList.remove('opacity-100');
-    backdrop.classList.add('opacity-0');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-95', 'opacity-0');
-    
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
+    if (modal) modal.classList.add('hidden');
 };
 
 window.confirmLogout = async () => {
@@ -2221,32 +2191,12 @@ window.confirmLogout = async () => {
 
 window.openUnsavedModal = () => {
     const modal = document.getElementById('unsavedChangesModal');
-    const backdrop = document.getElementById('unsavedBackdrop');
-    const content = document.getElementById('unsavedContent');
-    if (!modal) return;
-
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        backdrop.classList.remove('opacity-0');
-        backdrop.classList.add('opacity-100');
-        content.classList.remove('scale-95', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
-    }, 10);
+    if (modal) modal.classList.remove('hidden');
 };
 
 window.closeUnsavedModal = () => {
     const modal = document.getElementById('unsavedChangesModal');
-    const backdrop = document.getElementById('unsavedBackdrop');
-    const content = document.getElementById('unsavedContent');
-    
-    backdrop.classList.remove('opacity-100');
-    backdrop.classList.add('opacity-0');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-95', 'opacity-0');
-    
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
+    if (modal) modal.classList.add('hidden');
     pendingViewSwitch = null;
 };
 
@@ -2695,7 +2645,7 @@ initSectionNavHighlight();
 </script>
 
 <!-- LOADING OVERLAY -->
-<div id="loadingOverlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[300] flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
+<div id="loadingOverlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[300] flex items-center justify-center hidden">
 <div class="flex flex-col items-center gap-4">
 <div class="relative w-10 h-10"><div class="absolute inset-0 border-2 border-indigo-100 rounded-full"></div><div class="absolute inset-0 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>
 <p id="loadingMsg" class="font-bold text-indigo-900 text-[10px] uppercase tracking-wider">Memproses...</p>
@@ -2850,7 +2800,7 @@ Sudah memiliki akun? <button onclick="window.switchAuthMode('login')" class="tex
 <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
 </div>
 </button>
-<div id="profileDropdown" class="dropdown-premium hidden absolute right-0 top-14 w-56 rounded-2xl z-[200] transform origin-top-right transition-all duration-200 opacity-0 scale-95 py-2 shadow-2xl border border-slate-200/60 bg-white/95 backdrop-blur-md" onclick="event.stopPropagation()">
+<div id="profileDropdown" class="dropdown-premium hidden absolute right-0 top-14 w-56 rounded-2xl z-[200] py-2 shadow-2xl border border-slate-200/60 bg-white/95 backdrop-blur-md" onclick="event.stopPropagation()">
 <button onclick="window.closeProfileMenu(); window.switchView('settings');" class="w-full text-left px-4 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-3 transition-colors">
 <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -3794,8 +3744,8 @@ Pengaturan Lanjutan
 </footer>
 
 <!-- MODALS -->
-<div id="joinRoomModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-    <div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg transform scale-95 text-center relative transition-all duration-200">
+<div id="joinRoomModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg text-center relative">
         <button onclick="window.toggleModal('joinRoomModal', false)" class="absolute top-4 right-4 text-slate-400">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
         </button>
@@ -3815,8 +3765,8 @@ Pengaturan Lanjutan
 
 <!-- Modal: Logout Confirmation -->
 <div id="logoutModal" class="fixed inset-0 z-[350] hidden flex items-center justify-center p-4">
-    <div id="logoutBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-200 opacity-0"></div>
-    <div id="logoutContent" class="relative bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-slate-100 transform transition-all duration-200 scale-95 opacity-0">
+    <div id="logoutBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+    <div id="logoutContent" class="relative bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-slate-100">
         <div class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-100 shadow-inner">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
         </div>
@@ -3831,8 +3781,8 @@ Pengaturan Lanjutan
 
 <!-- Modal: Unsaved Changes Confirmation -->
 <div id="unsavedChangesModal" class="fixed inset-0 z-[350] hidden flex items-center justify-center p-4">
-    <div id="unsavedBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-200 opacity-0"></div>
-    <div id="unsavedContent" class="relative bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-slate-100 transform transition-all duration-200 scale-95 opacity-0">
+    <div id="unsavedBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+    <div id="unsavedContent" class="relative bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-slate-100">
         <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 border border-amber-100 shadow-inner">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
@@ -3846,8 +3796,8 @@ Pengaturan Lanjutan
     </div>
 </div>
 
-<div id="forgotPasswordModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg transform scale-95 relative transition-all duration-200">
+<div id="forgotPasswordModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
+<div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg relative">
 <button onclick="window.toggleModal('forgotPasswordModal', false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
 </button>
@@ -3867,8 +3817,8 @@ Pengaturan Lanjutan
 </div>
 
 <!-- MODAL: GUEST JOIN -->
-<div id="guestJoinModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg transform scale-95 relative transition-all duration-200">
+<div id="guestJoinModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
+<div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-lg relative">
 <button onclick="window.closeGuestJoinModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
 </button>
@@ -3901,8 +3851,8 @@ Pengaturan Lanjutan
 </div>
 
 <!-- MODAL: ADD RESOURCE -->
-<div id="addResourceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl transform scale-95 relative transition-all duration-200 border border-slate-100">
+<div id="addResourceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
+<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative border border-slate-100">
 <button onclick="window.toggleModal('addResourceModal', false)" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 hover:rotate-90 transition-all">
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
 </button>
@@ -3937,8 +3887,8 @@ Pengaturan Lanjutan
 </div>
 
 <!-- MODAL: EDIT RESOURCE -->
-<div id="editResourceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl transform scale-95 relative transition-all duration-200 border border-slate-100">
+<div id="editResourceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
+<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative border border-slate-100">
 <button onclick="window.toggleModal('editResourceModal', false)" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 hover:rotate-90 transition-all">
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
 </button>
@@ -3973,8 +3923,8 @@ Pengaturan Lanjutan
 </div>
 
 <!-- MODAL: CREATE ROOM -->
-<div id="createRoomModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl transform scale-95 relative transition-all duration-200 max-h-[90vh] flex flex-col border border-slate-100">
+<div id="createRoomModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
+<div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl relative max-h-[90vh] flex flex-col border border-slate-100">
 <!-- Header -->
 <div class="p-5 sm:p-8 pb-4 flex justify-between items-start">
 <div>
@@ -4108,8 +4058,8 @@ Terbitkan Agenda
 </div>
 
   <!-- MODAL: EDIT MEETING INFO (DETAILED REDESIGN) -->
-  <div id="editMeetingInfoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-    <div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl transform scale-95 relative transition-all duration-200 max-h-[90vh] flex flex-col border border-slate-100">
+  <div id="editMeetingInfoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl relative max-h-[90vh] flex flex-col border border-slate-100">
       <div class="p-5 sm:p-8 pb-4 flex justify-between items-start">
         <div>
           <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">Edit Informasi Agenda</h3>
@@ -4214,8 +4164,8 @@ Terbitkan Agenda
   </div>
 
 <!-- MODAL: END MEETING -->
-<div id="endMeetingModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-all">
-<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl transform scale-95 text-center relative transition-all duration-200 border border-slate-100">
+<div id="endMeetingModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
+<div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl text-center relative border border-slate-100">
 <div class="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-100/50">
 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
 </div>
@@ -4232,7 +4182,7 @@ Terbitkan Agenda
 <div id="roomInitModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[200] flex items-center justify-center p-4 hidden">
 <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl text-center border border-slate-100 relative overflow-hidden">
 <div class="absolute top-0 left-0 w-full h-1 bg-indigo-50">
-<div id="roomInitProgressTop" class="h-full bg-indigo-600 transition-all duration-200" style="width: 0%"></div>
+<div id="roomInitProgressTop" class="h-full bg-indigo-600" style="width: 0%"></div>
 </div>
 <div class="relative w-20 h-20 mx-auto mb-6">
 <div class="absolute inset-0 border-4 border-indigo-100 rounded-full"></div>
@@ -4302,14 +4252,13 @@ Ya, Daftar Hadir
 <!-- Modal: Participant Profile Card (Content generated dynamically via createProfileCardHTML) -->
 <div id="participantProfileCardModal" class="fixed inset-0 z-[260] hidden" aria-modal="true" role="dialog">
     <!-- Backdrop with fade animation -->
-    <div id="participantCardBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-all duration-200 ease-out opacity-0"></div>
-    <!-- Card container with scale animation -->
+    <div id="participantCardBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
     <div class="relative w-full h-full flex items-center justify-center p-4">
-        <div id="participantCardWrapper" class="w-full max-w-4xl mx-auto transform transition-all duration-200 ease-out scale-95 opacity-0 translate-y-4"></div>
+        <div id="participantCardWrapper" class="w-full max-w-4xl mx-auto"></div>
     </div>
 </div>
 
-<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl opacity-0 translate-y-4 transition-all duration-200 z-[400] pointer-events-none text-sm font-bold flex items-center gap-3 border border-white/10 overflow-hidden max-w-[90vw]">
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl z-[400] pointer-events-none text-sm font-bold flex items-center gap-3 border border-white/10 overflow-hidden max-w-[90vw]">
     <div id="toastIcon" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center bg-indigo-500/20">
         <svg id="toastIconSvg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-indigo-300"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
     </div>
