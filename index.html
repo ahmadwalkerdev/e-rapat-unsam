@@ -324,57 +324,38 @@ const settingsModule = createSettingsModule({
     getCurrentUser: () => currentUser
 });
 
-// Prevent multiple rapid toggles
-let _roomMenuToggleLock = false;
-
 window.toggleRoomMenu = (btn) => {
-    // Prevent double firing from event bubbling
-    if (window.event) {
-        window.event.stopPropagation();
-        window.event.stopImmediatePropagation();
-    }
-    
-    if (_roomMenuToggleLock) {
-        console.log('[DEBUG] Toggle locked, skipping');
-        return;
-    }
-    _roomMenuToggleLock = true;
-    setTimeout(() => _roomMenuToggleLock = false, 300);
-    
-    console.log('[DEBUG] toggleRoomMenu called', btn);
     const dropdown = btn.nextElementSibling;
-    console.log('[DEBUG] dropdown element', dropdown);
+    console.log('[DEBUG] toggleRoomMenu clicked, dropdown:', dropdown);
     if (!dropdown) {
-        console.error('[DEBUG] No dropdown found as next sibling!');
+        console.error('[DEBUG] Dropdown not found as nextElementSibling');
         return;
     }
     const allMenus = document.querySelectorAll('.room-menu-dropdown');
-    
+
     // Close other menus
     allMenus.forEach(m => {
         if (m !== dropdown) {
             m.classList.add('hidden', 'opacity-0', 'translate-y-2');
-            delete m.dataset.justOpened;
         }
     });
 
     if (dropdown.classList.contains('hidden')) {
         // Calculate position since it's now 'fixed' to avoid overflow-hidden clipping
         const rect = btn.getBoundingClientRect();
-        dropdown.style.top = `${rect.bottom + 8}px`;
-        dropdown.style.left = `${rect.right - 192}px`; // 192px is w-48
-        console.log('[DEBUG] Opening dropdown at', dropdown.style.top, dropdown.style.left);
+        const top = rect.bottom + 8;
+        const left = rect.right - 192; // 192px is w-48
+        console.log('[DEBUG] Positioning dropdown at:', { top, left, rect });
+        dropdown.style.top = `${top}px`;
+        dropdown.style.left = `${left}px`;
 
-        // Mark as just opened to prevent document click from immediately closing it
-        dropdown.dataset.justOpened = Date.now().toString();
-        
         dropdown.classList.remove('hidden');
-        requestAnimationFrame(() => {
+        console.log('[DEBUG] Removed hidden, classes now:', dropdown.className);
+        setTimeout(() => {
             dropdown.classList.remove('opacity-0', 'translate-y-2');
-        });
+            console.log('[DEBUG] Dropdown should be visible now');
+        }, 10);
     } else {
-        console.log('[DEBUG] Closing dropdown');
-        delete dropdown.dataset.justOpened;
         dropdown.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => {
             dropdown.classList.add('hidden');
@@ -382,18 +363,9 @@ window.toggleRoomMenu = (btn) => {
     }
 };
 
-// Close dropdown on click outside (tapi tidak kalau click di tombol menu, di dalam dropdown, atau dropdown baru dibuka)
-document.addEventListener('click', (e) => {
-    const isMenuButton = e.target.closest('[onclick*="toggleRoomMenu"]');
-    const isInsideDropdown = e.target.closest('.room-menu-dropdown');
-    if (isMenuButton || isInsideDropdown) return;
-    
+// Close dropdown on click outside
+document.addEventListener('click', () => {
     document.querySelectorAll('.room-menu-dropdown').forEach(m => {
-        // Skip if dropdown was just opened (within 100ms)
-        if (m.dataset.justOpened && (Date.now() - parseInt(m.dataset.justOpened)) < 100) {
-            console.log('[DEBUG] Skipping close for just-opened dropdown');
-            return;
-        }
         m.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => m.classList.add('hidden'), 200);
     });
