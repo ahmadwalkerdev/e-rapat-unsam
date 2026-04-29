@@ -347,7 +347,8 @@ export function createDashboardModule(deps) {
     function createRoomCard(room, roomId, isCreator, isArchived, badgeText, badgeClass, durationText, creatorName, isDeveloper, index = 0) {
         const card = document.createElement('div');
         card.setAttribute('data-room', roomId);
-        card.className = "room-card-animate bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group relative overflow-hidden isolate";
+        const isLive = badgeText === 'Berlangsung';
+        card.className = `room-card-animate bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group relative overflow-hidden isolate${isLive ? ' room-card-live' : ''}`;
         card.style.animationDelay = `${index * 60}ms`;
         const safeRoomId = escapeJsString(roomId);
         const safeRoomTitle = escapeHtml(room?.title || '-');
