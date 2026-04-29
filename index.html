@@ -550,6 +550,73 @@ window.markSettingsDirty = function() {
     console.log('[Settings] Marked as dirty');
 };
 
+// Generate avatar selection grid in profile card
+window.generateAvatarGrid = function() {
+    const gridContainer = document.getElementById('avatarGridContainer');
+    const jenisKelamin = document.getElementById('settingsJenisKelamin')?.value || 'neutral';
+    const currentIndex = document.getElementById('settingsAvatarIndex')?.value || '0';
+    
+    if (!gridContainer) return; // Avatar selection not in DOM (moved to profile card)
+    
+    // Generate 6 avatar options (0 = default, 1-5 = variants)
+    const avatarOptions = [];
+    for (let i = 0; i < 6; i++) {
+        const avatarPath = i === 0 
+            ? `assets/avatars/default-${jenisKelamin}.png`
+            : `assets/avatars/default-${jenisKelamin}-${i}.png`;
+        avatarOptions.push({
+            index: i,
+            path: avatarPath,
+            label: i === 0 ? 'Default' : `Varian ${i}`
+        });
+    }
+    
+    gridContainer.innerHTML = avatarOptions.map(opt => `
+        <button type="button" 
+                onclick="window.selectAvatar(${opt.index})"
+                class="relative w-16 h-16 rounded-2xl overflow-hidden border-2 transition-all ${opt.index == currentIndex ? 'border-indigo-500 ring-2 ring-indigo-200 scale-105' : 'border-slate-200 hover:border-indigo-300'}"
+                title="${opt.label}">
+            <img src="${opt.path}" 
+                 alt="${opt.label}" 
+                 class="w-full h-full object-cover"
+                 onerror="this.src='assets/avatars/default-neutral.png'">
+            ${opt.index == currentIndex ? '<div class="absolute inset-0 bg-indigo-500/20 flex items-center justify-center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
+        </button>
+    `).join('');
+};
+
+// Select avatar and update UI
+window.selectAvatar = function(index) {
+    const input = document.getElementById('settingsAvatarIndex');
+    if (input) input.value = index;
+    window.markSettingsDirty();
+    window.generateAvatarGrid(); // Refresh grid to show selection
+    window.updateHeaderAvatar();
+};
+
+// Update header avatar display
+window.updateHeaderAvatar = function() {
+    const jenisKelamin = document.getElementById('settingsJenisKelamin')?.value || 'neutral';
+    const avatarIndex = document.getElementById('settingsAvatarIndex')?.value || '0';
+    const avatarPath = avatarIndex === '0' 
+        ? `assets/avatars/default-${jenisKelamin}.png`
+        : `assets/avatars/default-${jenisKelamin}-${avatarIndex}.png`;
+    
+    // Update preview in profile card if exists
+    const previewImg = document.getElementById('headerAvatarPreview');
+    if (previewImg) {
+        previewImg.src = avatarPath;
+        previewImg.onerror = () => { previewImg.src = 'assets/avatars/default-neutral.png'; };
+    }
+};
+
+// Handle jenis kelamin change - regenerate avatar grid
+window.handleJenisKelaminChange = function() {
+    window.generateAvatarGrid();
+    window.updateHeaderAvatar();
+    window.markSettingsDirty();
+};
+
 // Track changes in settings form
 function initSettingsTracker() {
     const settingsForm = document.querySelector('#view-settings form');
