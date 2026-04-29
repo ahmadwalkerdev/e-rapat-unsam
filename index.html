@@ -987,11 +987,6 @@ if (jenisKelaminInput) jenisKelaminInput.value = profileData.jenisKelamin || '';
 const avatarIndexInput = document.getElementById('settingsAvatarIndex');
 if (avatarIndexInput) avatarIndexInput.value = profileData.avatarIndex || '0';
 
-// Generate avatar grid after a short delay to ensure DOM is ready
-setTimeout(() => {
-    window.generateAvatarGrid();
-    window.updateHeaderAvatar();
-}, 100);
 const settingsEmailInput = document.getElementById('settingsEmail');
 if (settingsEmailInput) {
 settingsEmailInput.value = currentUser.email || "";

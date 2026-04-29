@@ -93,8 +93,8 @@ export function toggleModal(id, show) {
 const el = document.getElementById(id);
 if (!el) return;
 if (show) {
-    el.classList.remove('hidden');
+    el.classList.remove('hidden', 'opacity-0');
 } else {
-    el.classList.add('hidden');
+    el.classList.add('hidden', 'opacity-0');
 }
 }
