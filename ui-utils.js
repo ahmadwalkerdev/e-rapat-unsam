@@ -81,18 +81,27 @@ if (progressBar) {
 msg.innerText = message;
 
 if (_toastTimer) clearTimeout(_toastTimer);
-toast.classList.remove('hidden');
+toast.classList.remove('opacity-0', 'translate-y-4');
+toast.classList.add('opacity-100', 'translate-y-0');
 _toastTimer = setTimeout(() => {
-    toast.classList.add('hidden');
+    toast.classList.add('opacity-0', 'translate-y-4');
+    toast.classList.remove('opacity-100', 'translate-y-0');
 }, 3000);
 }
 
 export function toggleModal(id, show) {
 const el = document.getElementById(id);
 if (!el) return;
+const inner = el.querySelector(':scope > div');
 if (show) {
-    el.classList.remove('hidden', 'opacity-0');
+    el.classList.remove('hidden');
+    setTimeout(() => {
+        el.classList.remove('opacity-0');
+        if (inner) inner.classList.remove('scale-95');
+    }, 10);
 } else {
-    el.classList.add('hidden', 'opacity-0');
+    el.classList.add('opacity-0');
+    if (inner) inner.classList.add('scale-95');
+    setTimeout(() => el.classList.add('hidden'), 300);
 }
 }
