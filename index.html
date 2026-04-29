@@ -338,6 +338,7 @@ window.toggleRoomMenu = (btn) => {
     allMenus.forEach(m => {
         if (m !== dropdown) {
             m.classList.add('hidden', 'opacity-0', 'translate-y-2');
+            delete m.dataset.justOpened;
         }
     });
 
@@ -348,12 +349,16 @@ window.toggleRoomMenu = (btn) => {
         dropdown.style.left = `${rect.right - 192}px`; // 192px is w-48
         console.log('[DEBUG] Opening dropdown at', dropdown.style.top, dropdown.style.left);
 
+        // Mark as just opened to prevent document click from immediately closing it
+        dropdown.dataset.justOpened = Date.now().toString();
+        
         dropdown.classList.remove('hidden');
         setTimeout(() => {
             dropdown.classList.remove('opacity-0', 'translate-y-2');
         }, 10);
     } else {
         console.log('[DEBUG] Closing dropdown');
+        delete dropdown.dataset.justOpened;
         dropdown.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => {
             dropdown.classList.add('hidden');
@@ -361,13 +366,18 @@ window.toggleRoomMenu = (btn) => {
     }
 };
 
-// Close dropdown on click outside (tapi tidak kalau click di tombol menu atau di dalam dropdown)
+// Close dropdown on click outside (tapi tidak kalau click di tombol menu, di dalam dropdown, atau dropdown baru dibuka)
 document.addEventListener('click', (e) => {
     const isMenuButton = e.target.closest('[onclick*="toggleRoomMenu"]');
     const isInsideDropdown = e.target.closest('.room-menu-dropdown');
     if (isMenuButton || isInsideDropdown) return;
     
     document.querySelectorAll('.room-menu-dropdown').forEach(m => {
+        // Skip if dropdown was just opened (within 100ms)
+        if (m.dataset.justOpened && (Date.now() - parseInt(m.dataset.justOpened)) < 100) {
+            console.log('[DEBUG] Skipping close for just-opened dropdown');
+            return;
+        }
         m.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => m.classList.add('hidden'), 200);
     });
