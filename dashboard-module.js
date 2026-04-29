@@ -379,7 +379,7 @@ export function createDashboardModule(deps) {
 
         const menuBtn = (isCreator || isDeveloper) ? `
             <div class="ml-2">
-                <button onclick="event.stopPropagation(); window.toggleRoomMenu(this)" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all" title="Menu Opsi">
+                <button onclick="event.stopPropagation(); window.toggleRoomMenu(this, event)" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all" title="Menu Opsi">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                 </button>
                 <div class="room-menu-dropdown fixed w-48 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-200 py-2 hidden opacity-0 translate-y-2 transition-all z-[999] pointer-events-auto">

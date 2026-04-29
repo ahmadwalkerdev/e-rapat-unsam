@@ -324,7 +324,20 @@ const settingsModule = createSettingsModule({
     getCurrentUser: () => currentUser
 });
 
-window.toggleRoomMenu = (btn) => {
+// Prevent multiple rapid toggles
+let _roomMenuToggleLock = false;
+
+window.toggleRoomMenu = (btn, event) => {
+    // Prevent double firing from event bubbling
+    if (event) event.stopImmediatePropagation();
+    
+    if (_roomMenuToggleLock) {
+        console.log('[DEBUG] Toggle locked, skipping');
+        return;
+    }
+    _roomMenuToggleLock = true;
+    setTimeout(() => _roomMenuToggleLock = false, 300);
+    
     console.log('[DEBUG] toggleRoomMenu called', btn);
     const dropdown = btn.nextElementSibling;
     console.log('[DEBUG] dropdown element', dropdown);
@@ -353,9 +366,9 @@ window.toggleRoomMenu = (btn) => {
         dropdown.dataset.justOpened = Date.now().toString();
         
         dropdown.classList.remove('hidden');
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             dropdown.classList.remove('opacity-0', 'translate-y-2');
-        }, 10);
+        });
     } else {
         console.log('[DEBUG] Closing dropdown');
         delete dropdown.dataset.justOpened;
