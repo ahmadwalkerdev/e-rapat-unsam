@@ -327,9 +327,12 @@ const settingsModule = createSettingsModule({
 // Prevent multiple rapid toggles
 let _roomMenuToggleLock = false;
 
-window.toggleRoomMenu = (btn, event) => {
+window.toggleRoomMenu = (btn) => {
     // Prevent double firing from event bubbling
-    if (event) event.stopImmediatePropagation();
+    if (window.event) {
+        window.event.stopPropagation();
+        window.event.stopImmediatePropagation();
+    }
     
     if (_roomMenuToggleLock) {
         console.log('[DEBUG] Toggle locked, skipping');
