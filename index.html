@@ -353,8 +353,12 @@ window.toggleRoomMenu = (btn) => {
     }
 };
 
-// Close dropdown on click outside
-document.addEventListener('click', () => {
+// Close dropdown on click outside (tapi tidak kalau click di tombol menu atau di dalam dropdown)
+document.addEventListener('click', (e) => {
+    const isMenuButton = e.target.closest('[onclick*="toggleRoomMenu"]');
+    const isInsideDropdown = e.target.closest('.room-menu-dropdown');
+    if (isMenuButton || isInsideDropdown) return;
+    
     document.querySelectorAll('.room-menu-dropdown').forEach(m => {
         m.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => m.classList.add('hidden'), 200);

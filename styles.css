@@ -1390,32 +1390,6 @@ button:hover {
     animation: toast-progress 3s linear forwards;
 }
 
-/* --- Active Room Card Live Pulse Border --- */
-@keyframes room-live-glow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2), 0 1px 3px rgba(0,0,0,0.04); }
-    50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1), 0 4px 12px rgba(16, 185, 129, 0.08); }
-}
-
-.room-card-live {
-    border-color: #a7f3d0 !important;
-    animation: room-live-glow 3s ease-in-out infinite;
-    position: relative;
-}
-
-.room-card-live::before {
-    content: '';
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 8px;
-    height: 8px;
-    background: #10b981;
-    border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-    z-index: 20;
-    animation: pulse 2s ease-in-out infinite;
-}
-
 /* --- Login Background Animation --- */
 @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
